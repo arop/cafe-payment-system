@@ -2,9 +2,9 @@
   "name": "cafe-payment-system",
   "version": "1.0.0",
   "description": "Cafe Order and Payment System",
-  "main": "./server/app.js",
+  "main": "./app.js",
   "scripts": {
-    "start": "mkdir -p ./server/node_modules && npm install --prefix ./server && node server/app.js"
+    "start": "npm install && node app.js"
   },
   "repository": {
     "type": "git",
