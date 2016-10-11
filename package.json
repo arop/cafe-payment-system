@@ -2,10 +2,7 @@
   "name": "cafe-payment-system",
   "version": "1.0.0",
   "description": "Cafe Order and Payment System",
-  "scripts": {
-    "start": "node server/app.js",
-    "lint": "jshint --exclude node_modules ."
-  },
+  "main": "./server/app.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/arop/cafe-payment-system.git"
