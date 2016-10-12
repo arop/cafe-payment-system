@@ -1,0 +1,24 @@
+blowfish
+	https://github.com/shaneGirish/bcrypt-nodejs
+	usage:
+		var hash = bcrypt.hashSync("bacon");
+		bcrypt.compareSync("bacon", hash); // true
+		bcrypt.compareSync("veggies", hash); // false
+
+
+https://github.com/motdotla/dotenv
+create ".env" file in repo root with this content:
+DATABASE_USER=<value>
+DATABASE_PASSWORD=<value>
+DATABASE_HOST=<value>
+DATABASE_PORT=<value>
+DATABASE_SERVER=<value>
+
+
+Enable automatic uuid by postgresql (http://www.starkandwayne.com/blog/uuid-primary-keys-in-postgresql/):
+	install heroku CLI
+	install postgres
+	add psql (postgres) to PATH
+	cmd:
+		heroku pg:psql --app cmov-nodejs-server
+		CREATE EXTENSION pgcrypto;

@@ -4,7 +4,7 @@
   "description": "Cafe Order and Payment System",
   "main": "./server/app.js",
   "scripts": {
-    "start": "npm install && node server/app.js"
+    "start": "npm install && supervisor server/app.js"
   },
   "repository": {
     "type": "git",
@@ -12,8 +12,12 @@
   },
   "author": "arop",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "config": "^1.20.4",
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "pg" : "*",
+    "supervisor" : ">=0.11.0",
+    "dotenv" : "*"
   },
   "engines": {
     "node": "~4.1.2"
