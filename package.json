@@ -4,7 +4,7 @@
   "description": "Cafe Order and Payment System",
   "main": "./server/app.js",
   "scripts": {
-    "start": "mkdir -p ./server/node_modules && npm install --prefix ./server && node server/app.js"
+    "start": "npm install && node server/app.js"
   },
   "repository": {
     "type": "git",
