@@ -33,4 +33,23 @@ function insertUser(user, callback){
 
 }
 
+
+function getMenu(callback){
+
+	client.connect();
+	const results = [];
+	const query = client.query('SELECT * FROM products ORDER BY id ASC;');
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      callback(results);
+    });
+
+}
+
+
 exports.insertUser = insertUser;
+exports.getMenu = getMenu;

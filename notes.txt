@@ -22,3 +22,9 @@ Enable automatic uuid by postgresql (http://www.starkandwayne.com/blog/uuid-prim
 	cmd:
 		heroku pg:psql --app cmov-nodejs-server
 		CREATE EXTENSION pgcrypto;
+
+
+------------------------------------------------------------
+http://localhost:5000/register
+http://cmov-nodejs-server.herokuapp.com/register
+POST {"user": {"name":"João Norim Bandeira", "email": "norim_13@hotmail.com", "nif" : "999999999"}}

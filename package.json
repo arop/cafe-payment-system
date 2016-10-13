@@ -17,7 +17,8 @@
     "express": "^4.14.0",
     "pg" : "*",
     "supervisor" : ">=0.11.0",
-    "dotenv" : "*"
+    "dotenv" : "*",
+    "pg-promise" : "*"
   },
   "engines": {
     "node": "~4.1.2"

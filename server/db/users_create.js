@@ -1,14 +1,6 @@
 require('dotenv').config();
 
 const pg = require('pg');
-const connectionString = process.env.DATABASE_URL;
-
-pg.on('error', function (err) {
-  console.log('Database error!', err);
-});
-
-
-//const client = new pg.Client(connectionString);
 
 const client = new pg.Client({
     user: process.env.DATABASE_USER,

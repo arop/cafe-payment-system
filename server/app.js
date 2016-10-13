@@ -66,9 +66,12 @@ app.post('/register', function(req, res) {
 });
 
 
-//customer validation
-app.post('/login', function(req, res) {
-	//TODO
+//get menu
+app.get('/menu', function(req, res){
+	db.getMenu(function(menu){
+		console.log(menu);
+		res.send(menu);
+	})
 });
 
 
