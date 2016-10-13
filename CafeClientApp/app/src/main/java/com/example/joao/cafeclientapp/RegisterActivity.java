@@ -3,8 +3,10 @@ package com.example.joao.cafeclientapp;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -44,6 +46,7 @@ import com.loopj.android.http.*;
 import cz.msebera.android.httpclient.Header;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 /**
  * A login screen that offers login via email/password.
@@ -62,7 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     private Context context;
-
+    private Activity currentActivity = this;
 
     private EditText name_field;
     private EditText email_field;
@@ -174,7 +177,14 @@ public class RegisterActivity extends AppCompatActivity {
                     String uuid = response.get("id").toString();
                     String pin = response.get("pin").toString();
                     //SUCCESS
+                    CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     Toast.makeText(context, "Registed Successfully!", Toast.LENGTH_LONG).show();
+
+                    //Start show pin activity
+                    Intent intent = new Intent(currentActivity, PinDisplayActivity.class);
+                    intent.putExtra("pin", pin);
+                    startActivity(intent);
+
                 }
                 catch(JSONException e){
                     Log.e("FAILURE:", "error parsing response JSON");
