@@ -46,14 +46,18 @@ app.post('/register', function(req, res) {
 	}
 
 	var user = req.body.user;
+	console.log(req.body);
 	if(!user.name || !user.email || !user.nif)
 		res.status(404).send("Missing parameters!");
 	else{
-		user.pin = Math.floor(Math.random() * (9999 - 1000) + 1000);
+		//user.pin = Math.floor(Math.random() * (9999 - 1000) + 1000);
+		//TODO uncomment above and comment bellow for random PIN
+		user.pin = 1111;
+
 		user.hash_pin = bcrypt.hashSync(user.pin);
 		db.insertUser(user, function(result){
 			if(result == null){
-				res.status(400).send("Server error! Invalid parameters, or already existing email address!");
+				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
 				result.hash_pin = undefined;
