@@ -1,52 +1,26 @@
 package com.example.joao.cafeclientapp;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
-import org.json.*;
-import com.loopj.android.http.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
-
-import static android.Manifest.permission.READ_CONTACTS;
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 /**
  * A login screen that offers login via email/password.
@@ -75,36 +49,20 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText credit_card_expiration_field;
 
 
-    /*private DatePickerDialog createDialogWithoutDateField() {
-        DatePickerDialog dpd = new DatePickerDialog(this, null, 2014, 1, 24);
-        try {
-            java.lang.reflect.Field[] datePickerDialogFields = dpd.getClass().getDeclaredFields();
-            for (java.lang.reflect.Field datePickerDialogField : datePickerDialogFields) {
-                if (datePickerDialogField.getName().equals("mDatePicker")) {
-                    datePickerDialogField.setAccessible(true);
-                    DatePicker datePicker = (DatePicker) datePickerDialogField.get(dpd);
-                    java.lang.reflect.Field[] datePickerFields = datePickerDialogField.getType().getDeclaredFields();
-                    for (java.lang.reflect.Field datePickerField : datePickerFields) {
-                        Log.i("datames", datePickerField.getName());
-                        if ("mDaySpinner".equals(datePickerField.getName())) {
-                            datePickerField.setAccessible(true);
-                            Object dayPicker = datePickerField.get(datePicker);
-                            ((View) dayPicker).setVisibility(View.GONE);
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex) {
-        }
-        return dpd;
-    }*/
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Skip register if already logged.
+        if (CustomLocalStorage.getString(this, "uuid") != null)
+        {
+            Intent intent = new Intent(this, ShowMenuActivity.class);
+            this.startActivity (intent);
+            this.finish();
+            return;
+        }
+
         setContentView(R.layout.activity_register);
 
         //set action to perform on "Register" click
@@ -184,6 +142,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Intent intent = new Intent(currentActivity, PinDisplayActivity.class);
                     intent.putExtra("pin", pin);
                     startActivity(intent);
+                    currentActivity.finish();
 
                 }
                 catch(JSONException e){
@@ -222,10 +181,6 @@ public class RegisterActivity extends AppCompatActivity {
         credit_card_cvv_field.setEnabled(true);
         credit_card_expiration_field.setEnabled(true);
     }
-
-    /*public void expirationDateOnClick(View view){
-        createDialogWithoutDateField().show();
-    }*/
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
