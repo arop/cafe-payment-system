@@ -36,9 +36,8 @@ public class RegisterActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "João Norim Bandeira", "norim_17@hotmail.com", "999999999", "4563214512345632", "235", "12/16"
+            "João Norim Bandeira", "norim_17@hotmail.com", "999999999", "4929170599698843", "235", "12/16"
     };
-
 
     private Context context;
     private Activity currentActivity = this;
@@ -46,9 +45,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText name_field;
     private EditText email_field;
     private EditText vat_number_field;
-    private EditText credit_card_number_field;
-    private EditText credit_card_cvv_field;
-    private EditText credit_card_expiration_field;
 
     private CreditCardForm credit_card_form;
 
@@ -91,8 +87,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         credit_card_form = (CreditCardForm) findViewById(R.id.credit_card_form);
         credit_card_form.setCardNumber(DUMMY_CREDENTIALS[3],false);
-        credit_card_form.setExpDate(DUMMY_CREDENTIALS[4],false);
-        credit_card_form.setSecurityCode(DUMMY_CREDENTIALS[5],false);
+        credit_card_form.setSecurityCode(DUMMY_CREDENTIALS[4],false);
+        credit_card_form.setExpDate(DUMMY_CREDENTIALS[5],false);
     }
 
 
@@ -128,6 +124,8 @@ public class RegisterActivity extends AppCompatActivity {
             //Alert Credit card invalid
             credit_card_form.clearForm();
             enableAllFields();
+            credit_card_form.focusCreditCard();
+            Log.e("credit card","Credit card not valid!");
             return;
         }
 
