@@ -54,13 +54,13 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //Skip register if already logged.
-        /*if (CustomLocalStorage.getString(this, "uuid") != null)
+        if (CustomLocalStorage.getString(this, "uuid") != null)
         {
             Intent intent = new Intent(this, ShowMenuActivity.class);
             this.startActivity (intent);
             this.finish();
             return;
-        }*/
+        }
 
         setContentView(R.layout.activity_register);
 
@@ -105,7 +105,17 @@ public class RegisterActivity extends AppCompatActivity {
         RequestParams user = new RequestParams();
 
         user_params.put("name", name);
-        user_params.put("email", email);
+        if(isEmailValid(email)) {
+            user_params.put("email", email);
+        } else {
+            //Alert Credit card invalid
+            enableAllFields();
+            email_field.requestFocus();
+            Toast.makeText(context, "Email not valid!", Toast.LENGTH_LONG).show();
+            Log.e("register error","Email not valid!");
+            return;
+        }
+
         user_params.put("nif", vat_number);
 
         user.put("user", user_params);
@@ -125,7 +135,8 @@ public class RegisterActivity extends AppCompatActivity {
             credit_card_form.clearForm();
             enableAllFields();
             credit_card_form.focusCreditCard();
-            Log.e("credit card","Credit card not valid!");
+            Toast.makeText(context, "Credit card not valid!", Toast.LENGTH_LONG).show();
+            Log.e("register error","Credit card not valid!");
             return;
         }
 
@@ -187,8 +198,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+        if (email == null)
+            return false;
+
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private boolean isPasswordValid(String password) {
