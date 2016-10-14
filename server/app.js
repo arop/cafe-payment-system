@@ -74,7 +74,7 @@ app.post('/register', function(req, res) {
 app.get('/menu', function(req, res){
 	db.getMenu(function(menu){
 		console.log(menu);
-		res.send(menu);
+		res.send({"menu" : menu});
 	})
 });
 
