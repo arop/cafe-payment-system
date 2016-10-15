@@ -26,7 +26,7 @@
         <activity android:name=".PinDisplayActivity" />
         <activity
             android:name=".ShowMenuActivity"
-            android:label="@string/title_activity_menu"
+            android:label="@string/title_activity_show_menu"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

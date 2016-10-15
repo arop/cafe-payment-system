@@ -34,7 +34,9 @@ function Inserts(template, data) {
 
 //client.connect();
 
-var products = [['Popcorn', 4.90], ['Coffee', 1.00], ['Coke', 1.50]];
+var products = [['Popcorn', 4.90], ['Coffee', 1.00], ['Coke', 1.50], ['Waffle', 3.00], 
+	['Toast', 2.50], ['Water', 1.00], ['Orange Juice', 2.00], ['Croissant', 2.00],
+	['Tea', 2.00], ['Chips', 2.00], ['Muffin', 2.00], ['Chocolate', 1.30]];
 db.none('INSERT INTO products(name, price) VALUES $1', Inserts('$1, $2', products))
     .then(data=> {
         // OK, all records have been inserted
