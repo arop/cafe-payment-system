@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
@@ -76,52 +77,13 @@
 
             </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <AutoCompleteTextView
-                    android:id="@+id/credit_card_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_credit_card_number"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <AutoCompleteTextView
-                    android:id="@+id/credit_card_cvv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_credit_card_cvv"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </android.support.design.widget.TextInputLayout>
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <EditText
-                    android:id="@+id/credit_card_expiration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="date"
-                    android:hint="@string/prompt_credit_card_expiration"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:enabled="true" />
-
-            </android.support.design.widget.TextInputLayout>
+            <com.devmarvel.creditcardentry.library.CreditCardForm
+                android:id="@+id/credit_card_form"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:helper_text_color="@color/yellow"
+                app:include_helper="true"
+                app:include_zip="false"/>
 
             <Button
                 android:id="@+id/sign_up_button"

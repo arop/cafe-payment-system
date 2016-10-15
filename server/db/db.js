@@ -7,17 +7,22 @@ const connectionString = process.env.DATABASE_URL;
   console.log('Database error!', err);
 });*/
 
-const client = new pg.Client({
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_SERVER,
-    port: process.env.DATABASE_PORT,
-    host: process.env.DATABASE_HOST,
-    ssl: true
-}); 
 
+function openClient(){
+	const client = new pg.Client({
+	    user: process.env.DATABASE_USER,
+	    password: process.env.DATABASE_PASSWORD,
+	    database: process.env.DATABASE_SERVER,
+	    port: process.env.DATABASE_PORT,
+	    host: process.env.DATABASE_HOST,
+	    ssl: true
+	}); 
+	return client;
+}
 
 function insertUser(user, callback){
+
+	var client = openClient();
 
 	client.connect();
 	const query = client.query('INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *', [user.name,user.email,user.nif,user.hash_pin], function(error, result){
@@ -35,7 +40,7 @@ function insertUser(user, callback){
 
 
 function getMenu(callback){
-
+	var client = openClient();
 	client.connect();
 	const results = [];
 	const query = client.query('SELECT * FROM products ORDER BY id ASC;');

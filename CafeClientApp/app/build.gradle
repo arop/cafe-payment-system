@@ -20,6 +20,10 @@ android {
     }
 }
 
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -31,5 +35,5 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile files('libs/android-async-http-1.4.9.jar')
     compile 'com.android.support:recyclerview-v7:24.0.+'
-
+    compile 'com.github.dbachelder:CreditCardEntry:1.4.7'
 }

@@ -6,4 +6,5 @@
     <color name="addGreen">#15ed15</color>
     <color name="removeRed">#cf0000</color>
     <color name="transparent">#00ffffff</color>
+    <color name="yellow">#FF0</color>
 </resources>
