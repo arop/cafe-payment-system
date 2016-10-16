@@ -95,10 +95,10 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
             }
         });
 
-        name.setText(productName);
+        name.setText(productName.substring(2));
         //price.setText(String.format( "%.2f", productPrice )+"€");
         price.setText("€");
-        quantity.setText(""+productQuantity);
+        quantity.setText(""+(int)productQuantity);
     }
 
     @Override
