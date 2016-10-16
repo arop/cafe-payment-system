@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.register;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,10 @@ import android.widget.Toast;
 
 import com.devmarvel.creditcardentry.library.CreditCard;
 import com.devmarvel.creditcardentry.library.CreditCardForm;
+import com.example.joao.cafeclientapp.CustomLocalStorage;
+import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 

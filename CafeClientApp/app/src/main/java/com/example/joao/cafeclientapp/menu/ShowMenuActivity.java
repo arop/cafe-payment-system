@@ -1,9 +1,9 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.menu;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +17,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.cart.Cart;
+import com.example.joao.cafeclientapp.cart.CartActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -37,6 +41,8 @@ public class ShowMenuActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private Cart currentCart;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +54,6 @@ public class ShowMenuActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
         mRecyclerView = (RecyclerView) findViewById(R.id.menu_recycler_view);
 
         // use this setting to improve performance if you know that changes
@@ -67,7 +64,7 @@ public class ShowMenuActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        Cart.getSavedCart(currentActivity);
+        currentCart = Cart.getInstance(this);
 
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
             @Override
@@ -116,10 +113,11 @@ public class ShowMenuActivity extends AppCompatActivity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("cart","Cart size: "+Cart.getCart().size());
-                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(Cart.getCart()));
-                Snackbar.make(view, "Cart not implemented yet", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Log.d("cart","Cart size: "+currentCart.getCart().size());
+                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(currentCart.getCart()));
+                // Intent is what you use to start another activity
+                Intent myIntent = new Intent(context, CartActivity.class);
+                startActivity(myIntent);
             }
         });
         // Handle button click here

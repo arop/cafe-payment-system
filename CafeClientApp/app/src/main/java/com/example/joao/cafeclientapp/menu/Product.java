@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.menu;
 
 import org.json.JSONException;
 import org.json.JSONObject;;import static java.lang.Float.parseFloat;

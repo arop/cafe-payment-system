@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".RegisterActivity"
+            android:name=".register.RegisterActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,11 +23,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PinDisplayActivity" />
+        <activity android:name=".register.PinDisplayActivity" />
         <activity
-            android:name=".ShowMenuActivity"
+            android:name=".menu.ShowMenuActivity"
             android:label="@string/title_activity_show_menu"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".cart.CartActivity"
+            android:label="@string/title_activity_cart"
+            android:parentActivityName=".menu.ShowMenuActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.joao.cafeclientapp.menu.ShowMenuActivity" />
+        </activity>
     </application>
 
 </manifest>
