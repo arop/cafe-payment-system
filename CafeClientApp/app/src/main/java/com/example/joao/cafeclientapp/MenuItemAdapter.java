@@ -4,9 +4,11 @@ package com.example.joao.cafeclientapp;
  * Created by Joao on 13/10/2016.
  */
 
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -17,7 +19,10 @@ import java.util.ArrayList;
 
 public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHolder> {
 
+    private final Activity mActivity;
     private ArrayList<Product> dataset;
+    private MenuItemAdapter mRecyclerView;
+    private static View selectedItem;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -31,12 +36,56 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         }
     }
 
-    public MenuItemAdapter(ArrayList<Product> dataset){
+    public class OnItemClickListener implements View.OnClickListener {
+
+        private final int itemPosition;
+
+        public OnItemClickListener(int position){
+            this.itemPosition = position;
+        }
+
+        @Override
+        public void onClick(final View view) {
+            Log.i("click",itemPosition+"");
+            View add_btn = view.findViewById(R.id.product_add);
+            View rem_btn = view.findViewById(R.id.product_remove);
+
+            if(add_btn.getVisibility() == View.VISIBLE){ //if already visible
+                if(view.equals(selectedItem)) //currently selected is this object
+                    selectedItem = null; //no object will be selected. click works as "deselect"
+                makeInvisible(add_btn, rem_btn);
+            }
+            else{
+                View oldSelected = selectedItem;
+                selectedItem = view; //update currently selected item
+                if(oldSelected != null){ //if there was a previously selected item
+                    oldSelected.callOnClick(); //call its onclick, to make its buttons invisble
+                }
+                makeVisible(add_btn, rem_btn);
+            }
+        }
+
+        private void makeVisible(View add_btn, View rem_btn) {
+            add_btn.setVisibility(View.VISIBLE);
+            rem_btn.setVisibility(View.VISIBLE);
+        }
+
+        private void makeInvisible(View add_btn, View rem_btn) {
+            add_btn.setVisibility(View.INVISIBLE);
+            rem_btn.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    public MenuItemAdapter(ArrayList<Product> dataset, Activity a){
         this.dataset = dataset;
+        this.mActivity = a;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        mRecyclerView = this;
+
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.menu_list_item, parent, false);
@@ -61,9 +110,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
             @Override
             public void onClick(View v) {
 
-                Cart.addProductToCart(new Product(productName,productPrice));
-                Log.d("cart",productName + "-" + Cart.getCart().get(new Product(productName,productPrice)));
-                Cart.saveCart(ShowMenuActivity.getMenuActivity());
+                Cart.addProductToCart(dataset.get(position));
+                Cart.saveCart(mActivity);
                 /**
                  * TODO add toast saying product added
                  */
@@ -73,9 +121,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         removeProductFromCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Cart.removeProductFromCart(new Product(productName,productPrice));
-                Log.d("cart",productName + "-" + Cart.getCart().get(new Product(productName,productPrice)));
-                Cart.saveCart(ShowMenuActivity.getMenuActivity());
+                Cart.removeProductFromCart(dataset.get(position));
+                Cart.saveCart(mActivity);
                 /**
                  * TODO add toast saying product added
                  */
@@ -84,6 +131,9 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
 
         name.setText(productName);
         price.setText(String.format( "%.2f", productPrice )+"€");
+
+        OnItemClickListener clickListener = new OnItemClickListener(position);
+        holder.mView.setOnClickListener(clickListener);
     }
 
     @Override

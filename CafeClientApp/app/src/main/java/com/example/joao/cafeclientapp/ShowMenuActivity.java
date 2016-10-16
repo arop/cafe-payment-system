@@ -81,7 +81,7 @@ public class ShowMenuActivity extends AppCompatActivity {
                     }
 
                     // specify an adapter (see also next example)
-                    mAdapter = new MenuItemAdapter(list);
+                    mAdapter = new MenuItemAdapter(list, currentActivity);
                     mRecyclerView.setAdapter(mAdapter);
 
                 }

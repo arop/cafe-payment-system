@@ -10,7 +10,8 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        android:animateLayoutChanges="true">
     
     
         <ImageView
@@ -60,7 +61,8 @@
                 app:srcCompat="@drawable/ic_add_circle_outline_black_24dp"
                 android:id="@+id/product_add"
                 android:tint="@color/addGreen"
-                android:background="@color/transparent" />
+                android:background="@color/transparent"
+                android:visibility="invisible" />
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -68,7 +70,8 @@
                 app:srcCompat="@drawable/ic_remove_circle_outline_black_24dp"
                 android:id="@+id/product_remove"
                 android:tint="@color/removeRed"
-                android:background="@color/transparent" />
+                android:background="@color/transparent"
+                android:visibility="invisible" />
 
         </LinearLayout>
 

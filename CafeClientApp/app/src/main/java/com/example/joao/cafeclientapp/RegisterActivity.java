@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "João Norim Bandeira", "norim_17@hotmail.com", "999999999", "4929170599698843", "235", "12/16"
+            "João Norim Bandeira", "norim_17@hotmail.com", "999999999", "5444640177212251", "235", "12/16"
     };
 
     private Context context;

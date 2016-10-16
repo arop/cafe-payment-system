@@ -1,6 +1,7 @@
 package com.example.joao.cafeclientapp;
 
 import android.app.Activity;
+import android.util.Log;
 
 import java.security.Key;
 import java.util.HashMap;
@@ -11,43 +12,55 @@ import java.util.Map;
  */
 
 public class Cart {
-    static private Map<Product,Integer> cart = new HashMap<>();
+    static private Map<String,Double> cart = new HashMap<>();
 
-    public Cart(Map<Product,Integer> m) {
+    public Cart(Map<String,Double> m) {
         cart = m;
     }
 
     static public void addProductToCart(Product p) {
-        if(cart.get(p) == null)
-            cart.put(p,1);
+        String product_key = Cart.generateProductKey(p);
+
+        if(cart.get(product_key) == null)
+            cart.put(product_key,1.0);
         else {
-            int qtt = cart.get(p);
-            cart.remove(p);
-            cart.put(p, ++qtt);
+            Double qtt = cart.get(product_key);
+            cart.remove(product_key);
+            cart.put(product_key, ++qtt);
+            Log.i("Added to cart", product_key + " - " + cart.get(product_key));
         }
     }
 
     static public void removeProductFromCart(Product p) {
-        if(cart.get(p) == null) return;
-        int quantity = cart.get(p);
+        String product_key = Cart.generateProductKey(p);
+
+        if(cart.get(product_key) == null) return;
+        Double quantity = cart.get(product_key);
         if(quantity < 2) {
-            cart.remove(p);
+            cart.remove(product_key);
+            Log.i("Removed from cart", product_key);
         }
         else if(quantity > 1) {
-            cart.remove(p);
-            cart.put(p,--quantity);
+            cart.remove(product_key);
+            cart.put(product_key,--quantity);
+            Log.i("Removed from cart", product_key + " - " + cart.get(product_key));
         }
     }
 
-    static public Map<Product,Integer> getCart() {
+    public static String generateProductKey(Product p){
+        return p.id+p.name;
+    }
+
+    static public Map<String,Double> getCart() {
         return cart;
     }
 
     static public void getSavedCart(Activity a) {
-        Map<Product,Integer> temp = CustomLocalStorage.getCart(a);
+        Map<String,Double> temp = CustomLocalStorage.getCart(a);
         if(temp == null)
             cart = new HashMap<>();
         else cart = temp;
+        Cart.printCart(cart);
     }
 
     static public void saveCart(Activity a) {
@@ -58,10 +71,10 @@ public class Cart {
         cart.clear();
     }
 
-    public static String printCart(Map<Product,Integer> c) {
+    public static String printCart(Map<String,Double> c) {
         String ret = "Cart: ";
 
-        for (Map.Entry<Product, Integer> entry : c.entrySet())
+        for (Map.Entry<String, Double> entry : c.entrySet())
         {
             ret += "\n" + entry.getKey() + "/" + entry.getValue();
         }
