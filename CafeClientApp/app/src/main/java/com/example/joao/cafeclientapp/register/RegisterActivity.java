@@ -184,6 +184,13 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
                 enableAllFields();
             }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object){
+                Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
+                Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
+                enableAllFields();
+            }
         });
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +18,9 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.SerializeToString;
 import com.example.joao.cafeclientapp.ServerRestClient;
 import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.cart.CartActivity;
@@ -27,7 +30,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -72,18 +78,38 @@ public class ShowMenuActivity extends AppCompatActivity {
                 Log.d("success", "got menu");
                 try{
                     JSONArray menu = (JSONArray) response.get("menu");
+                    HashMap<Integer, Product> temp_menu = new HashMap<Integer, Product>();
+
+
                     for (int i = 0; i < menu.length(); ++i) {
                         Product p = new Product(menu.getJSONObject(i));
                         list.add(p);
+                        temp_menu.put(p.id, p);
                     }
 
                     // specify an adapter (see also next example)
                     mAdapter = new MenuItemAdapter(list, currentActivity);
                     mRecyclerView.setAdapter(mAdapter);
 
+                    //Save menu to memory
+                    ProductsMenu m = new ProductsMenu(temp_menu);
+                    CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(m));
+                    m = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
+                    HashMap<Integer, Product> prods = m.getProducts();
+                    for(Integer key :  prods.keySet()){
+                        Product temp = prods.get(key);
+                        Log.d("Product", temp.name+"#"+temp.price+"#"+temp.quantity);
+                    }
+
                 }
                 catch(JSONException e){
                     //normal behaviour when there are no errors.
+                }
+                catch(IOException io){
+                    //error serializing menu object
+                    Log.e("Serialize", "Couldn't save Menu to memory");
+                } catch (ClassNotFoundException e) {
+                    Log.e("Serialize", "Couldn't load Menu from memory (ClassNotFoundException)");
                 }
             }
 

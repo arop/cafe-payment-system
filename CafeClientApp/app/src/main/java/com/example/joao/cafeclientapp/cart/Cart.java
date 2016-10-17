@@ -14,7 +14,7 @@ import java.util.Map;
  */
 
 public class Cart {
-    static private Map<String,Double> cart = new HashMap<>();
+    private Map<String,Double> cart = new HashMap<>();
     static private Cart instance;
 
     static public Cart getInstance(Activity a) {
