@@ -53,6 +53,7 @@ app.post('/register', function(req, res) {
 		//user.pin = Math.floor(Math.random() * (9999 - 1000) + 1000);
 		//TODO uncomment above and comment bellow for random PIN
 		user.pin = 1111;
+		user.pin = pinTo4Digits(user.pin,4);
 
 		user.hash_pin = bcrypt.hashSync(user.pin);
 		db.insertUser(user, function(result){
@@ -109,3 +110,13 @@ app.post('/transaction', function(req, res){
 app.get('/transaction', function(req, res){
 	//TODO
 });
+
+
+
+///////////////////////////
+//////// OTHER ////////////
+///////////////////////////
+function pinTo4Digits(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}
