@@ -89,12 +89,11 @@ app.post('/login', function(req, res) {
 				res.send({"error" : "Invalid email or password!"});
 			}
 			else{
-				console.log(result);
 				res.send(result);
 			}
 		});
 	}
-}
+});
 
 
 //get menu
