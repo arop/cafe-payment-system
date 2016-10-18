@@ -70,6 +70,32 @@ app.post('/register', function(req, res) {
 	}
 });
 
+//customer login
+// receives
+// { "user" : { email: "xxx", pin : xxxx}}
+app.post('/login', function(req, res) {
+	if(!req.body.user){
+		res.status(404).send('No user info received!');
+		return;
+	}
+
+	var user = req.body.user;
+	if(!user.email || !user.pin)
+		res.status(404).send("Missing parameters!");
+	else{
+		user.hash_pin = bcrypt.hashSync(user.pin);
+		db.checkLogin(user, function(result){
+			if(result == null){
+				res.send({"error" : "Invalid email or password!"});
+			}
+			else{
+				console.log(result);
+				res.send(result);
+			}
+		});
+	}
+}
+
 
 //get menu
 app.get('/menu', function(req, res){

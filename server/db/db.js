@@ -35,9 +35,26 @@ function insertUser(user, callback){
 		//done();
 	});
 	//query.on('end', () => { client.end(); });
-
 }
 
+function checkLogin(user, callback){
+
+	var client = openClient();
+
+	client.connect();
+	const query = client.query('SELECT * FROM users WHERE email = $1', [user.email], function(error, result){
+		if(error != null){
+			callback(null);
+			return;
+		}
+		if(user.hash_pin == result.rows[0].hash_pin) {
+			delete result.rows[0].hash_pin;
+			callback(result.rows[0]);
+			return;
+		} else callback(null);
+
+	});
+}
 
 function getMenu(callback){
 	var client = openClient();
