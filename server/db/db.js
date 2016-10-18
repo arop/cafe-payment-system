@@ -75,3 +75,4 @@ function getMenu(callback){
 
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
+exports.checkLogin = checkLogin;
