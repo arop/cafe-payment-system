@@ -83,7 +83,6 @@ app.post('/login', function(req, res) {
 	if(!user.email || !user.pin)
 		res.status(404).send("Missing parameters!");
 	else{
-		user.hash_pin = bcrypt.hashSync(user.pin);
 		db.checkLogin(user, function(result){
 			if(result == null){
 				res.send({"error" : "Invalid email or password!"});

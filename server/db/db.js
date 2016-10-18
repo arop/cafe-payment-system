@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const pg = require('pg');
 const connectionString = process.env.DATABASE_URL;
+const bcrypt = require('../lib/bCrypt.js');
 
 /*pg.on('error', function (err) {
   console.log('Database error!', err);
@@ -43,15 +44,17 @@ function checkLogin(user, callback){
 
 	client.connect();
 	const query = client.query('SELECT * FROM users WHERE email = $1', [user.email], function(error, result){
-		if(error != null){
+		if(error != null){ // wrong email
 			callback(null);
 			return;
 		}
-		if(user.hash_pin == result.rows[0].hash_pin) {
+		if(bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
 			delete result.rows[0].hash_pin;
 			callback(result.rows[0]);
 			return;
-		} else callback(null);
+		} else { // wrong password
+			callback(null);
+		}
 
 	});
 }
