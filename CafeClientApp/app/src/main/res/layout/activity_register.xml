@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.joao.cafeclientapp.register.RegisterActivity">
+    tools:context="com.example.joao.cafeclientapp.authentication.RegisterActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -87,12 +87,19 @@
 
             <Button
                 android:id="@+id/sign_up_button"
-                style="?android:textAppearanceSmall"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_up"
                 android:textStyle="bold" />
+
+            <Button
+                android:text="Login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/login_button"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
 
         </LinearLayout>
     </ScrollView>

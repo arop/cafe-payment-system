@@ -1,41 +1,26 @@
-package com.example.joao.cafeclientapp.register;
+package com.example.joao.cafeclientapp.authentication;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
@@ -49,20 +34,10 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
-import static android.Manifest.permission.READ_CONTACTS;
-
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "norim_17@hotmail.com:1111", "bar@example.com:world"
-    };
-
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
@@ -74,6 +49,16 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Skip authentication if already logged.
+        if (CustomLocalStorage.getString(this, "uuid") != null)
+        {
+            Intent intent = new Intent(this, ShowMenuActivity.class);
+            this.startActivity (intent);
+            this.finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         currentActivity = this;
@@ -101,8 +86,25 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        Button mGoToRegisterButton = (Button) findViewById(R.id.register_button);
+        mGoToRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToRegister();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    /**
+     * Go to authentication activity
+     */
+    private void goToRegister() {
+        Intent intent = new Intent(currentActivity, RegisterActivity.class);
+        startActivity(intent);
+        currentActivity.finish();
     }
 
     /**
@@ -180,14 +182,11 @@ public class LoginActivity extends AppCompatActivity {
                     //SUCCESS LOGIN
                     Toast.makeText(currentActivity.getApplicationContext(), "Successful login!", Toast.LENGTH_LONG).show();
                     Log.e("user",response.toString());
-                    // TODO save user on local storage
-                    //String uuid = response.get("user").toString();
-                    //String pin = response.get("pin").toString();
-                    //SUCCESS
-                    //CustomLocalStorage.set(currentActivity, "uuid", uuid);
+                    String uuid = response.get("id").toString();
+                    CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     onPostExecute(true);
                 }
-                catch(Exception e){
+                catch(JSONException e){
                     Log.e("FAILURE:", "error parsing response JSON");
                     showProgress(false);
                     Toast.makeText(currentActivity.getApplicationContext(), "Server error. Try again later.", Toast.LENGTH_LONG).show();
@@ -266,7 +265,6 @@ public class LoginActivity extends AppCompatActivity {
     private void onPostExecute(final Boolean success) {
         showProgress(false);
 
-        Log.e("login","on post execute, success: " + success);
         if (success) {
             //Start show pin activity
             Intent intent = new Intent(currentActivity, ShowMenuActivity.class);
