@@ -44,15 +44,16 @@ function checkLogin(user, callback){
 
 	client.connect();
 	const query = client.query('SELECT * FROM users WHERE email = $1', [user.email], function(error, result){
-		if(error != null){ // wrong email
+		if(error != null){
 			callback(null);
 			return;
 		}
-		if(bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
+		console.log(result);
+		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
 			delete result.rows[0].hash_pin;
 			callback(result.rows[0]);
 			return;
-		} else { // wrong password
+		} else { // wrong password/email
 			callback(null);
 		}
 
