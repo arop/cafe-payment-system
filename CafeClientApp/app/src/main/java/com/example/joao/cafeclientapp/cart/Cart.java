@@ -5,7 +5,10 @@ import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.menu.Product;
+import com.example.joao.cafeclientapp.menu.ProductsMenu;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +16,7 @@ import java.util.Map;
  * Created by andre on 15/10/2016.
  */
 
-public class Cart {
-    private Map<String,Double> cart = new HashMap<>();
+public class Cart extends ProductsMenu implements Serializable {
     static private Cart instance;
 
     static public Cart getInstance(Activity a) {
@@ -25,63 +27,47 @@ public class Cart {
         return instance;
     }
 
-    public Cart(Map<String,Double> m) {
-        cart = m;
-    }
-
     private Cart() {}
 
     public void addProductToCart(Product p) {
-        String product_key = generateProductKey(p);
-
-        if(cart.get(product_key) == null)
-            cart.put(product_key,1.0);
+        if(products.get(p.getId()) == null) {
+            p.setQuantity(1);
+            products.put(p.getId(),p);
+        }
         else {
-            Double qtt = cart.get(product_key);
-            cart.remove(product_key);
-            cart.put(product_key, ++qtt);
-            Log.i("Added to cart", product_key + " - " + cart.get(product_key));
+            products.get(p.getId()).setQuantity(products.get(p.getId()).getQuantity()+1);
         }
     }
 
     public void removeProductFromCart(Product p) {
-        String product_key = generateProductKey(p);
-
-        if(cart.get(product_key) == null) return;
-        Double quantity = cart.get(product_key);
+        if(products.get(p.getId()) == null) return;
+        Integer quantity = products.get(p.getId()).getQuantity();
         if(quantity < 2) {
-            cart.remove(product_key);
-            Log.i("Removed from cart", product_key);
+            products.remove(p.getId());
         }
         else if(quantity > 1) {
-            cart.remove(product_key);
-            cart.put(product_key,--quantity);
-            Log.i("Removed from cart", product_key + " - " + cart.get(product_key));
+            products.get(p.getId()).setQuantity(products.get(p.getId()).getQuantity()-1);
         }
-    }
-
-    public String generateProductKey(Product p){
-        return p.id+p.name;
-    }
-
-    public Map<String,Double> getCart() {
-        return cart;
     }
 
     public void getSavedCart(Activity a) {
-        Map<String,Double> temp = CustomLocalStorage.getCart(a);
-        if(temp == null)
-            cart = new HashMap<>();
-        else cart = temp;
-        Cart.printCart(cart);
+        try {
+            instance = CustomLocalStorage.getCart(a);
+        } catch (Exception e) {
+            instance = new Cart();
+        }
     }
 
     public void saveCart(Activity a) {
-        CustomLocalStorage.saveCart(a,cart);
+        try {
+            CustomLocalStorage.saveCart(a,instance);
+        } catch (IOException e) {
+            Log.e("cart","couldn't save cart");
+        }
     }
 
     public void resetCart() {
-        cart.clear();
+        products.clear();
     }
 
     public static String printCart(Map<String,Double> c) {

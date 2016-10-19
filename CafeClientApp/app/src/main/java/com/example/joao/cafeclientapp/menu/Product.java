@@ -13,10 +13,10 @@ import static java.lang.Float.parseFloat;
  */
 
 public class Product implements Parcelable, Serializable{
-    public Integer id;
-    public String name;
-    public float price;
-    public Integer quantity; // only meaningful if object's copy's in cart.
+    private Integer id;
+    private String name;
+    private float price;
+    private Integer quantity; // only meaningful if object's copy's in cart.
 
     public Product(String n, float p, int i) {
         name = n;
@@ -73,5 +73,37 @@ public class Product implements Parcelable, Serializable{
         dest.writeString(name);
         dest.writeFloat(price);
         dest.writeInt(quantity);
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }

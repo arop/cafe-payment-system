@@ -24,7 +24,6 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
 
     private final Activity mActivity;
     private ArrayList<Product> dataset;
-    private MenuItemAdapter mRecyclerView;
     private View selectedItem;
 
     private Cart currentCart;
@@ -97,8 +96,6 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mRecyclerView = this;
-
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.menu_list_item, parent, false);
@@ -116,8 +113,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         ImageButton addProductToCart = (ImageButton) holder.mView.findViewById(R.id.product_add);
         ImageButton removeProductFromCart = (ImageButton) holder.mView.findViewById(R.id.product_remove);
 
-        final String productName = dataset.get(position).name;
-        final float productPrice = dataset.get(position).price;
+        final String productName = dataset.get(position).getName();
+        final float productPrice = dataset.get(position).getPrice();
 
         addProductToCart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +156,7 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     }
 
     public void addAll(ProductsMenu pm) {
-        this.dataset = new ArrayList<Product>(pm.getProducts().values());
+        this.dataset = new ArrayList<>(pm.getProducts().values());
         this.notifyDataSetChanged();
     }
 

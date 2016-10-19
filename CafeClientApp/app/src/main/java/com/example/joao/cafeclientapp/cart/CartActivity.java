@@ -54,7 +54,7 @@ public class CartActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // specify an adapter (see also next example)
-        mAdapter = new CartItemAdapter(this);
+        mAdapter = new CartItemAdapter(currentCart,this);
         mRecyclerView.setAdapter(mAdapter);
     }
 }

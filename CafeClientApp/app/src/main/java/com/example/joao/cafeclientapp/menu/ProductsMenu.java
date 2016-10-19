@@ -12,7 +12,7 @@ import java.util.Map;
  */
 
 public class ProductsMenu implements Parcelable, Serializable{
-    private HashMap<Integer, Product> products;
+    protected HashMap<Integer, Product> products;
 
     public ProductsMenu(HashMap<Integer, Product> m){
         this.products = m;

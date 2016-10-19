@@ -39,7 +39,7 @@ public class ShowMenuActivity extends AppCompatActivity {
 
     private Context context;
     private static Activity currentActivity;
-    private  ProductsMenu list;
+    private ProductsMenu list;
 
     private RecyclerView mRecyclerView;
     private MenuItemAdapter mRecyclerAdapter;
@@ -80,9 +80,7 @@ public class ShowMenuActivity extends AppCompatActivity {
         mRecyclerAdapter = new MenuItemAdapter(list, currentActivity);
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
-
         currentCart = Cart.getInstance(this);
-
 
         ///////////////////////////////////////////
         ////////// SETUP SWIPE REFRESH ////////////
@@ -129,8 +127,6 @@ public class ShowMenuActivity extends AppCompatActivity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("cart","Cart size: "+currentCart.getCart().size());
-                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(currentCart.getCart()));
                 // Intent is what you use to start another activity
                 Intent myIntent = new Intent(context, CartActivity.class);
                 startActivity(myIntent);
@@ -152,7 +148,6 @@ public class ShowMenuActivity extends AppCompatActivity {
         //notifyDataSetChanged();
     }
 
-
     public void fetchProductsAsync(){
 
         //clearList();
@@ -167,7 +162,7 @@ public class ShowMenuActivity extends AppCompatActivity {
 
                     for (int i = 0; i < menu.length(); ++i) {
                         Product p = new Product(menu.getJSONObject(i));
-                        new_menu.put(p.id, p);
+                        new_menu.put(p.getId(), p);
                     }
 
                     list.setProducts(new_menu);

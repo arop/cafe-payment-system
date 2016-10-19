@@ -1,7 +1,7 @@
 package com.example.joao.cafeclientapp.cart;
 
 /**
- * Created by Joao on 13/10/2016.
+ * Created by Andre on 13/10/2016.
  */
 
 import android.app.Activity;
@@ -14,18 +14,21 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.menu.Product;
+import com.example.joao.cafeclientapp.menu.ProductsMenu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHolder> {
 
     private final Activity mActivity;
-    private CartItemAdapter mRecyclerView;
-    private static View selectedItem;
+    private ArrayList<Product> dataset;
+    private View selectedItem;
 
     private Cart currentCart;
-    ArrayList<String> productNames;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -39,16 +42,60 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
         }
     }
 
-    public CartItemAdapter(Activity a){
+    public class OnItemClickListener implements View.OnClickListener {
+
+        private final int itemPosition;
+
+        public OnItemClickListener(int position){
+            this.itemPosition = position;
+        }
+
+        @Override
+        public void onClick(final View view) {
+            View add_btn = view.findViewById(R.id.cart_product_add);
+            View rem_btn = view.findViewById(R.id.cart_product_remove);
+
+            if(add_btn.getVisibility() == View.VISIBLE){ //if already visible
+                if(view.equals(selectedItem)) //currently selected is this object
+                    selectedItem = null; //no object will be selected. click works as "deselect"
+                makeInvisible(add_btn, rem_btn);
+            }
+            else{
+                View oldSelected = selectedItem;
+                selectedItem = view; //update currently selected item
+                if(oldSelected != null){ //if there was a previously selected item
+                    oldSelected.callOnClick(); //call its onclick, to make its buttons invisble
+                }
+                makeVisible(add_btn, rem_btn);
+            }
+        }
+
+        private void makeVisible(View add_btn, View rem_btn) {
+            add_btn.setVisibility(View.VISIBLE);
+            rem_btn.setVisibility(View.VISIBLE);
+            /*add_btn.animate().alpha(1.0f).setDuration(500);
+            rem_btn.animate().alpha(1.0f).setDuration(500);*/
+        }
+
+        private void makeInvisible(View add_btn, View rem_btn) {
+            add_btn.setVisibility(View.INVISIBLE);
+            rem_btn.setVisibility(View.INVISIBLE);
+            /*add_btn.animate().alpha(0.0f).setDuration(500);
+            rem_btn.animate().alpha(0.0f).setDuration(500);*/
+        }
+
+    }
+
+    public CartItemAdapter(Cart menu, Activity a){
+        //convert Hash Map to Array List
+        this.dataset = new ArrayList<Product>(menu.getProducts().values());
+
         this.mActivity = a;
         this.currentCart = Cart.getInstance(a);
-        this.productNames = new ArrayList<>(currentCart.getCart().keySet());
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mRecyclerView = this;
-
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.cart_list_item, parent, false);
@@ -62,22 +109,21 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, final int position) {
         TextView name = (TextView) holder.mView.findViewById(R.id.cart_product_name);
         TextView price = (TextView) holder.mView.findViewById(R.id.cart_product_price);
-        TextView quantity = (TextView) holder.mView.findViewById(R.id.cart_product_quantity);
+        TextView qtt = (TextView) holder.mView.findViewById(R.id.cart_product_quantity);
 
         ImageButton addProductToCart = (ImageButton) holder.mView.findViewById(R.id.cart_product_add);
         ImageButton removeProductFromCart = (ImageButton) holder.mView.findViewById(R.id.cart_product_remove);
 
-
-        final String productName = productNames.get(position);
-        /*final double productPrice = currentCart.getCart().get(productName).price;
-                dataset.get(position).price;*/
-        final double productQuantity = currentCart.getCart().get(productName);
+        final String productName = dataset.get(position).getName();
+        final float productPrice = dataset.get(position).getPrice();
+        final int productQtt = dataset.get(position).getQuantity();
 
         addProductToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //currentCart.addProductToCart(dataset.get(position));
-                //currentCart.saveCart(mActivity);
+                currentCart.addProductToCart(dataset.get(position));
+                currentCart.saveCart(mActivity);
+                addAll(currentCart);
                 /**
                  * TODO add toast saying product added
                  */
@@ -87,22 +133,31 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
         removeProductFromCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //currentCart.removeProductFromCart(dataset.get(position));
-                //currentCart.saveCart(mActivity);
+                currentCart.removeProductFromCart(dataset.get(position));
+                currentCart.saveCart(mActivity);
+
+                addAll(currentCart);
                 /**
                  * TODO add toast saying product added
                  */
             }
         });
 
-        name.setText(productName.substring(2));
-        //price.setText(String.format( "%.2f", productPrice )+"€");
-        price.setText("€");
-        quantity.setText(""+(int)productQuantity);
+        name.setText(productName);
+        price.setText(String.format( "%.2f", productPrice )+"€");
+        qtt.setText(""+productQtt);
+
+        OnItemClickListener clickListener = new OnItemClickListener(position);
+        holder.mView.setOnClickListener(clickListener);
     }
 
     @Override
     public int getItemCount() {
-        return currentCart.getCart().size();
+        return dataset.size();
+    }
+
+    public void addAll(ProductsMenu pm) {
+        this.dataset = new ArrayList<>(pm.getProducts().values());
+        this.notifyDataSetChanged();
     }
 }
