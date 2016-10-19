@@ -17,6 +17,8 @@ import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.cart.Cart;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHolder> {
 
@@ -85,8 +87,10 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
 
     }
 
-    public MenuItemAdapter(ArrayList<Product> dataset, Activity a){
-        this.dataset = dataset;
+    public MenuItemAdapter(ProductsMenu menu, Activity a){
+        //convert Hash Map to Array List
+        this.dataset = new ArrayList<Product>(menu.getProducts().values());
+
         this.mActivity = a;
         this.currentCart = Cart.getInstance(a);
     }
@@ -154,8 +158,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         this.notifyDataSetChanged();
     }
 
-    public void addAll(ArrayList<Product> l) {
-        this.dataset = l;
+    public void addAll(ProductsMenu pm) {
+        this.dataset = new ArrayList<Product>(pm.getProducts().values());
         this.notifyDataSetChanged();
     }
 

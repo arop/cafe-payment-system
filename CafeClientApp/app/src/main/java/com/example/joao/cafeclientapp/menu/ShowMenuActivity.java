@@ -31,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
@@ -40,7 +39,7 @@ public class ShowMenuActivity extends AppCompatActivity {
 
     private Context context;
     private static Activity currentActivity;
-    final ArrayList<Product> list = new ArrayList<>();
+    private  ProductsMenu list;
 
     private RecyclerView mRecyclerView;
     private MenuItemAdapter mRecyclerAdapter;
@@ -56,6 +55,13 @@ public class ShowMenuActivity extends AppCompatActivity {
 
         context = getApplicationContext();
         currentActivity = this;
+
+        try {
+            list = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
+
+        } catch (Exception e){
+            list = new ProductsMenu();
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -141,15 +147,15 @@ public class ShowMenuActivity extends AppCompatActivity {
     }
 
     // Add a list of items
-    public void addAll(ArrayList<Product> l) {
-        mRecyclerAdapter.addAll(l);
+    public void refreshAdapterData() {
+        mRecyclerAdapter.addAll(list);
         //notifyDataSetChanged();
     }
 
 
     public void fetchProductsAsync(){
 
-        clearList();
+        //clearList();
 
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
             @Override
@@ -157,36 +163,27 @@ public class ShowMenuActivity extends AppCompatActivity {
                 Log.d("success", "got menu");
                 try{
                     JSONArray menu = (JSONArray) response.get("menu");
-                    HashMap<Integer, Product> temp_menu = new HashMap<Integer, Product>();
+                    HashMap<Integer, Product> new_menu = new HashMap<Integer, Product>();
 
                     for (int i = 0; i < menu.length(); ++i) {
                         Product p = new Product(menu.getJSONObject(i));
-                        list.add(p);
-                        temp_menu.put(p.id, p);
+                        new_menu.put(p.id, p);
                     }
 
-                    addAll(list);
+                    list.setProducts(new_menu);
+                    refreshAdapterData();
 
                     //Save menu to memory
-                    ProductsMenu m = new ProductsMenu(temp_menu);
-                    CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(m));
-                    m = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
-
-                    HashMap<Integer, Product> prods = m.getProducts();
-                    for(Integer key :  prods.keySet()){
-                        Product temp = prods.get(key);
-                        Log.d("Product", temp.name+"#"+temp.price+"#"+temp.quantity);
-                    }
+                    CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(list));
 
                 }
                 catch(JSONException e){
-                    //normal behaviour when there are no errors.
+                    //problem with server. probably.
+                    Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
                 }
                 catch(IOException io){
                     //error serializing menu object
                     Log.e("Serialize", "Couldn't save Menu to memory");
-                } catch (ClassNotFoundException e) {
-                    Log.e("Serialize", "Couldn't load Menu from memory (ClassNotFoundException)");
                 }
                 finally {
                     swipeContainer.setRefreshing(false);

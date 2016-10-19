@@ -18,6 +18,10 @@ public class ProductsMenu implements Parcelable, Serializable{
         this.products = m;
     }
 
+    public ProductsMenu(){
+        this.products = new HashMap<Integer, Product>();
+    }
+
     public ProductsMenu(Parcel parcel){
         parcel.readHashMap(HashMap.class.getClassLoader());
     }
@@ -46,5 +50,9 @@ public class ProductsMenu implements Parcelable, Serializable{
 
     public HashMap<Integer,Product> getProducts() {
         return products;
+    }
+
+    public void setProducts(HashMap<Integer, Product> products) {
+        this.products = products;
     }
 }
