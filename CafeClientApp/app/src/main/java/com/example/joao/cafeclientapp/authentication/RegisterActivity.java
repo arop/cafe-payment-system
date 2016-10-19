@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.register;
+package com.example.joao.cafeclientapp.authentication;
 
 import android.app.Activity;
 import android.content.Context;
@@ -55,15 +55,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Skip register if already logged.
-        if (CustomLocalStorage.getString(this, "uuid") != null)
-        {
-            Intent intent = new Intent(this, ShowMenuActivity.class);
-            this.startActivity (intent);
-            this.finish();
-            return;
-        }
-
         setContentView(R.layout.activity_register);
 
         //set action to perform on "Register" click
@@ -75,6 +66,15 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        //go to login
+        Button mGoToLoginInButton = (Button) findViewById(R.id.login_button);
+        mGoToLoginInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToLogin();
+            }
+        });
+
         //populate class variables
         context = getApplicationContext();
 
@@ -82,6 +82,10 @@ public class RegisterActivity extends AppCompatActivity {
         email_field = (EditText) findViewById(R.id.email);
         vat_number_field = (EditText) findViewById(R.id.vat_number);
 
+        fillInputsWithDummyData();
+    }
+
+    private void fillInputsWithDummyData() {
         //fill form with dummy info for testing
         name_field.setText(DUMMY_CREDENTIALS[0]);
         email_field.setText(DUMMY_CREDENTIALS[1]);
@@ -92,7 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
         credit_card_form.setSecurityCode(DUMMY_CREDENTIALS[4],false);
         credit_card_form.setExpDate(DUMMY_CREDENTIALS[5],false);
     }
-
 
     public void registerAction(View view){
 
@@ -114,14 +117,13 @@ public class RegisterActivity extends AppCompatActivity {
             enableAllFields();
             email_field.requestFocus();
             Toast.makeText(context, "Email not valid!", Toast.LENGTH_LONG).show();
-            Log.e("register error","Email not valid!");
+            Log.e("authentication error","Email not valid!");
             return;
         }
 
         user_params.put("nif", vat_number);
 
         user.put("user", user_params);
-
 
         if(credit_card_form.isCreditCardValid())
         {
@@ -138,11 +140,19 @@ public class RegisterActivity extends AppCompatActivity {
             enableAllFields();
             credit_card_form.focusCreditCard();
             Toast.makeText(context, "Credit card not valid!", Toast.LENGTH_LONG).show();
-            Log.e("register error","Credit card not valid!");
+            Log.e("authentication error","Credit card not valid!");
             return;
         }
 
-        ServerRestClient.post("register", user, new JsonHttpResponseHandler() {
+        registerCall(user);
+    }
+
+    /**
+     * HTTP post to server, register user
+     * @param user
+     */
+    private void registerCall(RequestParams user) {
+        ServerRestClient.post("authentication", user, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try{
@@ -190,6 +200,15 @@ public class RegisterActivity extends AppCompatActivity {
                 enableAllFields();
             }
         });
+    }
+
+    /**
+     * Go to login activity
+     */
+    private void goToLogin() {
+        Intent intent = new Intent(currentActivity, LoginActivity.class);
+        startActivity(intent);
+        currentActivity.finish();
     }
 
     private void disableAllFields(){

@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.register;
+package com.example.joao.cafeclientapp.authentication;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -15,10 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".register.RegisterActivity"
-            android:label="@string/app_name">
+            android:name=".authentication.RegisterActivity"
+            android:label="@string/title_activity_register">
         </activity>
-        <activity android:name=".register.PinDisplayActivity" />
+        <activity android:name=".authentication.PinDisplayActivity" />
         <activity
             android:name=".menu.ShowMenuActivity"
             android:label="@string/title_activity_show_menu"
@@ -33,7 +33,7 @@
                 android:value="com.example.joao.cafeclientapp.menu.ShowMenuActivity" />
         </activity>
         <activity
-            android:name=".register.LoginActivity"
+            android:name=".authentication.LoginActivity"
             android:label="@string/title_activity_login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
