@@ -8,7 +8,6 @@ const bcrypt = require('../lib/bCrypt.js');
   console.log('Database error!', err);
 });*/
 
-
 function openClient(){
 	const client = new pg.Client({
 	    user: process.env.DATABASE_USER,
@@ -21,6 +20,9 @@ function openClient(){
 	return client;
 }
 
+/**
+* Register
+*/
 function insertUser(user, callback){
 
 	var client = openClient();
@@ -48,7 +50,6 @@ function checkLogin(user, callback){
 			callback(null);
 			return;
 		}
-		console.log(result);
 		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
 			delete result.rows[0].hash_pin;
 			callback(result.rows[0]);

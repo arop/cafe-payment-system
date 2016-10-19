@@ -61,10 +61,10 @@ app.post('/register', function(req, res) {
 				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
-				result.hash_pin = undefined;
-				result.pin = user.pin;
-				console.log(result);
-				res.send(result);				
+				var toSend;
+				toSend.pin = user.pin;
+				toSend.id = result.id;
+				res.send(toSend);
 			}
 		});
 	}
@@ -88,7 +88,9 @@ app.post('/login', function(req, res) {
 				res.send({"error" : "Invalid email or password!"});
 			}
 			else{
-				res.send(result);
+				var toSend;
+				toSend.id = result.id;
+				res.send(toSend);
 			}
 		});
 	}
