@@ -13,15 +13,15 @@
     tools:context="com.example.joao.cafeclientapp.menu.ShowMenuActivity"
     tools:showIn="@layout/activity_show_menu">
 
-    <ScrollView
+    <!--<ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content">-->
         <!-- A RecyclerView with some commonly used attributes -->
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipeRefreshMenuContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/menu_recycler_view"
@@ -30,7 +30,7 @@
                 android:layout_height="match_parent"/>
 
         </android.support.v4.widget.SwipeRefreshLayout>
-    </ScrollView>
+    <!--</ScrollView>-->
 
 
 </RelativeLayout>

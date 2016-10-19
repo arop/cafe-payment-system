@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -34,7 +33,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -45,7 +43,7 @@ public class ShowMenuActivity extends AppCompatActivity {
     final ArrayList<Product> list = new ArrayList<>();
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private MenuItemAdapter mRecyclerAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout swipeContainer;
 
@@ -72,6 +70,11 @@ public class ShowMenuActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        // specify an adapter (see also next example)
+        mRecyclerAdapter = new MenuItemAdapter(list, currentActivity);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+
+
         currentCart = Cart.getInstance(this);
 
 
@@ -86,7 +89,6 @@ public class ShowMenuActivity extends AppCompatActivity {
                 // Your code to refresh the list here.
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
-                clearList();
                 fetchProductsAsync();
             }
         });
@@ -98,7 +100,7 @@ public class ShowMenuActivity extends AppCompatActivity {
                 android.R.color.holo_red_light);
         ///////////////////////////////////////////
 
-        //swipeContainer.setRefreshing(true);
+        swipeContainer.setRefreshing(true);
         fetchProductsAsync();
 
     }
@@ -134,18 +136,21 @@ public class ShowMenuActivity extends AppCompatActivity {
 
     // Clean all elements of the recycler
     public void clearList() {
-        list.clear();
+        mRecyclerAdapter.clearList();
         //notifyDataSetChanged();
     }
 
     // Add a list of items
     public void addAll(ArrayList<Product> l) {
-        list.addAll(l);
+        mRecyclerAdapter.addAll(l);
         //notifyDataSetChanged();
     }
 
 
     public void fetchProductsAsync(){
+
+        clearList();
+
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -154,21 +159,19 @@ public class ShowMenuActivity extends AppCompatActivity {
                     JSONArray menu = (JSONArray) response.get("menu");
                     HashMap<Integer, Product> temp_menu = new HashMap<Integer, Product>();
 
-
                     for (int i = 0; i < menu.length(); ++i) {
                         Product p = new Product(menu.getJSONObject(i));
                         list.add(p);
                         temp_menu.put(p.id, p);
                     }
 
-                    // specify an adapter (see also next example)
-                    mAdapter = new MenuItemAdapter(list, currentActivity);
-                    mRecyclerView.setAdapter(mAdapter);
+                    addAll(list);
 
                     //Save menu to memory
                     ProductsMenu m = new ProductsMenu(temp_menu);
                     CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(m));
                     m = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
+
                     HashMap<Integer, Product> prods = m.getProducts();
                     for(Integer key :  prods.keySet()){
                         Product temp = prods.get(key);

@@ -23,9 +23,10 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     private final Activity mActivity;
     private ArrayList<Product> dataset;
     private MenuItemAdapter mRecyclerView;
-    private static View selectedItem;
+    private View selectedItem;
 
     private Cart currentCart;
+
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -69,17 +70,17 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         }
 
         private void makeVisible(View add_btn, View rem_btn) {
-            /*add_btn.setVisibility(View.VISIBLE);
-            rem_btn.setVisibility(View.VISIBLE);*/
-            add_btn.animate().alpha(1.0f).setDuration(500);
-            rem_btn.animate().alpha(1.0f).setDuration(500);
+            add_btn.setVisibility(View.VISIBLE);
+            rem_btn.setVisibility(View.VISIBLE);
+            /*add_btn.animate().alpha(1.0f).setDuration(500);
+            rem_btn.animate().alpha(1.0f).setDuration(500);*/
         }
 
         private void makeInvisible(View add_btn, View rem_btn) {
-            /*add_btn.setVisibility(View.INVISIBLE);
-            rem_btn.setVisibility(View.INVISIBLE);*/
-            add_btn.animate().alpha(0.0f).setDuration(500);
-            rem_btn.animate().alpha(0.0f).setDuration(500);
+            add_btn.setVisibility(View.INVISIBLE);
+            rem_btn.setVisibility(View.INVISIBLE);
+            /*add_btn.animate().alpha(0.0f).setDuration(500);
+            rem_btn.animate().alpha(0.0f).setDuration(500);*/
         }
 
     }
@@ -147,4 +148,15 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     public int getItemCount() {
         return dataset.size();
     }
+
+    public void clearList(){
+        this.dataset.clear();
+        this.notifyDataSetChanged();
+    }
+
+    public void addAll(ArrayList<Product> l) {
+        this.dataset = l;
+        this.notifyDataSetChanged();
+    }
+
 }
