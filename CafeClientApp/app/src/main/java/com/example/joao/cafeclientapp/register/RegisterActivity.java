@@ -33,8 +33,6 @@ import cz.msebera.android.httpclient.Header;
  */
 public class RegisterActivity extends AppCompatActivity {
 
-
-
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -213,11 +211,6 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
 
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
 }
