@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.register;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,10 @@ import android.widget.Toast;
 
 import com.devmarvel.creditcardentry.library.CreditCard;
 import com.devmarvel.creditcardentry.library.CreditCardForm;
+import com.example.joao.cafeclientapp.CustomLocalStorage;
+import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -28,8 +32,6 @@ import cz.msebera.android.httpclient.Header;
  * A login screen that offers login via email/password.
  */
 public class RegisterActivity extends AppCompatActivity {
-
-
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -180,6 +182,13 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
                 enableAllFields();
             }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object){
+                Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
+                Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
+                enableAllFields();
+            }
         });
     }
 
@@ -202,11 +211,6 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
 
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
 }

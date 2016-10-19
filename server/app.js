@@ -53,6 +53,7 @@ app.post('/register', function(req, res) {
 		//user.pin = Math.floor(Math.random() * (9999 - 1000) + 1000);
 		//TODO uncomment above and comment bellow for random PIN
 		user.pin = 1111;
+		user.pin = pinTo4Digits(user.pin,4);
 
 		user.hash_pin = bcrypt.hashSync(user.pin);
 		db.insertUser(user, function(result){
@@ -64,6 +65,30 @@ app.post('/register', function(req, res) {
 				result.pin = user.pin;
 				console.log(result);
 				res.send(result);				
+			}
+		});
+	}
+});
+
+//customer login
+// receives
+// { "user" : { email: "xxx", pin : xxxx}}
+app.post('/login', function(req, res) {
+	if(!req.body.user){
+		res.status(404).send('No user info received!');
+		return;
+	}
+
+	var user = req.body.user;
+	if(!user.email || !user.pin)
+		res.status(404).send("Missing parameters!");
+	else{
+		db.checkLogin(user, function(result){
+			if(result == null){
+				res.send({"error" : "Invalid email or password!"});
+			}
+			else{
+				res.send(result);
 			}
 		});
 	}
@@ -109,3 +134,13 @@ app.post('/transaction', function(req, res){
 app.get('/transaction', function(req, res){
 	//TODO
 });
+
+
+
+///////////////////////////
+//////// OTHER ////////////
+///////////////////////////
+function pinTo4Digits(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}

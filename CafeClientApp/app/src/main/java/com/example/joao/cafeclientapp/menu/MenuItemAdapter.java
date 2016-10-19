@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.menu;
 
 /**
  * Created by Joao on 13/10/2016.
@@ -8,12 +8,13 @@ import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.cart.Cart;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     private ArrayList<Product> dataset;
     private MenuItemAdapter mRecyclerView;
     private static View selectedItem;
+
+    private Cart currentCart;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -84,6 +87,7 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     public MenuItemAdapter(ArrayList<Product> dataset, Activity a){
         this.dataset = dataset;
         this.mActivity = a;
+        this.currentCart = Cart.getInstance(a);
     }
 
     @Override
@@ -113,9 +117,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         addProductToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Cart.addProductToCart(dataset.get(position));
-                Cart.saveCart(mActivity);
+                currentCart.addProductToCart(dataset.get(position));
+                currentCart.saveCart(mActivity);
                 /**
                  * TODO add toast saying product added
                  */
@@ -125,8 +128,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         removeProductFromCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Cart.removeProductFromCart(dataset.get(position));
-                Cart.saveCart(mActivity);
+                currentCart.removeProductFromCart(dataset.get(position));
+                currentCart.saveCart(mActivity);
                 /**
                  * TODO add toast saying product added
                  */

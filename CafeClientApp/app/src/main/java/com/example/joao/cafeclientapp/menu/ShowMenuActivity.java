@@ -1,9 +1,10 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.menu;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.os.Parcel;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,13 +18,22 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.joao.cafeclientapp.CustomLocalStorage;
+import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.SerializeToString;
+import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.cart.Cart;
+import com.example.joao.cafeclientapp.cart.CartActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -37,6 +47,8 @@ public class ShowMenuActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private Cart currentCart;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +60,6 @@ public class ShowMenuActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
         mRecyclerView = (RecyclerView) findViewById(R.id.menu_recycler_view);
 
         // use this setting to improve performance if you know that changes
@@ -67,7 +70,7 @@ public class ShowMenuActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        Cart.getSavedCart(currentActivity);
+        currentCart = Cart.getInstance(this);
 
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
             @Override
@@ -75,18 +78,38 @@ public class ShowMenuActivity extends AppCompatActivity {
                 Log.d("success", "got menu");
                 try{
                     JSONArray menu = (JSONArray) response.get("menu");
+                    HashMap<Integer, Product> temp_menu = new HashMap<Integer, Product>();
+
+
                     for (int i = 0; i < menu.length(); ++i) {
                         Product p = new Product(menu.getJSONObject(i));
                         list.add(p);
+                        temp_menu.put(p.id, p);
                     }
 
                     // specify an adapter (see also next example)
                     mAdapter = new MenuItemAdapter(list, currentActivity);
                     mRecyclerView.setAdapter(mAdapter);
 
+                    //Save menu to memory
+                    ProductsMenu m = new ProductsMenu(temp_menu);
+                    CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(m));
+                    m = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
+                    HashMap<Integer, Product> prods = m.getProducts();
+                    for(Integer key :  prods.keySet()){
+                        Product temp = prods.get(key);
+                        Log.d("Product", temp.name+"#"+temp.price+"#"+temp.quantity);
+                    }
+
                 }
                 catch(JSONException e){
                     //normal behaviour when there are no errors.
+                }
+                catch(IOException io){
+                    //error serializing menu object
+                    Log.e("Serialize", "Couldn't save Menu to memory");
+                } catch (ClassNotFoundException e) {
+                    Log.e("Serialize", "Couldn't load Menu from memory (ClassNotFoundException)");
                 }
             }
 
@@ -116,10 +139,11 @@ public class ShowMenuActivity extends AppCompatActivity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("cart","Cart size: "+Cart.getCart().size());
-                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(Cart.getCart()));
-                Snackbar.make(view, "Cart not implemented yet", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Log.d("cart","Cart size: "+currentCart.getCart().size());
+                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(currentCart.getCart()));
+                // Intent is what you use to start another activity
+                Intent myIntent = new Intent(context, CartActivity.class);
+                startActivity(myIntent);
             }
         });
         // Handle button click here
