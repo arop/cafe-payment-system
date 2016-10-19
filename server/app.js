@@ -61,7 +61,7 @@ app.post('/register', function(req, res) {
 				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
-				var toSend;
+				var toSend = {};
 				toSend.pin = user.pin;
 				toSend.id = result.id;
 				res.send(toSend);
@@ -88,7 +88,7 @@ app.post('/login', function(req, res) {
 				res.send({"error" : "Invalid email or password!"});
 			}
 			else{
-				var toSend;
+				var toSend = {};
 				toSend.id = result.id;
 				res.send(toSend);
 			}
