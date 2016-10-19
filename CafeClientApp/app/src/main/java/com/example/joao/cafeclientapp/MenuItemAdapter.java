@@ -66,13 +66,17 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         }
 
         private void makeVisible(View add_btn, View rem_btn) {
-            add_btn.setVisibility(View.VISIBLE);
-            rem_btn.setVisibility(View.VISIBLE);
+            /*add_btn.setVisibility(View.VISIBLE);
+            rem_btn.setVisibility(View.VISIBLE);*/
+            add_btn.animate().alpha(1.0f).setDuration(500);
+            rem_btn.animate().alpha(1.0f).setDuration(500);
         }
 
         private void makeInvisible(View add_btn, View rem_btn) {
-            add_btn.setVisibility(View.INVISIBLE);
-            rem_btn.setVisibility(View.INVISIBLE);
+            /*add_btn.setVisibility(View.INVISIBLE);
+            rem_btn.setVisibility(View.INVISIBLE);*/
+            add_btn.animate().alpha(0.0f).setDuration(500);
+            rem_btn.animate().alpha(0.0f).setDuration(500);
         }
 
     }
