@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +47,7 @@ public class ShowMenuActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private SwipeRefreshLayout swipeContainer;
 
     private Cart currentCart;
 
@@ -72,6 +74,78 @@ public class ShowMenuActivity extends AppCompatActivity {
 
         currentCart = Cart.getInstance(this);
 
+
+        ///////////////////////////////////////////
+        ////////// SETUP SWIPE REFRESH ////////////
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshMenuContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                clearList();
+                fetchProductsAsync();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        ///////////////////////////////////////////
+
+        //swipeContainer.setRefreshing(true);
+        fetchProductsAsync();
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_show_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem actionViewItem = menu.findItem(R.id.actionButton);
+        // Retrieve the action-view from menu
+        View v = MenuItemCompat.getActionView(actionViewItem);
+        // Find the button within action-view
+        ImageButton b = (ImageButton) v.findViewById(R.id.cart_button);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("cart","Cart size: "+currentCart.getCart().size());
+                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(currentCart.getCart()));
+                // Intent is what you use to start another activity
+                Intent myIntent = new Intent(context, CartActivity.class);
+                startActivity(myIntent);
+            }
+        });
+        // Handle button click here
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    // Clean all elements of the recycler
+    public void clearList() {
+        list.clear();
+        //notifyDataSetChanged();
+    }
+
+    // Add a list of items
+    public void addAll(ArrayList<Product> l) {
+        list.addAll(l);
+        //notifyDataSetChanged();
+    }
+
+
+    public void fetchProductsAsync(){
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -111,44 +185,21 @@ public class ShowMenuActivity extends AppCompatActivity {
                 } catch (ClassNotFoundException e) {
                     Log.e("Serialize", "Couldn't load Menu from memory (ClassNotFoundException)");
                 }
+                finally {
+                    swipeContainer.setRefreshing(false);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
                 Log.e("FAILURE:", error);
                 Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
+                swipeContainer.setRefreshing(false);
             }
         });
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.actionbar_show_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem actionViewItem = menu.findItem(R.id.actionButton);
-        // Retrieve the action-view from menu
-        View v = MenuItemCompat.getActionView(actionViewItem);
-        // Find the button within action-view
-        ImageButton b = (ImageButton) v.findViewById(R.id.cart_button);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("cart","Cart size: "+currentCart.getCart().size());
-                System.out.println("Cart.printCart(Cart.getCart()) = " + Cart.printCart(currentCart.getCart()));
-                // Intent is what you use to start another activity
-                Intent myIntent = new Intent(context, CartActivity.class);
-                startActivity(myIntent);
-            }
-        });
-        // Handle button click here
-        return super.onPrepareOptionsMenu(menu);
-    }
 
     public static Activity getMenuActivity() {
         return currentActivity;
