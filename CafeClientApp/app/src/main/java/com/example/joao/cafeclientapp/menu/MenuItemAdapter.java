@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -121,6 +122,7 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
             public void onClick(View v) {
                 currentCart.addProductToCart(dataset.get(position));
                 currentCart.saveCart(mActivity);
+                ((ShowMenuActivity) mActivity).refreshCartTotalPrice();
                 /**
                  * TODO add toast saying product added
                  */
@@ -132,6 +134,7 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
             public void onClick(View v) {
                 currentCart.removeProductFromCart(dataset.get(position));
                 currentCart.saveCart(mActivity);
+                ((ShowMenuActivity) mActivity).refreshCartTotalPrice();
                 /**
                  * TODO add toast saying product added
                  */
@@ -144,6 +147,8 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
         OnItemClickListener clickListener = new OnItemClickListener(position);
         holder.mView.setOnClickListener(clickListener);
     }
+
+
 
     @Override
     public int getItemCount() {

@@ -45,6 +45,7 @@ public class ShowMenuActivity extends AppCompatActivity {
     private MenuItemAdapter mRecyclerAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout swipeContainer;
+    private Menu menu;
 
     private Cart currentCart;
 
@@ -114,6 +115,8 @@ public class ShowMenuActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_show_menu, menu);
+        this.menu = menu;
+        refreshCartTotalPrice();
         return true;
     }
 
@@ -200,4 +203,17 @@ public class ShowMenuActivity extends AppCompatActivity {
         return currentActivity;
     }
 
+
+    public void refreshCartTotalPrice() {
+        double val = currentCart.getTotalPrice();
+        MenuItem cart_quant = menu.findItem(R.id.cart_quantity_show_menu);
+        if (val == 0){
+            cart_quant.setTitle("");
+        }
+        else{
+            cart_quant.setTitle(String.format( "%.2f", val )+"€");
+        }
+
+
+    }
 }
