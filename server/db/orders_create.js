@@ -15,13 +15,15 @@ const client = new pg.Client({
 client.connect();
 const query = client.query(
   'CREATE TABLE orders(id SERIAL PRIMARY KEY,'+
-  'user_id UUID not null)');
+  'user_id UUID not null REFERENCES users(id),'+
+  'order_timestamp timestamp with time zone)');
 query.on('end', () => { client.end(); });
 
 client.connect();
 const query1 = client.query(
   'CREATE TABLE order_item(id SERIAL PRIMARY KEY,'+
-  'product_id int not null,'+
+  'product_id integer not null REFERENCES products(id),'+
+  'order_id integer not null REFERENCES orders(id),'+
   'quantity smallint not null,'+
-  'order_id integer not null)');
+  'unit_price real not null)');
 query1.on('end', () => { client.end(); });
