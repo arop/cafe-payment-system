@@ -77,7 +77,47 @@ function getMenu(callback){
 
 }
 
+/**
+* insert order
+*/
+
+function insertOrder(order,callback) {
+	var client = openClient();
+	var resultingOrder = {};
+
+	client.connect();
+	const query = client.query('INSERT INTO orders (user_id) VALUES ($1) RETURNING *', 
+		[order.user], 
+		function(error, result){
+			if(error != null){
+				callback(null);
+				return;
+			}		
+			else {
+				resultingOrder.order = result.rows[0];
+				resultingOrder.order_items = [];
+				var i = 0;
+				for(; i < order.cart.length; i++) {
+					const query = client.query('INSERT INTO order_item (product_id,quantity,order_id) VALUES ($1,$2,$3) RETURNING *', 
+						[order.cart[i][0], order.cart[i][1], result.rows[0].id], 
+						function(error, result){
+							if(error != null){
+								callback(null);
+								return;
+							}
+							resultingOrder.order_items.push(result.rows[0]);
+					}
+				}
+			}
+			callback(resultingOrder);
+		
+		//done();
+	});
+	//query.on('end', () => { client.end(); });
+}
+
 
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
 exports.checkLogin = checkLogin;
+exports.insertOrder = insertOrder;
