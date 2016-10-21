@@ -23,7 +23,7 @@ public class ProductsMenu implements Parcelable, Serializable{
     }
 
     public ProductsMenu(Parcel parcel){
-        parcel.readHashMap(HashMap.class.getClassLoader());
+        products = parcel.readHashMap(HashMap.class.getClassLoader());
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.example.joao.cafeclientapp.cart;
 
 import android.app.Activity;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
@@ -89,4 +91,5 @@ public class Cart extends ProductsMenu implements Serializable {
         }
         return price;
     }
+
 }

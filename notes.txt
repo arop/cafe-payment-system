@@ -27,6 +27,12 @@ Enable automatic uuid by postgresql (http://www.starkandwayne.com/blog/uuid-prim
 HTTP REQUESTS
 http://loopj.com/android-async-http/
 
+Action bar
+https://guides.codepath.com/android/Extended-ActionBar-Guide
+
+QR Codes
+http://stackoverflow.com/questions/28232116/android-using-zxing-generate-qr-code
+
 ------------------------------------------------------------
 http://localhost:5000/register
 http://cmov-nodejs-server.herokuapp.com/register
