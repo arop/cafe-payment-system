@@ -98,7 +98,7 @@ function insertOrder(order,callback) {
 				resultingOrder.order_items = [];
 				var i = 0;
 				for(; i < order.cart.length; i++) {
-					const query = client.query('INSERT INTO order_item (product_id,quantity,order_id) VALUES ($1,$2,$3) RETURNING *', 
+					const query = client.query('INSERT INTO order_items (product_id,quantity,order_id) VALUES ($1,$2,$3) RETURNING *', 
 						[order.cart[i][0], order.cart[i][1], result.rows[0].id], 
 						function(error, result){
 							if(error != null){
