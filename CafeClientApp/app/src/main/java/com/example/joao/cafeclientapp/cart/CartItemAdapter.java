@@ -127,6 +127,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
                 /**
                  * TODO add toast saying product added
                  */
+
             }
         });
 
