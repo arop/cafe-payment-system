@@ -1,15 +1,23 @@
 package com.example.joao.cafeclientapp.cart;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.menu.Product;
+import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -31,6 +39,7 @@ import static android.graphics.Color.WHITE;
 
 public class QrCodeCheckoutActivity extends AppCompatActivity {
 
+    private Activity currentActivity;
     private ImageView qrcodeView;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
@@ -39,6 +48,8 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr_code_checkout);
+
+        this.currentActivity = this;
 
         /////// GENERATE JSON to be sent to terminal via QR CODE //////
         Gson gson = new Gson();
@@ -91,5 +102,34 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
         return bitmap;
+    }
+
+
+    /////////////// ACTION BAR ////////////////
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_qrcode_checkout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem actionViewItem = menu.findItem(R.id.qrcode_checkout_done_container);
+        // Retrieve the action-view from menu
+        View v = MenuItemCompat.getActionView(actionViewItem);
+        // Find the button within action-view
+        Button b = (Button) v.findViewById(R.id.qrcode_checkout_done_btn);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Cart.getInstance(currentActivity).resetCart();
+                Intent intent = new Intent(currentActivity, ShowMenuActivity.class);
+                currentActivity.startActivity (intent);
+                currentActivity.finish();
+            }
+        });
+        // Handle button click here
+        return super.onPrepareOptionsMenu(menu);
     }
 }

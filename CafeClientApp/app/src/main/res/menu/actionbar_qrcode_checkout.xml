@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/qrcode_checkout_done_container"
+        app:showAsAction="always"
+        app:actionLayout="@layout/qr_confirm_button"
+        android:title="Done" />
+</menu>
