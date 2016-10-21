@@ -37,4 +37,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.0.+'
     compile 'com.github.dbachelder:CreditCardEntry:1.4.7'
     compile 'com.google.code.gson:gson:2.7'
+    compile 'com.google.zxing:core:3.3.0'
 }
