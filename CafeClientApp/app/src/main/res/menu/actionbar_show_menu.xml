@@ -2,7 +2,13 @@
 <menu
 xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto">
-<item
+
+    <item
+        android:id="@+id/cart_quantity_show_menu"
+        app:showAsAction="always"
+        android:title="" />
+
+    <item
     android:id="@+id/actionButton"
     app:showAsAction="always"
     app:actionLayout="@layout/cart_button"

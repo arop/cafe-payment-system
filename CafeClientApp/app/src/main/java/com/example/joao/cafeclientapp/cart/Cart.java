@@ -9,6 +9,7 @@ import com.example.joao.cafeclientapp.menu.ProductsMenu;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,5 +79,14 @@ public class Cart extends ProductsMenu implements Serializable {
             ret += "\n" + entry.getKey() + "/" + entry.getValue();
         }
         return ret;
+    }
+
+    public double getTotalPrice(){
+        double price = 0.0;
+        Collection<Product> values = products.values();
+        for (Product i : values) {
+            price += i.getQuantity()*i.getPrice();
+        }
+        return price;
     }
 }
