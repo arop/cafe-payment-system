@@ -106,13 +106,15 @@ function insertOrder(order,callback) {
 								return;
 							}
 							resultingOrder.order_items.push(result.rows[0]);
-					}
+						}
+					);
 				}
 			}
 			callback(resultingOrder);
 		
 		//done();
-	});
+		}
+	);
 	//query.on('end', () => { client.end(); });
 }
 
