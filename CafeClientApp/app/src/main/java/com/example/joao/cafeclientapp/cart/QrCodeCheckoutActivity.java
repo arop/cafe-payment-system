@@ -3,14 +3,28 @@ package com.example.joao.cafeclientapp.cart;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.menu.Product;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
@@ -26,9 +40,26 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr_code_checkout);
 
+        /////// GENERATE JSON to be sent to terminal via QR CODE //////
+        Gson gson = new Gson();
+        Cart current_cart = Cart.getInstance(this);
+        Map<Integer, Product> products = current_cart.getProducts();
+        Map<Integer, Integer> products_quantity = new HashMap<Integer, Integer>();
+        for(Product p : products.values()){
+            products_quantity.put(p.getId(), p.getQuantity());
+        }
+
+        Map<String, Object> future_json = new HashMap<String, Object>();
+        future_json.put("user", CustomLocalStorage.getString(this, "uuid"));
+        future_json.put("cart", products_quantity);
+        String json_str = gson.toJsonTree(future_json).toString();
+        Log.d("json cart", json_str);
+        //////////////////// END of JSON generation //////////////////
+
+
         qrcodeView = (ImageView) findViewById(R.id.qrcode);
         try {
-            Bitmap bitmap = encodeAsBitmap("VICUS");
+            Bitmap bitmap = encodeAsBitmap(json_str);
             qrcodeView.setImageBitmap(bitmap);
             qrcodeView.invalidate();
         } catch (WriterException e) {
