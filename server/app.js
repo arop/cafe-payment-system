@@ -130,6 +130,34 @@ app.post('/voucher', function(req, res) {
 //new transaction
 app.post('/transaction', function(req, res){
 	//TODO
+	if(!req.body.cart){
+		res.status(404).send('No cart info received!');
+		return;
+	}
+	if(!req.body.user){
+		res.status(404).send('No user info received!');
+		return;
+	}
+
+	var user = req.body.user;
+	var cart = req.body.cart;
+	var order = {};
+	order.user = user;
+	order.cart = cart;
+	
+	//if(!user.length > 0|| !cart.length > 0)
+	if(false)
+		res.status(404).send("Missing parameters!");
+	else{
+		db.insertOrder(order, function(result){
+			if(result == null){
+				res.send({"error" : "Error registing order!"});
+			}
+			else{
+				res.send(result);
+			}
+		});
+	}
 });
 
 //consult transactions

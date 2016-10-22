@@ -28,4 +28,6 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     testCompile 'junit:junit:4.12'
     compile 'me.dm7.barcodescanner:zxing:1.9'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile files('libs/android-async-http-1.4.9.jar')
 }

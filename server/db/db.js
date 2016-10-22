@@ -86,7 +86,7 @@ function insertOrder(order,callback) {
 	var resultingOrder = {};
 
 	client.connect();
-	const query = client.query('INSERT INTO orders (user_id) VALUES ($1) RETURNING *', 
+	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,CURRENT_TIMESTAMP) RETURNING *', 
 		[order.user], 
 		function(error, result){
 			if(error != null){
@@ -96,28 +96,32 @@ function insertOrder(order,callback) {
 			else {
 				resultingOrder.order = result.rows[0];
 				resultingOrder.order_items = [];
-				var i = 0;
-				for(; i < order.cart.length; i++) {
-					const query = client.query('INSERT INTO order_items (product_id,quantity,order_id) VALUES ($1,$2,$3) RETURNING *', 
-						[order.cart[i][0], order.cart[i][1], result.rows[0].id], 
-						function(error, result){
-							if(error != null){
-								callback(null);
-								return;
-							}
-							resultingOrder.order_items.push(result.rows[0]);
-						}
-					);
-				}
 			}
-			callback(resultingOrder);
-		
-		//done();
 		}
-	);
-	//query.on('end', () => { client.end(); });
-}
+	).on('end', () => {
+		var numberOfProducts = Object.keys(order.cart).length;
+		for(var product_id in order.cart) {
+		    if (!order.cart.hasOwnProperty(product_id)) continue;
 
+			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,$4) RETURNING *', 
+				[product_id, resultingOrder.order.id, order.cart[product_id], 1], //TODO change unit price
+				function(error, result){
+					if(error != null){
+						console.log(error);
+						return;
+					}
+					resultingOrder.order_items.push(result.rows[0]);
+				}
+			).on('end',() => {
+				//only call callback when all queries finish
+				numberOfProducts--;
+				if(numberOfProducts <= 0) {
+					callback(resultingOrder);
+				}
+			});
+		}
+	});
+}
 
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
