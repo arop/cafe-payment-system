@@ -14,9 +14,19 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.zxing.Result;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+
+import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class MainActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
@@ -72,10 +82,67 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Scan Result");
         builder.setMessage(rawResult.getText());
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                onResume();
+            }
+        });
         AlertDialog alert1 = builder.create();
         alert1.show();
         // If you would like to resume scanning, call this method below:
         // mScannerView.resumeCameraPreview(this);
+
+        //TODO parse rawResult
+        try {
+            JSONObject j = new JSONObject(rawResult.toString());
+            sendInsertOrderToServer(j);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendInsertOrderToServer(JSONObject result) throws JSONException {
+        HashMap<String, String> order_params = new HashMap<>();
+        RequestParams order = new RequestParams();
+
+        //TODO transform quantity from string to int (or try to parse it in the server)
+        order_params.put("cart",result.getString("cart"));
+        order_params.put("user",result.getString("user"));
+        order.put("order",order_params);
+
+        ServerRestClient.post("transaction", order, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try{
+                    String error = response.get("error").toString();
+                    Toast.makeText(currentActivity.getApplicationContext(), error, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                catch(JSONException e){
+                    //normal behaviour when there are no errors.
+                }
+
+                //Toast.makeText(currentActivity.getApplicationContext(), "Successful login!", Toast.LENGTH_LONG).show();
+                Log.e("order",response.toString());
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
+                Log.e("FAILURE:", error);
+                //showProgress(false); TODO show spinner
+                Toast.makeText(currentActivity.getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
+                Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
+                //showProgress(false); TODO show spinner
+                Toast.makeText(currentActivity.getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
+            }
+
+        });
     }
 
     public void QrScanner(View view) {
