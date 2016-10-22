@@ -139,8 +139,8 @@ app.post('/transaction', function(req, res){
 		return;
 	}
 
-	var user = req.body.user;
-	var cart = req.body.cart;
+	var user = req.body.order.user;
+	var cart = req.body.order.cart;
 	var order = {};
 	order.user = user;
 	order.cart = cart;
