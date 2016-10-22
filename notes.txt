@@ -33,6 +33,9 @@ https://guides.codepath.com/android/Extended-ActionBar-Guide
 QR Codes
 http://stackoverflow.com/questions/28232116/android-using-zxing-generate-qr-code
 
+Vibration/Haptic Feedback
+http://androidcookbook.com/Recipe.seam?recipeId=1242
+
 ------------------------------------------------------------
 http://localhost:5000/register
 http://cmov-nodejs-server.herokuapp.com/register

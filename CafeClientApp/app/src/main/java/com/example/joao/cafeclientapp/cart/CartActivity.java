@@ -54,7 +54,8 @@ public class CartActivity extends AppCompatActivity {
             public void onClick(View view) {
                 /*Snackbar.make(view, "This will be the checkout button", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
-                Intent intent = new Intent(currentActivity, QrCodeCheckoutActivity.class);
+                //Intent intent = new Intent(currentActivity, QrCodeCheckoutActivity.class);
+                Intent intent = new Intent(currentActivity, PinAskActivity.class);
                 currentActivity.startActivity (intent);
             }
         });

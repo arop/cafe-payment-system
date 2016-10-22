@@ -180,6 +180,7 @@ public class RegisterActivity extends AppCompatActivity {
                     String pin = response.get("pin").toString();
                     //SUCCESS
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
+                    CustomLocalStorage.set(currentActivity, "pin", pin);
                     Toast.makeText(context, "Registed Successfully!", Toast.LENGTH_LONG).show();
 
                     //Start show pin activity

@@ -3,6 +3,7 @@
     package="com.example.joao.cafeclientapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +13,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".authentication.RegisterActivity"
-            android:label="@string/title_activity_register"></activity>
+            android:label="@string/title_activity_register" />
         <activity android:name=".authentication.PinDisplayActivity" />
         <activity
             android:name=".menu.ShowMenuActivity"
@@ -36,7 +37,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".cart.QrCodeCheckoutActivity"></activity>
+        <activity android:name=".cart.QrCodeCheckoutActivity" />
+        <activity android:name=".cart.PinAskActivity"></activity>
     </application>
 
 </manifest>
