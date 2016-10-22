@@ -130,11 +130,11 @@ app.post('/voucher', function(req, res) {
 //new transaction
 app.post('/transaction', function(req, res){
 	//TODO
-	if(!req.body.cart){
+	if(!req.body.order.cart){
 		res.status(404).send('No cart info received!');
 		return;
 	}
-	if(!req.body.user){
+	if(!req.body.order.user){
 		res.status(404).send('No user info received!');
 		return;
 	}
