@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Activity currentActivity;
 
+    private String pin; //for use in onSuccess of REST request
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-
+            this.pin = password;
             attemptLoginInServer(email,password);
         }
     }
@@ -184,6 +185,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.e("user",response.toString());
                     String uuid = response.get("id").toString();
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
+                    CustomLocalStorage.set(currentActivity, "pin", pin);
                     onPostExecute(true);
                 }
                 catch(JSONException e){

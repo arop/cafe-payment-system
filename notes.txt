@@ -36,6 +36,9 @@ http://stackoverflow.com/questions/28232116/android-using-zxing-generate-qr-code
 Vibration/Haptic Feedback
 http://androidcookbook.com/Recipe.seam?recipeId=1242
 
+Shake on error
+http://droid-blog.net/2012/05/15/two-simple-ways-to-make-your-users-aware-of-incorrect-input/
+
 ------------------------------------------------------------
 http://localhost:5000/register
 http://cmov-nodejs-server.herokuapp.com/register
