@@ -26,10 +26,6 @@ import static java.lang.System.in;
 public class CustomLocalStorage {
 
     public static final String PREFS_NAME = "Globals";
-    /**
-     * Cart {product_name, price, quantity}
-     */
-    public static ArrayList<JsonObject> currentCart;
 
     public static void set(Activity activity, String key, String value){
         SharedPreferences sharedPref = activity.getSharedPreferences(PREFS_NAME, 0);

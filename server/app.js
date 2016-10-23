@@ -61,10 +61,13 @@ app.post('/register', function(req, res) {
 				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
-				var toSend = {};
-				toSend.pin = user.pin;
-				toSend.id = result.id;
-				res.send(toSend);
+				user.id = result.id;
+
+				//TODO change this!!
+				user.credit_card_number = "5444640177212251";
+				user.credit_card_exp_date = "12/16";
+
+				res.send(user);
 			}
 		});
 	}
@@ -88,9 +91,10 @@ app.post('/login', function(req, res) {
 				res.send({"error" : "Invalid email or password!"});
 			}
 			else{
-				var toSend = {};
-				toSend.id = result.id;
-				res.send(toSend);
+				//TODO change this!!
+				result.credit_card_number = "5444640177212251";
+				result.credit_card_exp_date = "12/16";
+				res.send(result);
 			}
 		});
 	}

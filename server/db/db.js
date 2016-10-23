@@ -33,6 +33,7 @@ function insertUser(user, callback){
 			callback(null);
 			return;
 		}
+		delete result.rows[0].hash_pin;
 		callback(result.rows[0]);
 		
 		//done();
