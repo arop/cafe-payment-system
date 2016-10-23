@@ -83,7 +83,7 @@ app.post('/login', function(req, res) {
 	if(!user.email || !user.pin)
 		res.status(404).send("Missing parameters!");
 	else{
-		db.checkLogin(user, function(result){
+		db.checkLoginByEmail(user, function(result){
 			if(result == null){
 				res.send({"error" : "Invalid email or password!"});
 			}
@@ -129,33 +129,42 @@ app.post('/voucher', function(req, res) {
 
 //new transaction
 app.post('/transaction', function(req, res){
-	//TODO
+	if(!req.body.order){
+		res.status(404).send('No order info received!');
+		return;
+	}
 	if(!req.body.order.cart){
 		res.status(404).send('No cart info received!');
 		return;
 	}
-	if(!req.body.order.user){
+	if(!req.body.order.user || !req.body.order.pin){
 		res.status(404).send('No user info received!');
 		return;
 	}
 
-	console.log(req.body);
-	var user = req.body.order.user;
+	var user = {};
+	user.id = req.body.order.user;
+	user.pin = req.body.order.pin;
 	var cart = req.body.order.cart;
 	var order = {};
 	order.user = user;
 	order.cart = JSON.parse(cart);
-	
-	//if(!user.length > 0|| !cart.length > 0)
-	if(false) //TODO
+
+	if(Object.keys(order.cart).length < 1)
 		res.status(404).send("Missing parameters!");
-	else{
-		db.insertOrder(order, function(result){
-			if(result == null){
-				res.send({"error" : "Error registing order!"});
-			}
-			else{
-				res.send(result);
+	else {
+		db.checkLoginByID(user, function(result) {
+			if(result == null) {
+				res.send({"error" : "Wrong credentials!"});
+			} else {
+				db.insertOrder(order, function(result){
+					if(result == null){
+						res.send({"error" : "Error registing order!"});
+					}
+					else{
+						res.send(result);
+					}
+				});
 			}
 		});
 	}

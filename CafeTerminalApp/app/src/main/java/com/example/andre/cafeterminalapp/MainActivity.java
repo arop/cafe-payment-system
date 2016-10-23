@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         HashMap<String, String> order_params = new HashMap<>();
         RequestParams order = new RequestParams();
 
-        //TODO transform quantity from string to int (or try to parse it in the server)
         order_params.put("cart",result.getString("cart"));
         order_params.put("user",result.getString("user"));
         order_params.put("pin",result.getString("pin"));

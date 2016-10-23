@@ -40,7 +40,7 @@ function insertUser(user, callback){
 	//query.on('end', () => { client.end(); });
 }
 
-function checkLogin(user, callback){
+function checkLoginByEmail(user, callback){
 
 	var client = openClient();
 
@@ -55,6 +55,27 @@ function checkLogin(user, callback){
 			callback(result.rows[0]);
 			return;
 		} else { // wrong password/email
+			callback(null);
+		}
+
+	});
+}
+
+function checkLoginByID(user, callback){
+
+	var client = openClient();
+
+	client.connect();
+	const query = client.query('SELECT * FROM users WHERE id = $1', [user.id], function(error, result){
+		if(error != null){
+			callback(null);
+			return;
+		}
+		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
+			delete result.rows[0].hash_pin;
+			callback(result.rows[0]);
+			return;
+		} else { // wrong password/id
 			callback(null);
 		}
 
@@ -87,7 +108,7 @@ function insertOrder(order,callback) {
 
 	client.connect();
 	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,CURRENT_TIMESTAMP) RETURNING *', 
-		[order.user], 
+		[order.user.id], 
 		function(error, result){
 			if(error != null){
 				callback(null);
@@ -127,5 +148,6 @@ function insertOrder(order,callback) {
 
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
-exports.checkLogin = checkLogin;
+exports.checkLoginByEmail = checkLoginByEmail;
+exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
