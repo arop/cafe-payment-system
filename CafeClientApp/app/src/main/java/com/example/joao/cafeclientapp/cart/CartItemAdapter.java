@@ -6,7 +6,6 @@ package com.example.joao.cafeclientapp.cart;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +13,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.R;
-import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.menu.Product;
 import com.example.joao.cafeclientapp.menu.ProductsMenu;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHolder> {
 
@@ -123,7 +119,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
             public void onClick(View v) {
                 currentCart.addProductToCart(dataset.get(position));
                 currentCart.saveCart(mActivity);
-                addAll(currentCart);
+                refreshDataSet();
+                ((CartActivity) mActivity).refreshCartTotalPrice();
                 /**
                  * TODO add toast saying product added
                  */
@@ -136,8 +133,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
             public void onClick(View v) {
                 currentCart.removeProductFromCart(dataset.get(position));
                 currentCart.saveCart(mActivity);
-
-                addAll(currentCart);
+                refreshDataSet();
+                ((CartActivity) mActivity).refreshCartTotalPrice();
                 /**
                  * TODO add toast saying product added
                  */
@@ -157,8 +154,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
         return dataset.size();
     }
 
-    public void addAll(ProductsMenu pm) {
-        this.dataset = new ArrayList<>(pm.getProducts().values());
+    public void refreshDataSet() {
         this.notifyDataSetChanged();
     }
 }

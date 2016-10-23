@@ -4,8 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
+import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.SerializeToString;
 import com.example.joao.cafeclientapp.ServerRestClient;
@@ -35,7 +41,7 @@ import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
-public class ShowMenuActivity extends AppCompatActivity {
+public class ShowMenuActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private Context context;
     private static Activity currentActivity;
@@ -56,6 +62,7 @@ public class ShowMenuActivity extends AppCompatActivity {
 
         context = getApplicationContext();
         currentActivity = this;
+
 
         try {
             list = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
@@ -105,8 +112,27 @@ public class ShowMenuActivity extends AppCompatActivity {
                 android.R.color.holo_red_light);
         ///////////////////////////////////////////
 
+
+        /////////////////////////////////////////////
+        ///////////// NAVIGATION DRAWER /////////////
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setCheckedItem(R.id.nav_menu);
+        /////////////////////////////////////////////
+
+
         swipeContainer.setRefreshing(true);
         fetchProductsAsync();
+
+
 
     }
 
@@ -215,5 +241,10 @@ public class ShowMenuActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_menu);
     }
 }

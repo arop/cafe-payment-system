@@ -9,5 +9,6 @@
         android:layout_height="wrap_content"
         android:text="Ok"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:layout_centerVertical="true" />
 </RelativeLayout>

@@ -38,6 +38,13 @@ public class CustomLocalStorage {
         editor.commit();
     }
 
+    public static void remove(Activity activity, String key){
+        SharedPreferences sharedPref = activity.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove(key);
+        editor.commit();
+    }
+
     public static String getString(Activity activity, String key){
         SharedPreferences sharedPref = activity.getSharedPreferences(PREFS_NAME, 0);
         return sharedPref.getString(key, null);
