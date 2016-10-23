@@ -78,7 +78,6 @@ function checkLoginByID(user, callback){
 		} else { // wrong password/id
 			callback(null);
 		}
-
 	});
 }
 
@@ -148,8 +147,45 @@ function insertOrder(order,callback) {
 	});
 }
 
+
+/**
+* get previous orders from user
+*/
+function getPreviousOrders(user,offset,callback) {
+	var client = openClient();
+	client.connect();
+	var results = [];
+	const query = client.query(
+		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
+		'order_items.quantity AS quantity, '+
+		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
+		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
+		'LIMIT 10 OFFSET $2 ) AS orders, order_items, products '+
+		'WHERE orders.user_id = $1 '+
+		'AND order_items.order_id = orders.id '+
+		'AND order_items.product_id = products.id;',
+		[user.id,offset],
+		function(error, result){
+			if(error != null){
+				console.log(error);
+				callback(null);
+				return;
+			}
+		}
+	);
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      callback(results);
+    });
+}
+
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
 exports.checkLoginByEmail = checkLoginByEmail;
 exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
+exports.getPreviousOrders = getPreviousOrders;

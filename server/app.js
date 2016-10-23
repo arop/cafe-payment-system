@@ -100,7 +100,6 @@ app.post('/login', function(req, res) {
 //get menu
 app.get('/menu', function(req, res){
 	db.getMenu(function(menu){
-		console.log(menu);
 		res.send({"menu" : menu});
 	})
 });
@@ -171,8 +170,28 @@ app.post('/transaction', function(req, res){
 });
 
 //consult transactions
-app.get('/transaction', function(req, res){
-	//TODO
+app.post('/pasttransactions', function(req, res){
+	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
+		res.status(404).send('No user info received!');
+		return;
+	}
+	var user = req.body.user;
+	db.checkLoginByID(user, function(result) {
+		if(result == null) {
+			res.send({"error" : "Wrong credentials!"});
+		} else {
+			var offset = 0;
+			if(req.body.offset) offset = req.body.offset;
+
+			db.getPreviousOrders(user,offset,function(orders){
+				if(orders == null) {
+					res.send({"error" : "Error getting orders!"});
+				}
+				else res.send({"orders" : orders});
+			});
+		}
+	});
+
 });
 
 
