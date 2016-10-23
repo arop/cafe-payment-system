@@ -100,11 +100,13 @@ function insertOrder(order,callback) {
 		}
 	).on('end', () => {
 		var numberOfProducts = Object.keys(order.cart).length;
-		for(var product_id in order.cart) {
-		    if (!order.cart.hasOwnProperty(product_id)) continue;
+		for(var prod_id in order.cart) {
+		    if (!order.cart.hasOwnProperty(prod_id)) continue;
+
+		    var product_id = parseInt(prod_id);
 
 			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,$4) RETURNING *', 
-				[product_id, resultingOrder.order.id, order.cart[product_id], 1], //TODO change unit price
+				[product_id, resultingOrder.order.id, order.cart[prod_id], 1], //TODO change unit price
 				function(error, result){
 					if(error != null){
 						console.log(error);

@@ -63,6 +63,7 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         Map<String, Object> future_json = new HashMap<String, Object>();
         future_json.put("user", CustomLocalStorage.getString(this, "uuid"));
         future_json.put("cart", products_quantity);
+        future_json.put("pin", CustomLocalStorage.getString(this, "pin"));
         String json_str = gson.toJsonTree(future_json).toString();
         Log.d("json cart", json_str);
         //////////////////// END of JSON generation //////////////////

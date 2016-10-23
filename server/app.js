@@ -139,14 +139,15 @@ app.post('/transaction', function(req, res){
 		return;
 	}
 
+	console.log(req.body);
 	var user = req.body.order.user;
 	var cart = req.body.order.cart;
 	var order = {};
 	order.user = user;
-	order.cart = cart;
+	order.cart = JSON.parse(cart);
 	
 	//if(!user.length > 0|| !cart.length > 0)
-	if(false)
+	if(false) //TODO
 		res.status(404).send("Missing parameters!");
 	else{
 		db.insertOrder(order, function(result){

@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         //TODO parse rawResult
         try {
             JSONObject j = new JSONObject(rawResult.toString());
+            //Log.d("raw received", rawResult.toString());
             sendInsertOrderToServer(j);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         //TODO transform quantity from string to int (or try to parse it in the server)
         order_params.put("cart",result.getString("cart"));
         order_params.put("user",result.getString("user"));
+        order_params.put("pin",result.getString("pin"));
         order.put("order",order_params);
 
         ServerRestClient.post("transaction", order, new JsonHttpResponseHandler() {
