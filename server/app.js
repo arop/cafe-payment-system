@@ -103,9 +103,18 @@ app.post('/login', function(req, res) {
 
 //get menu
 app.get('/menu', function(req, res){
-	db.getMenu(function(menu){
-		res.send({"menu" : menu});
-	})
+	var version = req.query.version; // $_GET["id"]
+	console.log(version);
+	db.getMenuVersion(function(actual_version){
+		if(version == actual_version){
+			res.status(208).send('Menu up-to-date!');
+		}else{
+			db.getMenu(function(menu){
+				res.send({"menu" : menu, "version" : actual_version});
+			})
+		}
+	});
+	
 });
 
 

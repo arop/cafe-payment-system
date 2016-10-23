@@ -98,6 +98,19 @@ function getMenu(callback){
 
 }
 
+exports.getMenuVersion = function(callback){
+	var client = openClient();
+	client.connect();
+	const results = [];
+	const query = client.query('SELECT * FROM globals WHERE key = $1;', ['menu_version'], function(error, result){
+		client.end();
+		if(error != null)
+			callback(null)
+		else callback(result.rows[0].value);	
+	});
+}
+
+
 /**
 * insert order
 */
