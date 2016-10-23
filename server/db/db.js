@@ -126,8 +126,10 @@ function insertOrder(order,callback) {
 
 		    var product_id = parseInt(prod_id);
 
-			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,$4) RETURNING *', 
-				[product_id, resultingOrder.order.id, order.cart[prod_id], 1], //TODO change unit price
+			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,'+
+				'(SELECT price FROM products WHERE id = $1)'+
+				') RETURNING *',
+				[product_id, resultingOrder.order.id, order.cart[prod_id]],
 				function(error, result){
 					if(error != null){
 						console.log(error);

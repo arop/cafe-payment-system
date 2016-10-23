@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
 
     private ZXingScannerView mScannerView;
     private Activity currentActivity;
+    private Result currentScanResult;
 
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
 
@@ -75,9 +76,10 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
 
     @Override
     public void handleResult(Result rawResult) {
+        currentScanResult = rawResult;
         // Do something with the result here
-        Log.e("handler", rawResult.getText()); // Prints scan results
-        Log.e("handler", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode)
+        //Log.e("handler", rawResult.getText()); // Prints scan results
+        //Log.e("handler", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode)
         // show the scanner result into dialog box.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Scan Result");
@@ -88,19 +90,26 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
                 onResume();
             }
         });
-        AlertDialog alert1 = builder.create();
-        alert1.show();
-        // If you would like to resume scanning, call this method below:
-        // mScannerView.resumeCameraPreview(this);
-
-        //TODO parse rawResult
-        try {
-            JSONObject j = new JSONObject(rawResult.toString());
-            //Log.d("raw received", rawResult.toString());
-            sendInsertOrderToServer(j);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    JSONObject j = new JSONObject(currentScanResult.toString());
+                    sendInsertOrderToServer(j);
+                } catch (JSONException e) {
+                    Log.e("error","json error on sending insert order to server");
+                    e.printStackTrace();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public void sendInsertOrderToServer(JSONObject result) throws JSONException {
@@ -124,9 +133,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
                     //normal behaviour when there are no errors.
                 }
 
-                //Toast.makeText(currentActivity.getApplicationContext(), "Successful login!", Toast.LENGTH_LONG).show();
                 Log.e("order",response.toString());
-
             }
 
             @Override
@@ -142,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
                 //showProgress(false); TODO show spinner
                 Toast.makeText(currentActivity.getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
             }
-
         });
     }
 
