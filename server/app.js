@@ -83,7 +83,7 @@ app.post('/login', function(req, res) {
 	if(!user.email || !user.pin)
 		res.status(404).send("Missing parameters!");
 	else{
-		db.checkLogin(user, function(result){
+		db.checkLoginByEmail(user, function(result){
 			if(result == null){
 				res.send({"error" : "Invalid email or password!"});
 			}
@@ -100,7 +100,6 @@ app.post('/login', function(req, res) {
 //get menu
 app.get('/menu', function(req, res){
 	db.getMenu(function(menu){
-		console.log(menu);
 		res.send({"menu" : menu});
 	})
 });
@@ -129,41 +128,70 @@ app.post('/voucher', function(req, res) {
 
 //new transaction
 app.post('/transaction', function(req, res){
-	//TODO
+	if(!req.body.order){
+		res.status(404).send('No order info received!');
+		return;
+	}
 	if(!req.body.order.cart){
 		res.status(404).send('No cart info received!');
 		return;
 	}
-	if(!req.body.order.user){
+	if(!req.body.order.user || !req.body.order.pin){
 		res.status(404).send('No user info received!');
 		return;
 	}
 
-	console.log(req.body);
-	var user = req.body.order.user;
+	var user = {};
+	user.id = req.body.order.user;
+	user.pin = req.body.order.pin;
 	var cart = req.body.order.cart;
 	var order = {};
 	order.user = user;
 	order.cart = JSON.parse(cart);
-	
-	//if(!user.length > 0|| !cart.length > 0)
-	if(false) //TODO
+
+	if(Object.keys(order.cart).length < 1)
 		res.status(404).send("Missing parameters!");
-	else{
-		db.insertOrder(order, function(result){
-			if(result == null){
-				res.send({"error" : "Error registing order!"});
-			}
-			else{
-				res.send(result);
+	else {
+		db.checkLoginByID(user, function(result) {
+			if(result == null) {
+				res.send({"error" : "Wrong credentials!"});
+			} else {
+				db.insertOrder(order, function(result){
+					if(result == null){
+						res.send({"error" : "Error registing order!"});
+					}
+					else{
+						res.send(result);
+					}
+				});
 			}
 		});
 	}
 });
 
 //consult transactions
-app.get('/transaction', function(req, res){
-	//TODO
+app.post('/pasttransactions', function(req, res){
+	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
+		res.status(404).send('No user info received!');
+		return;
+	}
+	var user = req.body.user;
+	db.checkLoginByID(user, function(result) {
+		if(result == null) {
+			res.send({"error" : "Wrong credentials!"});
+		} else {
+			var offset = 0;
+			if(req.body.offset) offset = req.body.offset;
+
+			db.getPreviousOrders(user,offset,function(orders){
+				if(orders == null) {
+					res.send({"error" : "Error getting orders!"});
+				}
+				else res.send({"orders" : orders});
+			});
+		}
+	});
+
 });
 
 

@@ -40,7 +40,7 @@ function insertUser(user, callback){
 	//query.on('end', () => { client.end(); });
 }
 
-function checkLogin(user, callback){
+function checkLoginByEmail(user, callback){
 
 	var client = openClient();
 
@@ -58,6 +58,26 @@ function checkLogin(user, callback){
 			callback(null);
 		}
 
+	});
+}
+
+function checkLoginByID(user, callback){
+
+	var client = openClient();
+
+	client.connect();
+	const query = client.query('SELECT * FROM users WHERE id = $1', [user.id], function(error, result){
+		if(error != null){
+			callback(null);
+			return;
+		}
+		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
+			delete result.rows[0].hash_pin;
+			callback(result.rows[0]);
+			return;
+		} else { // wrong password/id
+			callback(null);
+		}
 	});
 }
 
@@ -87,7 +107,7 @@ function insertOrder(order,callback) {
 
 	client.connect();
 	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,CURRENT_TIMESTAMP) RETURNING *', 
-		[order.user], 
+		[order.user.id], 
 		function(error, result){
 			if(error != null){
 				callback(null);
@@ -105,8 +125,10 @@ function insertOrder(order,callback) {
 
 		    var product_id = parseInt(prod_id);
 
-			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,$4) RETURNING *', 
-				[product_id, resultingOrder.order.id, order.cart[prod_id], 1], //TODO change unit price
+			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,'+
+				'(SELECT price FROM products WHERE id = $1)'+
+				') RETURNING *',
+				[product_id, resultingOrder.order.id, order.cart[prod_id]],
 				function(error, result){
 					if(error != null){
 						console.log(error);
@@ -125,7 +147,45 @@ function insertOrder(order,callback) {
 	});
 }
 
+
+/**
+* get previous orders from user
+*/
+function getPreviousOrders(user,offset,callback) {
+	var client = openClient();
+	client.connect();
+	var results = [];
+	const query = client.query(
+		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
+		'order_items.quantity AS quantity, '+
+		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
+		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
+		'LIMIT 10 OFFSET $2 ) AS orders, order_items, products '+
+		'WHERE orders.user_id = $1 '+
+		'AND order_items.order_id = orders.id '+
+		'AND order_items.product_id = products.id;',
+		[user.id,offset],
+		function(error, result){
+			if(error != null){
+				console.log(error);
+				callback(null);
+				return;
+			}
+		}
+	);
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      callback(results);
+    });
+}
+
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
-exports.checkLogin = checkLogin;
+exports.checkLoginByEmail = checkLoginByEmail;
+exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
+exports.getPreviousOrders = getPreviousOrders;
