@@ -25,6 +25,7 @@ import java.util.HashMap;
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.User;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -46,7 +47,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private Activity currentActivity;
 
-    private String pin; //for use in onSuccess of REST request
+    // DO NOT TOUCH THIS, even if you think this is wrong, it's not
+    private String pin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,19 +154,20 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            this.pin = password;
             attemptLoginInServer(email,password);
         }
     }
 
     private void attemptLoginInServer(String email, String password) {
-        HashMap<String, String> user_params = new HashMap<String, String>();
+        HashMap<String, String> user_params = new HashMap<>();
         RequestParams user = new RequestParams();
 
         user_params.put("email", email);
         user_params.put("pin", password);
 
         user.put("user",user_params);
+
+        this.pin = password;
 
         ServerRestClient.post("login", user, new JsonHttpResponseHandler() {
             @Override
@@ -180,13 +184,32 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 try{
+                    String uuid = response.get("id").toString();
+                    String name = response.get("name").toString();
+                    String email = response.get("email").toString();
+                    String nif = response.get("nif").toString();
+
+                    String credit_card_number = response.get("credit_card_number").toString();
+                    String credit_card_exp_date = response.get("credit_card_exp_date").toString();
+
+
+                    CustomLocalStorage.set(currentActivity, "uuid", uuid);
+                    CustomLocalStorage.set(currentActivity, "pin", pin);
+
+                    // SET SINGLETON USER
+                    User.getInstance().setName(name);
+                    User.getInstance().setEmail(email);
+                    User.getInstance().setPin(pin);
+                    User.getInstance().setUuid(uuid);
+                    User.getInstance().setNif(nif);
+                    User.getInstance().setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance().addCreditCard(credit_card_number,credit_card_exp_date);
+
+                    onPostExecute(true);
+
                     //SUCCESS LOGIN
                     Toast.makeText(currentActivity.getApplicationContext(), "Successful login!", Toast.LENGTH_LONG).show();
                     Log.e("user",response.toString());
-                    String uuid = response.get("id").toString();
-                    CustomLocalStorage.set(currentActivity, "uuid", uuid);
-                    CustomLocalStorage.set(currentActivity, "pin", pin);
-                    onPostExecute(true);
                 }
                 catch(JSONException e){
                     Log.e("FAILURE:", "error parsing response JSON");

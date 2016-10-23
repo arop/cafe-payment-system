@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -62,7 +61,6 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
 
         context = getApplicationContext();
         currentActivity = this;
-
 
         try {
             list = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
@@ -126,16 +124,12 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationView.setCheckedItem(R.id.nav_menu);
+        NavigationDrawerUtils.setUser(navigationView);
         /////////////////////////////////////////////
-
 
         swipeContainer.setRefreshing(true);
         fetchProductsAsync();
-
-
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -178,7 +172,6 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
     }
 
     public void fetchProductsAsync(){
-
         //clearList();
 
         ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
@@ -223,13 +216,6 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
         });
     }
 
-
-
-    public static Activity getMenuActivity() {
-        return currentActivity;
-    }
-
-
     public void refreshCartTotalPrice() {
         double val = currentCart.getTotalPrice();
         MenuItem cart_quant = menu.findItem(R.id.cart_quantity_show_menu);
@@ -239,8 +225,6 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
         else{
             cart_quant.setTitle(String.format( "%.2f", val )+"€");
         }
-
-
     }
 
     @Override

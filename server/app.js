@@ -94,7 +94,6 @@ app.post('/login', function(req, res) {
 				//TODO change this!!
 				result.credit_card_number = "5444640177212251";
 				result.credit_card_exp_date = "12/16";
-				result.pin = user.pin;
 				res.send(result);
 			}
 		});
