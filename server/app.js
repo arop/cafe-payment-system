@@ -196,7 +196,7 @@ app.post('/pasttransactions', function(req, res){
 			var offset = 0;
 			if(req.body.offset) offset = req.body.offset;
 
-			db.getPreviousOrders(user,offset,function(orders){
+			db.getPreviousOrders(user,offset,10,function(orders){
 				if(orders == null) {
 					res.send({"error" : "Error getting orders!"});
 				}

@@ -165,20 +165,20 @@ function insertOrder(order,callback) {
 /**
 * get previous orders from user
 */
-function getPreviousOrders(user,offset,callback) {
+function getPreviousOrders(user,offset,limit,callback) {
 	var client = openClient();
 	client.connect();
-	var results = [];
+	var results = {};
 	const query = client.query(
 		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
 		'order_items.quantity AS quantity, '+
 		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
 		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
-		'LIMIT 10 OFFSET $2 ) AS orders, order_items, products '+
+		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products '+
 		'WHERE orders.user_id = $1 '+
 		'AND order_items.order_id = orders.id '+
 		'AND order_items.product_id = products.id;',
-		[user.id,offset],
+		[user.id,offset,limit],
 		function(error, result){
 			if(error != null){
 				console.log(error);
@@ -189,13 +189,26 @@ function getPreviousOrders(user,offset,callback) {
 	);
     // Stream results back one row at a time
     query.on('row', (row) => {
-      results.push(row);
+    	var o_id = row.order_id;
+    	if(!results[o_id]) {
+    		results[o_id] = {};
+    		results[o_id].order_id = o_id;
+    		results[o_id].timestamp = row.timestamp;
+    		results[o_id].products = [];
+    	}
+    	var p = {};
+    	p.id = row.product_id;
+    	p.name = row.product_name;
+    	p.quantity = row.quantity;
+    	p.unit_price = row.unit_price;
+		results[o_id].products.push(p);
     });
     // After all data is returned, close connection and return results
     query.on('end', () => {
       callback(results);
     });
 }
+
 
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
