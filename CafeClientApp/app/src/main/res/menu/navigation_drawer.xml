@@ -14,6 +14,11 @@
             android:id="@+id/nav_vouchers"
             android:icon="@drawable/ic_navigation_drawer_vouchers"
             android:title="Vouchers" />
+
+        <item
+            android:id="@+id/nav_orders"
+            android:icon="@drawable/ic_navigation_drawer_orders"
+            android:title="Orders" />
     </group>
 
     <item android:title="Options">
