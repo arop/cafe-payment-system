@@ -2,16 +2,20 @@ package com.example.joao.cafeclientapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 
 import com.example.joao.cafeclientapp.authentication.LoginActivity;
+import com.example.joao.cafeclientapp.cart.Cart;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Joao on 23/10/2016.
  */
 
-public class User {
+public class User implements Serializable{
 
     private String uuid, name, email, nif, pin;
     private ArrayList<CreditCard> creditCards;
@@ -21,9 +25,9 @@ public class User {
      */
     private static User instance = null;
 
-    public static User getInstance() {
+    public static User getInstance(Activity a) {
         if(instance == null)
-            instance = new User();
+            getSavedUser(a);
         return instance;
     }
 
@@ -111,7 +115,7 @@ public class User {
         this.primaryCreditCard = primaryCreditCard;
     }
 
-    public class CreditCard {
+    public class CreditCard implements Serializable{
         protected String number;
         protected String expirationDate;
         public CreditCard(String n, String exp) {
@@ -119,4 +123,22 @@ public class User {
             expirationDate = exp;
         }
     }
+
+    public static void getSavedUser(Activity a){
+        try {
+            instance = CustomLocalStorage.getUser(a);
+        } catch (Exception e) {
+            Log.d("user", "couldnt get user from storage");
+            instance = new User();
+        }
+    }
+
+    public static void saveInstance(Activity a) {
+        try {
+            CustomLocalStorage.saveUser(a,instance);
+        } catch (IOException e) {
+            Log.e("user","couldn't save user");
+        }
+    }
+
 }

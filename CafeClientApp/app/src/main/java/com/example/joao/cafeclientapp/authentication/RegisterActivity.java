@@ -191,13 +191,14 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(context, "Registed Successfully!", Toast.LENGTH_LONG).show();
 
                     // SET SINGLETON USER
-                    User.getInstance().setName(name);
-                    User.getInstance().setEmail(email);
-                    User.getInstance().setPin(name);
-                    User.getInstance().setUuid(uuid);
-                    User.getInstance().setNif(nif);
-                    User.getInstance().setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
-                    User.getInstance().addCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance(currentActivity).setName(name);
+                    User.getInstance(currentActivity).setEmail(email);
+                    User.getInstance(currentActivity).setPin(name);
+                    User.getInstance(currentActivity).setUuid(uuid);
+                    User.getInstance(currentActivity).setNif(nif);
+                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_exp_date);
+                    User.saveInstance(currentActivity);
 
                     //Start show pin activity
                     Intent intent = new Intent(currentActivity, PinDisplayActivity.class);

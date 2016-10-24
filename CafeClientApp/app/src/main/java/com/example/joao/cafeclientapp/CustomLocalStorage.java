@@ -64,4 +64,12 @@ public class CustomLocalStorage {
         return (Cart) SerializeToString.fromString(CustomLocalStorage.getString(activity, "cart"));
     }
 
+    public static User getUser(Activity activity) throws IOException, ClassNotFoundException {
+        return (User) SerializeToString.fromString(CustomLocalStorage.getString(activity, "user"));
+    }
+
+    public static void saveUser(Activity activity, User u) throws IOException {
+        set(activity, "user", SerializeToString.toString(u));
+    }
+
 }

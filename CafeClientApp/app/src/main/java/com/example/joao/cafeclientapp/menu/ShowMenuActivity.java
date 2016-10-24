@@ -124,7 +124,7 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationView.setCheckedItem(R.id.nav_menu);
-        NavigationDrawerUtils.setUser(navigationView);
+        NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
 
         swipeContainer.setRefreshing(true);

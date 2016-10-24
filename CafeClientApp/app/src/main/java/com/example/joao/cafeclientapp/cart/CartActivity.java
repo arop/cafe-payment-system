@@ -76,7 +76,7 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationView.setCheckedItem(R.id.nav_cart);
-        NavigationDrawerUtils.setUser(navigationView);
+        NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
     }
 

@@ -42,7 +42,7 @@ public class NavigationDrawerUtils {
                     break;
 
                 case R.id.nav_logout:
-                    User.getInstance().logout(activity);
+                    User.getInstance(activity).logout(activity);
                     break;
             }
         }
@@ -52,13 +52,13 @@ public class NavigationDrawerUtils {
         return true;
     }
 
-    public static void setUser(NavigationView nav_view) {
+    public static void setUser(NavigationView nav_view, Activity a) {
         View header = nav_view.getHeaderView(0);
         TextView name = (TextView) header.findViewById(R.id.navigation_drawer_header_name);
         TextView email = (TextView) header.findViewById(R.id.navigation_drawer_header_email);
 
-        name.setText(User.getInstance().getName());
-        email.setText(User.getInstance().getEmail());
+        name.setText(User.getInstance(a).getName());
+        email.setText(User.getInstance(a).getEmail());
     }
 
 }

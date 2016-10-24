@@ -197,14 +197,14 @@ public class LoginActivity extends AppCompatActivity {
                     CustomLocalStorage.set(currentActivity, "pin", pin);
 
                     // SET SINGLETON USER
-                    User.getInstance().setName(name);
-                    User.getInstance().setEmail(email);
-                    User.getInstance().setPin(pin);
-                    User.getInstance().setUuid(uuid);
-                    User.getInstance().setNif(nif);
-                    User.getInstance().setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
-                    User.getInstance().addCreditCard(credit_card_number,credit_card_exp_date);
-
+                    User.getInstance(currentActivity).setName(name);
+                    User.getInstance(currentActivity).setEmail(email);
+                    User.getInstance(currentActivity).setPin(pin);
+                    User.getInstance(currentActivity).setUuid(uuid);
+                    User.getInstance(currentActivity).setNif(nif);
+                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_exp_date);
+                    User.saveInstance(currentActivity);
                     onPostExecute(true);
 
                     //SUCCESS LOGIN
