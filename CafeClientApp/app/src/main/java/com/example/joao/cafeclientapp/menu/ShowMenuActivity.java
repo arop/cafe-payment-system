@@ -30,6 +30,7 @@ import com.example.joao.cafeclientapp.ServerRestClient;
 import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.cart.CartActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +65,6 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
 
         try {
             list = (ProductsMenu) SerializeToString.fromString(CustomLocalStorage.getString(currentActivity, "menu"));
-
         } catch (Exception e){
             list = new ProductsMenu();
         }
@@ -127,8 +127,8 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
 
-        swipeContainer.setRefreshing(true);
         fetchProductsAsync();
+        swipeContainer.setRefreshing(true);
     }
 
     @Override
@@ -172,38 +172,45 @@ public class ShowMenuActivity extends AppCompatActivity implements NavigationVie
     }
 
     public void fetchProductsAsync(){
-        //clearList();
 
-        ServerRestClient.get("menu", null, new JsonHttpResponseHandler() {
+        String menu_version = CustomLocalStorage.getString(currentActivity,"menu_version");
+        if(menu_version == null) menu_version = "0";
+        RequestParams version = new RequestParams();
+        version.put("version",menu_version);
+
+        ServerRestClient.get("menu", version, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("success", "got menu");
-                try{
-                    JSONArray menu = (JSONArray) response.get("menu");
-                    HashMap<Integer, Product> new_menu = new HashMap<Integer, Product>();
-
-                    for (int i = 0; i < menu.length(); ++i) {
-                        Product p = new Product(menu.getJSONObject(i));
-                        new_menu.put(p.getId(), p);
-                    }
-
-                    list.setProducts(new_menu);
-                    refreshAdapterData();
-
-                    //Save menu to memory
-                    CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(list));
-
-                }
-                catch(JSONException e){
-                    //problem with server. probably.
-                    Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
-                }
-                catch(IOException io){
-                    //error serializing menu object
-                    Log.e("Serialize", "Couldn't save Menu to memory");
-                }
-                finally {
+                if(statusCode == 204) { //Menu up to date
+                    Log.d("success", "menu up-to-date!");
                     swipeContainer.setRefreshing(false);
+                } else {
+                    Log.d("success", "got menu");
+                    try {
+                        JSONArray menu = (JSONArray) response.get("menu");
+                        HashMap<Integer, Product> new_menu = new HashMap<>();
+
+                        for (int i = 0; i < menu.length(); ++i) {
+                            Product p = new Product(menu.getJSONObject(i));
+                            new_menu.put(p.getId(), p);
+                        }
+
+                        list.setProducts(new_menu);
+                        refreshAdapterData();
+
+                        //Save menu to memory
+                        CustomLocalStorage.set(currentActivity, "menu", SerializeToString.toString(list));
+                        String menu_version = response.getString("version");
+                        CustomLocalStorage.set(currentActivity, "menu_version", menu_version);
+                    } catch (JSONException e) {
+                        //problem with server. probably.
+                        Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
+                    } catch (IOException io) {
+                        //error serializing menu object
+                        Log.e("Serialize", "Couldn't save Menu to memory");
+                    } finally {
+                        swipeContainer.setRefreshing(false);
+                    }
                 }
             }
 

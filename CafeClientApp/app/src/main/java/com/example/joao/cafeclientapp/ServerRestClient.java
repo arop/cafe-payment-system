@@ -10,6 +10,7 @@ public class ServerRestClient {
 
     private static final String BASE_URL = "http://cmov-nodejs-server.herokuapp.com/";
     //private static final String BASE_URL = "http://192.168.2.117:5000/";
+    //private static final String BASE_URL = "http://172.30.11.233:5000/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
