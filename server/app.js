@@ -57,17 +57,15 @@ app.post('/register', function(req, res) {
 		user.hash_pin = bcrypt.hashSync(user.pin);
 
 		user.credit_card_number = user.credit_card_number.replace(/\s/g, '');
-		console.log(user);
+		//console.log(user);
 		db.insertUser(user, function(result){
 			if(result == null){
 				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
-				user.id = result.id;
-				delete user.credit_card_cvv;	
-				delete user.hash_pin;	
-				console.log(user);
-				res.send(user);
+				result.pin = user.pin;
+				console.log(result);
+				res.send(result);
 			}
 		});
 	}
@@ -91,6 +89,8 @@ app.post('/login', function(req, res) {
 				res.send({"error" : "Invalid email or password!"});
 			}
 			else{
+				result = JSON.parse(JSON.stringify(result));
+				console.log(result);
 				res.send(result);
 			}
 		});
@@ -194,6 +194,7 @@ app.post('/pasttransactions', function(req, res){
 			if(req.body.offset) offset = req.body.offset;
 
 			db.getPreviousOrders(user,offset,10,function(orders){
+				console.log(orders);
 				if(orders == null) {
 					res.send({"error" : "Error getting orders!"});
 				}
