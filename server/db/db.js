@@ -39,10 +39,10 @@ function insertUser(user, callback){
 	});*/
 
 
-	let query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
-	let query_1_params = [user.name,user.email,user.nif,user.hash_pin];
-  	let query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4)';
-  	let query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
+	var query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
+	var query_1_params = [user.name,user.email,user.nif,user.hash_pin];
+  	var query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4)';
+  	var query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
 
 	client.query('BEGIN', function(err, result) {
 		
