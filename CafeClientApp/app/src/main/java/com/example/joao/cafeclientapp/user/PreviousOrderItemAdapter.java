@@ -81,7 +81,7 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
         TextView total_price = (TextView) holder.mView.findViewById(R.id.total_price);
 
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        Date d = new Date(Long.parseLong(dataset.get(position).getTimestamp()));
+        Date d = new Date(dataset.get(position).getTimestamp());
 
         date.setText(df.format(d));
         total_price.setText(String.format( "%.2f", dataset.get(position).getTotalPrice() )+"€");
