@@ -254,7 +254,7 @@ function getPreviousOrders(user,offset,limit,callback) {
     	p.id = row.product_id;
     	p.name = row.product_name;
     	p.quantity = row.quantity;
-    	p.unit_price = row.unit_price;
+    	p.price = row.unit_price;
 		results[o_id].products.push(p);
     });
     // After all data is returned, close connection and return results
