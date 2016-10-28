@@ -191,7 +191,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     String credit_card_number = response.get("credit_card_number").toString();
                     String credit_card_expiration = response.get("credit_card_expiration").toString();
-                    
+
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     CustomLocalStorage.set(currentActivity, "pin", pin);
 
