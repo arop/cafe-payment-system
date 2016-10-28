@@ -118,6 +118,7 @@ public class User implements Serializable{
     public class CreditCard implements Serializable{
         protected String number;
         protected String expirationDate;
+        protected String cvv;
         public CreditCard(String n, String exp) {
             number = n;
             expirationDate = exp;

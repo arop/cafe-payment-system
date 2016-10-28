@@ -28,18 +28,55 @@ function insertUser(user, callback){
 	var client = openClient();
 
 	client.connect();
-	const query = client.query('INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *', [user.name,user.email,user.nif,user.hash_pin], function(error, result){
+	/*const query = client.query('INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *', [user.name,user.email,user.nif,user.hash_pin], function(error, result){
 		if(error != null){
 			callback(null);
 			return;
 		}
 		delete result.rows[0].hash_pin;
+		client.end();
 		callback(result.rows[0]);
+	});*/
+
+
+	let query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
+	let query_1_params = [user.name,user.email,user.nif,user.hash_pin];
+  	let query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4)';
+  	let query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
+
+	client.query('BEGIN', function(err, result) {
 		
-		//done();
+		if(err) return rollback(err, client, callback);
+		client.query(query_1, query_1_params, function(err, result_user) {
+
+			if(err) return rollback(err, client, callback);
+
+			//delete result_user.rows[0].hash_pin;
+			query_2_params[3] = result_user.rows[0].id; //set user uuid for reference in credit card object.
+
+			client.query(query_2, query_2_params, function(err, result_credit_card) {
+
+				if(err) return rollback(err, client, callback);
+				//disconnect after successful commit
+				client.query('COMMIT', client.end.bind(client));
+				callback(result_user.rows[0]);
+			});
+		});
 	});
-	//query.on('end', () => { client.end(); });
 }
+
+function rollback(err, client, callback) {
+	console.log(err);
+	//terminating a client connection will
+	//automatically rollback any uncommitted transactions
+	//so while it's not technically mandatory to call
+	//ROLLBACK it is cleaner and more correct
+	client.query('ROLLBACK', function() {
+		client.end();
+		callback(null);
+	});
+};
+
 
 function checkLoginByEmail(user, callback){
 

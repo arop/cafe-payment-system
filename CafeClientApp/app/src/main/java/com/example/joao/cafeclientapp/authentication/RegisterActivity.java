@@ -183,7 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
                     String nif = response.get("nif").toString();
 
                     String credit_card_number = response.get("credit_card_number").toString();
-                    String credit_card_exp_date = response.get("credit_card_exp_date").toString();
+                    String credit_card_expiration = response.get("credit_card_expiration").toString();
 
                     //SUCCESS
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
@@ -196,8 +196,8 @@ public class RegisterActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(name);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
-                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_expiration);
+                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_expiration);
                     User.saveInstance(currentActivity);
 
                     //Start show pin activity

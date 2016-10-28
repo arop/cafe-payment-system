@@ -190,9 +190,8 @@ public class LoginActivity extends AppCompatActivity {
                     String nif = response.get("nif").toString();
 
                     String credit_card_number = response.get("credit_card_number").toString();
-                    String credit_card_exp_date = response.get("credit_card_exp_date").toString();
-
-
+                    String credit_card_expiration = response.get("credit_card_expiration").toString();
+                    
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     CustomLocalStorage.set(currentActivity, "pin", pin);
 
@@ -202,8 +201,8 @@ public class LoginActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_exp_date);
-                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_exp_date);
+                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_expiration);
+                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_expiration);
                     User.saveInstance(currentActivity);
                     onPostExecute(true);
 

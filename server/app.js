@@ -54,19 +54,19 @@ app.post('/register', function(req, res) {
 		//TODO uncomment above and comment bellow for random PIN
 		user.pin = 1111;
 		user.pin = pinTo4Digits(user.pin,4);
-
 		user.hash_pin = bcrypt.hashSync(user.pin);
+
+		user.credit_card_number = user.credit_card_number.replace(/\s/g, '');
+		console.log(user);
 		db.insertUser(user, function(result){
 			if(result == null){
 				res.send({"error" : "Invalid parameters, or already existing email address!"});
 			}
 			else{
 				user.id = result.id;
-
-				//TODO change this!!
-				user.credit_card_number = "5444640177212251";
-				user.credit_card_exp_date = "12/16";
-
+				delete user.credit_card_cvv;	
+				delete user.hash_pin;	
+				console.log(user);
 				res.send(user);
 			}
 		});
