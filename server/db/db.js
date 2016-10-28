@@ -84,18 +84,26 @@ function checkLoginByEmail(user, callback){
 
 	client.connect();
 	const query = client.query('SELECT * FROM users WHERE email = $1', [user.email], function(error, result){
-		if(error != null){
+		if(error){
 			callback(null);
 			return;
 		}
 		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
 			delete result.rows[0].hash_pin;
-			callback(result.rows[0]);
-			return;
-		} else { // wrong password/email
+
+			client.query('SELECT id, number, expiration FROM creditcards WHERE user_id = $1', 
+				[result.rows[0].id], 
+				function (error1, result1) {
+					if(error1) {
+						callback(null);
+						return;
+					}
+					result.rows[0].creditcards = result1.rows;
+					callback(result.rows[0]);
+				});
+		} else { // wrong password/id
 			callback(null);
 		}
-
 	});
 }
 
@@ -105,14 +113,23 @@ function checkLoginByID(user, callback){
 
 	client.connect();
 	const query = client.query('SELECT * FROM users WHERE id = $1', [user.id], function(error, result){
-		if(error != null){
+		if(error){
 			callback(null);
 			return;
 		}
 		if(result.rowCount > 0 && bcrypt.compareSync(user.pin, result.rows[0].hash_pin)) {
 			delete result.rows[0].hash_pin;
-			callback(result.rows[0]);
-			return;
+
+			client.query('SELECT id, number, expiration FROM creditcards WHERE user_id = $1', 
+				[result.rows[0].id], 
+				function (error1, result1) {
+					if(error1) {
+						callback(null);
+						return;
+					}
+					result.rows[0].creditcards = result1.rows;
+					callback(result.rows[0]);
+				});
 		} else { // wrong password/id
 			callback(null);
 		}
