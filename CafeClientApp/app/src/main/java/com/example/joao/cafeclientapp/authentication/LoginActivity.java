@@ -30,6 +30,7 @@ import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -189,8 +190,11 @@ public class LoginActivity extends AppCompatActivity {
                     String email = response.get("email").toString();
                     String nif = response.get("nif").toString();
 
-                    String credit_card_number = response.get("credit_card_number").toString();
-                    String credit_card_expiration = response.get("credit_card_expiration").toString();
+                    JSONArray credit_cards = (JSONArray) response.get("creditcards");
+                    for(int i = 0; i < credit_cards.length(); i++){
+                        JSONObject cc = (JSONObject) credit_cards.get(i);
+                        User.getInstance(currentActivity).addCreditCard(cc.getInt("id"),cc.getString("number"),cc.getString("expiration"));
+                    }
 
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     CustomLocalStorage.set(currentActivity, "pin", pin);
@@ -201,8 +205,6 @@ public class LoginActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_expiration);
-                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_expiration);
                     User.saveInstance(currentActivity);
                     onPostExecute(true);
 
@@ -212,6 +214,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 catch(JSONException e){
                     Log.e("FAILURE:", "error parsing response JSON");
+                    e.printStackTrace();
                     showProgress(false);
                     Toast.makeText(currentActivity.getApplicationContext(), "Server error. Try again later.", Toast.LENGTH_LONG).show();
                 }

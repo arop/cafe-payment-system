@@ -31,7 +31,9 @@ public class Product implements Parcelable, Serializable{
             name = jo.getString("name");
             price = parseFloat(jo.getString("price"));
             id = jo.getInt("id");
-            quantity = 0;
+            if(jo.has("quantity"))
+                quantity = Integer.parseInt(jo.get("quantity").toString());
+            else quantity = 0;
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@ import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -182,8 +183,11 @@ public class RegisterActivity extends AppCompatActivity {
                     String email = response.get("email").toString();
                     String nif = response.get("nif").toString();
 
-                    String credit_card_number = response.get("credit_card_number").toString();
-                    String credit_card_expiration = response.get("credit_card_expiration").toString();
+                    JSONArray credit_cards = (JSONArray) response.get("creditcards");
+                    for(int i = 0; i < credit_cards.length(); i++){
+                        JSONObject cc = (JSONObject) credit_cards.get(i);
+                        User.getInstance(currentActivity).addCreditCard(cc.getInt("id"),cc.getString("number"),cc.getString("expiration"));
+                    }
 
                     //SUCCESS
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
@@ -193,11 +197,9 @@ public class RegisterActivity extends AppCompatActivity {
                     // SET SINGLETON USER
                     User.getInstance(currentActivity).setName(name);
                     User.getInstance(currentActivity).setEmail(email);
-                    User.getInstance(currentActivity).setPin(name);
+                    User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_expiration);
-                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_expiration);
                     User.saveInstance(currentActivity);
 
                     //Start show pin activity

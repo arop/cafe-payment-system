@@ -95,8 +95,8 @@ public class User implements Serializable{
         this.creditCards = creditCards;
     }
 
-    public void addCreditCard(String n, String expDate) {
-        addCreditCard(new CreditCard(n,expDate));
+    public void addCreditCard(int i, String n, String expDate) {
+        addCreditCard(new CreditCard(i, n,expDate));
     }
 
     public void addCreditCard(CreditCard c) {
@@ -107,8 +107,8 @@ public class User implements Serializable{
         return primaryCreditCard;
     }
 
-    public void setPrimaryCreditCard(String n, String e) {
-        setPrimaryCreditCard(new CreditCard(n,e));
+    public void setPrimaryCreditCard(int i, String n, String e) {
+        setPrimaryCreditCard(new CreditCard(i, n,e));
     }
 
     public void setPrimaryCreditCard(CreditCard primaryCreditCard) {
@@ -116,10 +116,11 @@ public class User implements Serializable{
     }
 
     public class CreditCard implements Serializable{
+        protected int id;
         protected String number;
         protected String expirationDate;
-        protected String cvv;
-        public CreditCard(String n, String exp) {
+        public CreditCard(int i, String n, String exp) {
+            id = i;
             number = n;
             expirationDate = exp;
         }

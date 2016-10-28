@@ -5,20 +5,33 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
-import com.example.joao.cafeclientapp.cart.Cart;
-import com.example.joao.cafeclientapp.cart.CartItemAdapter;
+import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.User;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import cz.msebera.android.httpclient.Header;
 
 public class PreviousOrdersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -29,6 +42,7 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
     private ArrayList<Order> orders;
     private PreviousOrderItemAdapter mAdapter;
+    private SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +51,8 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
         this.currentActivity = this;
         this.context = getApplicationContext();
+
+        this.orders = new ArrayList<Order>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -55,12 +71,26 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        this.orders = new ArrayList<Order>();
-
         // specify an adapter (see also next example)
         mAdapter = new PreviousOrderItemAdapter(orders,this);
         mRecyclerView.setAdapter(mAdapter);
 
+        ///////////////////////////////////////////
+        ////////// SETUP SWIPE REFRESH ////////////
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshOrdersContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                fetchOrdersAsync();
+            }
+        });
+        
+        
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
 
@@ -76,6 +106,73 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         navigationView.setCheckedItem(R.id.nav_orders);
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
+
+        swipeContainer.setRefreshing(true);
+        fetchOrdersAsync();
+    }
+
+
+    public void fetchOrdersAsync(){
+
+        RequestParams params = new RequestParams();
+
+        HashMap<String, String> user_params = new HashMap<>();
+        user_params.put("id", User.getInstance(this).getUuid());
+        user_params.put("pin", User.getInstance(this).getPin());
+        params.put("user",user_params);
+        Log.d("user", user_params.toString());
+
+        params.put("offset", 0);
+
+        ServerRestClient.post("pasttransactions", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                Log.d("success", "got orders");
+                Log.d("response", response.toString());
+                try {
+                    JSONObject orders_response = (JSONObject) response.get("orders");
+                    orders = new ArrayList<Order>();
+
+                    Iterator<?> keys = orders_response.keys();
+                    while( keys.hasNext() ) {
+                        String key = (String)keys.next();
+                        Order o = new Order((JSONObject) orders_response.get(key));
+                        orders.add(o);
+                    }
+
+                    for (int i = 0; i < orders_response.length(); ++i) {
+
+                    }
+
+                    refreshAdapterData();
+
+                } catch (Exception e) {
+                    //problem with server. probably.
+                    Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
+                } finally {
+                    swipeContainer.setRefreshing(false);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
+                Log.e("FAILURE:", error);
+                Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
+                swipeContainer.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject json){
+                Log.e("server error" , json.toString());
+                swipeContainer.setRefreshing(false);
+            }
+        });
+    }
+
+    private void refreshAdapterData() {
+        mAdapter.addAll(orders);
+        //notifyDataSetChanged();
     }
 
 
