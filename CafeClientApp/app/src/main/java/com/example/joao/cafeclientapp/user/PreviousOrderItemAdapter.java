@@ -80,7 +80,7 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
         TextView date = (TextView) holder.mView.findViewById(R.id.order_date);
         TextView total_price = (TextView) holder.mView.findViewById(R.id.total_price);
 
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date d = new Date(Long.parseLong(dataset.get(position).getTimestamp()));
 
         date.setText(df.format(d));
