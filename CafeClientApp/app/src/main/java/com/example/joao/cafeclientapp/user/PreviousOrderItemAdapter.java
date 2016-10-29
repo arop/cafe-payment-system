@@ -10,8 +10,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.menu.ProductsMenu;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.DateFormat;
 import java.util.ArrayList;
 
 /**
@@ -72,13 +76,17 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
 
     @Override
     public void onBindViewHolder(PreviousOrderItemAdapter.ViewHolder holder, final int position) {
-        TextView name = (TextView) holder.mView.findViewById(R.id.product_name);
-        TextView price = (TextView) holder.mView.findViewById(R.id.product_price);
 
-        ImageButton addProductToCart = (ImageButton) holder.mView.findViewById(R.id.product_add);
-        ImageButton removeProductFromCart = (ImageButton) holder.mView.findViewById(R.id.product_remove);
+        TextView date = (TextView) holder.mView.findViewById(R.id.order_date);
+        TextView total_price = (TextView) holder.mView.findViewById(R.id.total_price);
 
-        addProductToCart.setOnClickListener(new View.OnClickListener() {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        Date d = new Date(dataset.get(position).getTimestamp());
+
+        date.setText(df.format(d));
+        total_price.setText(String.format( "%.2f", dataset.get(position).getTotalPrice() )+"€");
+
+        /*addProductToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -90,13 +98,17 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
             public void onClick(View v) {
 
             }
-        });
+        });*/
 
         PreviousOrderItemAdapter.OnItemClickListener clickListener = new PreviousOrderItemAdapter.OnItemClickListener(position);
         holder.mView.setOnClickListener(clickListener);
     }
 
 
+    public void addAll(ArrayList<Order> p) {
+        this.dataset = new ArrayList<>(p);
+        this.notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount() {

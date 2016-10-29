@@ -39,10 +39,10 @@ function insertUser(user, callback){
 	});*/
 
 
-	let query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
-	let query_1_params = [user.name,user.email,user.nif,user.hash_pin];
-  	let query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4)';
-  	let query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
+	var query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
+	var query_1_params = [user.name,user.email,user.nif,user.hash_pin];
+  	var query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4) RETURNING *';
+  	var query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
 
 	client.query('BEGIN', function(err, result) {
 		
@@ -51,15 +51,21 @@ function insertUser(user, callback){
 
 			if(err) return rollback(err, client, callback);
 
-			//delete result_user.rows[0].hash_pin;
-			query_2_params[3] = result_user.rows[0].id; //set user uuid for reference in credit card object.
+			var user_result = result_user.rows[0];
+
+			delete user_result.hash_pin;
+			query_2_params[3] = user_result.id; //set user uuid for reference in credit card object.
 
 			client.query(query_2, query_2_params, function(err, result_credit_card) {
 
 				if(err) return rollback(err, client, callback);
+
+				delete result_credit_card.rows[0].cvv;
+				user_result.creditcards = [result_credit_card.rows[0]];
+
 				//disconnect after successful commit
 				client.query('COMMIT', client.end.bind(client));
-				callback(result_user.rows[0]);
+				callback(user_result);
 			});
 		});
 	});
@@ -174,7 +180,7 @@ function insertOrder(order,callback) {
 	var resultingOrder = {};
 
 	client.connect();
-	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,CURRENT_TIMESTAMP) RETURNING *', 
+	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,round(date_part( \'epoch\', now())*1000)) RETURNING *', 
 		[order.user.id], 
 		function(error, result){
 			if(error != null){
@@ -254,7 +260,7 @@ function getPreviousOrders(user,offset,limit,callback) {
     	p.id = row.product_id;
     	p.name = row.product_name;
     	p.quantity = row.quantity;
-    	p.unit_price = row.unit_price;
+    	p.price = row.unit_price;
 		results[o_id].products.push(p);
     });
     // After all data is returned, close connection and return results

@@ -98,18 +98,33 @@ public class User implements Serializable{
         addCreditCard(new CreditCard(i, n,expDate));
     }
 
+<<<<<<< HEAD:CafeClientApp/app/src/main/java/com/example/joao/cafeclientapp/user/User.java
     public void addCreditCard(String id, String n, String expDate) {
         addCreditCard(new CreditCard(id, n, expDate));
+=======
+    public void addCreditCard(CreditCard c) {
+        this.creditCards.add(c);
+    }
+
+    public CreditCard getPrimaryCreditCard() {
+        return primaryCreditCard;
+    }
+
+    public void setPrimaryCreditCard(int i, String n, String e) {
+        setPrimaryCreditCard(new CreditCard(i, n,e));
+>>>>>>> fcd09b85a61b80a7e588d4e0936e39a81ba10de6:CafeClientApp/app/src/main/java/com/example/joao/cafeclientapp/User.java
     }
 
     public void addCreditCard(CreditCard c) {
         this.creditCards.add(c);
     }
 
-    public void setPrimaryCreditCard(int i, String n, String e) {
-        setPrimaryCreditCard(new CreditCard(i, n,e));
     public class CreditCard implements Serializable{
+<<<<<<< HEAD:CafeClientApp/app/src/main/java/com/example/joao/cafeclientapp/user/User.java
+        protected String id;
+=======
         protected int id;
+>>>>>>> fcd09b85a61b80a7e588d4e0936e39a81ba10de6:CafeClientApp/app/src/main/java/com/example/joao/cafeclientapp/User.java
         protected String number;
         protected String expirationDate;
         public CreditCard(int i, String n, String exp) {
