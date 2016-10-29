@@ -187,6 +187,7 @@ public class RegisterActivity extends AppCompatActivity {
                         JSONObject cc = (JSONObject) credit_cards.get(i);
                         User.getInstance(currentActivity).addCreditCard(cc.getInt("id"),cc.getString("number"),cc.getString("expiration"));
                     }
+
                     //SUCCESS
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     CustomLocalStorage.set(currentActivity, "pin", pin);
@@ -198,12 +199,6 @@ public class RegisterActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    for (int i = 0; i < creditcards.length(); i++) {
-                        User.getInstance(currentActivity).addCreditCard(
-                                creditcards.getJSONObject(i).getString("id"),
-                                creditcards.getJSONObject(i).getString("number"),
-                                creditcards.getJSONObject(i).getString("expiration"));
-                    }
 
                     User.saveInstance(currentActivity);
 

@@ -205,12 +205,6 @@ public class LoginActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    for (int i = 0; i < creditcards.length(); i++) {
-                        User.getInstance(currentActivity).addCreditCard(
-                                creditcards.getJSONObject(i).getString("id"),
-                                creditcards.getJSONObject(i).getString("number"),
-                                creditcards.getJSONObject(i).getString("expiration"));
-                    }
 
                     User.saveInstance(currentActivity);
                     onPostExecute(true);

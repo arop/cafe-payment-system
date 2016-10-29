@@ -106,19 +106,18 @@ public class User implements Serializable{
         this.creditCards.add(c);
     }
 
-    public void setPrimaryCreditCard(int i, String n, String e) {
-        setPrimaryCreditCard(new CreditCard(i, n,e));
     public class CreditCard implements Serializable{
         protected int id;
         protected String number;
         protected String expirationDate;
+
         public CreditCard(int i, String n, String exp) {
             id = i;
             number = n;
             expirationDate = exp;
         }
         public CreditCard(String id, String n, String exp) {
-            this.id = id;
+            this.id = Integer.parseInt(id);
             number = n;
             expirationDate = exp;
         }

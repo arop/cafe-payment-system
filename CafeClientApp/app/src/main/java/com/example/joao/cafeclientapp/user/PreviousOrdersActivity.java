@@ -19,12 +19,9 @@ import android.widget.Toast;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
-import com.example.joao.cafeclientapp.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

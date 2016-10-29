@@ -35,7 +35,7 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
     public CreditCardItemAdapter(ArrayList<User.CreditCard> cc, Activity a){
         this.creditCards = cc;
         this.mActivity = a;
-        Log.d("credit card",""+cc.size());
+        Log.d("credit card","total: "+cc.size());
     }
 
     @Override
@@ -58,6 +58,8 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
 
         credit_card_form.setCardNumber(ccNumber,false);
         credit_card_form.setExpDate(ccExpDate,false);
+
+        //TODO set not editable
 
         Log.d("credit card",""+position);
     }
