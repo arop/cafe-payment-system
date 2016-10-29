@@ -21,11 +21,11 @@ import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
-import com.example.joao.cafeclientapp.User;
-import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
+import com.example.joao.cafeclientapp.user.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -182,9 +182,6 @@ public class RegisterActivity extends AppCompatActivity {
                     String email = response.get("email").toString();
                     String nif = response.get("nif").toString();
 
-                    String credit_card_number = response.get("credit_card_number").toString();
-                    String credit_card_expiration = response.get("credit_card_expiration").toString();
-
                     //SUCCESS
                     CustomLocalStorage.set(currentActivity, "uuid", uuid);
                     CustomLocalStorage.set(currentActivity, "pin", pin);
@@ -196,8 +193,15 @@ public class RegisterActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(name);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
-                    User.getInstance(currentActivity).setPrimaryCreditCard(credit_card_number,credit_card_expiration);
-                    User.getInstance(currentActivity).addCreditCard(credit_card_number,credit_card_expiration);
+
+                    JSONArray creditcards = (JSONArray) response.get("creditcards");
+                    for (int i = 0; i < creditcards.length(); i++) {
+                        User.getInstance(currentActivity).addCreditCard(
+                                creditcards.getJSONObject(i).getString("id"),
+                                creditcards.getJSONObject(i).getString("number"),
+                                creditcards.getJSONObject(i).getString("expiration"));
+                    }
+
                     User.saveInstance(currentActivity);
 
                     //Start show pin activity
@@ -205,7 +209,6 @@ public class RegisterActivity extends AppCompatActivity {
                     intent.putExtra("pin", pin);
                     startActivity(intent);
                     currentActivity.finish();
-
                 }
                 catch(JSONException e){
                     Log.e("FAILURE:", "error parsing response JSON");

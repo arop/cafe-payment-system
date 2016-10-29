@@ -39,10 +39,11 @@
         </activity>
         <activity android:name=".cart.QrCodeCheckoutActivity" />
         <activity android:name=".cart.PinAskActivity" />
-        <activity android:name=".user.PreviousOrdersActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            
-        </activity>
+        <activity
+            android:name=".user.PreviousOrdersActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".user.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

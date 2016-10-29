@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.example.joao.cafeclientapp.cart.CartActivity;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.example.joao.cafeclientapp.user.PreviousOrdersActivity;
+import com.example.joao.cafeclientapp.user.ProfileActivity;
+import com.example.joao.cafeclientapp.user.User;
 
 /**
  * Created by Joao on 23/10/2016.
@@ -45,6 +47,8 @@ public class NavigationDrawerUtils {
                     break;
 
                 case R.id.nav_settings:
+                    intent = new Intent(activity.getApplicationContext(), ProfileActivity.class);
+                    activity.startActivity(intent);
                     break;
 
                 case R.id.nav_logout:

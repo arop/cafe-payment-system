@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -18,8 +17,6 @@ import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.cart.Cart;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHolder> {
 
@@ -28,7 +25,6 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
     private View selectedItem;
 
     private Cart currentCart;
-
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -89,7 +85,7 @@ public class MenuItemAdapter extends RecyclerView.Adapter<MenuItemAdapter.ViewHo
 
     public MenuItemAdapter(ProductsMenu menu, Activity a){
         //convert Hash Map to Array List
-        this.dataset = new ArrayList<Product>(menu.getProducts().values());
+        this.dataset = new ArrayList<>(menu.getProducts().values());
 
         this.mActivity = a;
         this.currentCart = Cart.getInstance(a);

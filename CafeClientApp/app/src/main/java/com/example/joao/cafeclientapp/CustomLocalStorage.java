@@ -1,23 +1,12 @@
 package com.example.joao.cafeclientapp;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.example.joao.cafeclientapp.cart.Cart;
-import com.example.joao.cafeclientapp.menu.ProductsMenu;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.example.joao.cafeclientapp.user.User;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.lang.System.in;
 
 /**
  * Created by Joao on 13/10/2016.

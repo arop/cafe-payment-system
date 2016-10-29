@@ -1,11 +1,11 @@
-package com.example.joao.cafeclientapp;
+package com.example.joao.cafeclientapp.user;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.authentication.LoginActivity;
-import com.example.joao.cafeclientapp.cart.Cart;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -19,7 +19,6 @@ public class User implements Serializable{
 
     private String uuid, name, email, nif, pin;
     private ArrayList<CreditCard> creditCards;
-    private CreditCard primaryCreditCard;
     /**
      * User is singleton
      */
@@ -99,27 +98,25 @@ public class User implements Serializable{
         addCreditCard(new CreditCard(n,expDate));
     }
 
+    public void addCreditCard(String id, String n, String expDate) {
+        addCreditCard(new CreditCard(id, n, expDate));
+    }
+
     public void addCreditCard(CreditCard c) {
         this.creditCards.add(c);
     }
 
-    public CreditCard getPrimaryCreditCard() {
-        return primaryCreditCard;
-    }
-
-    public void setPrimaryCreditCard(String n, String e) {
-        setPrimaryCreditCard(new CreditCard(n,e));
-    }
-
-    public void setPrimaryCreditCard(CreditCard primaryCreditCard) {
-        this.primaryCreditCard = primaryCreditCard;
-    }
-
     public class CreditCard implements Serializable{
+        protected String id;
         protected String number;
         protected String expirationDate;
         protected String cvv;
         public CreditCard(String n, String exp) {
+            number = n;
+            expirationDate = exp;
+        }
+        public CreditCard(String id, String n, String exp) {
+            this.id = id;
             number = n;
             expirationDate = exp;
         }
@@ -141,5 +138,4 @@ public class User implements Serializable{
             Log.e("user","couldn't save user");
         }
     }
-
 }
