@@ -189,7 +189,8 @@ function insertOrder(order,callback) {
 			}		
 			else {
 				resultingOrder.order = result.rows[0];
-				resultingOrder.order_items = [];
+				resultingOrder.order.order_items = [];
+				resultingOrder.order.total_price = 0;
 			}
 		}
 	).on('end', () => {
@@ -208,13 +209,20 @@ function insertOrder(order,callback) {
 						console.log(error);
 						return;
 					}
-					resultingOrder.order_items.push(result.rows[0]);
+					resultingOrder.order.order_items.push(result.rows[0]);
+					resultingOrder.order.total_price += result.rows[0].unit_price * result.rows[0].quantity;
 				}
 			).on('end',() => {
 				//only call callback when all queries finish
 				numberOfProducts--;
 				if(numberOfProducts <= 0) {
-					callback(resultingOrder);
+
+					client.query('SELECT name FROM users WHERE id = $1;', [resultingOrder.order.user_id], function(error, result){
+						if(error != null)
+							callback(null)
+						resultingOrder.order.user_name = result.rows[0].name;
+						callback(resultingOrder);
+					});
 				}
 			});
 		}
