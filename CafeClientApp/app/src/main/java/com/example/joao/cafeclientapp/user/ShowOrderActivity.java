@@ -6,6 +6,8 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.menu.MenuItemAdapter;
 
 public class ShowOrderActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -157,9 +160,20 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
                     break;
                 }
                 case 2:{
-                    rootView = inflater.inflate(R.layout.fragment_show_order, container, false);
-                    TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-                    textView.setText("tab 2");
+                    rootView = inflater.inflate(R.layout.fragment_show_order_products, container, false);
+                    RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.order_items_recycler_view);
+
+                    // use this setting to improve performance if you know that changes
+                    // in content do not change the layout size of the RecyclerView
+                    mRecyclerView.setHasFixedSize(true);
+
+                    // use a linear layout manager
+                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(activity);
+                    mRecyclerView.setLayoutManager(mLayoutManager);
+
+                    // specify an adapter (see also next example)
+                    OrderProductItemAdapter mRecyclerAdapter = new OrderProductItemAdapter(order.getItems(), activity);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
                     break;
                 }
             }
