@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -111,8 +113,8 @@ public class ShowOrderActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-        findViewById(R.id.dummy_button).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.ok_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.ok_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -123,13 +125,33 @@ public class ShowOrderActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         String orderString = i.getStringExtra("order");
-        JSONObject order;
+        JSONObject order = null;
         try {
             order = new JSONObject(orderString);
             fillOrderData(order);
         } catch (JSONException e) {
             Log.e("json",e.getMessage());
         }
+
+        //////////////////////////////////////////////////////////////////
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.order_items_recycler_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter (see also next example)
+        OrderProductItemAdapter mRecyclerAdapter = null;
+        try {
+            mRecyclerAdapter = new OrderProductItemAdapter(order.getJSONArray("order_items"), this);
+        } catch (JSONException e) {
+            Log.e("json",e.getMessage());
+        }
+        mRecyclerView.setAdapter(mRecyclerAdapter);
     }
 
     private void fillOrderData(JSONObject order) throws JSONException {
