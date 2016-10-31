@@ -212,7 +212,11 @@ function insertOrder(order,callback) {
 					resultingOrder.order.order_items.push(result.rows[0]);
 					resultingOrder.order.total_price += result.rows[0].unit_price * result.rows[0].quantity;
 				}
-			).on('end',() => {
+			).on('row', (row) => {
+				client.query('SELECT name FROM products WHERE id = $1;', [row.product_id], function(error, result2){
+					row.name = result2.rows[0].name;
+				});
+			}).on('end',() => {
 				//only call callback when all queries finish
 				numberOfProducts--;
 				if(numberOfProducts <= 0) {
