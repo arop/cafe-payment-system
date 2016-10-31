@@ -205,6 +205,6 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_menu);
+        return NavigationDrawerUtils.onNavigationItemSelected(item, this, -1);
     }
 }
