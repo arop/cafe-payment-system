@@ -41,8 +41,13 @@
         <activity android:name=".cart.PinAskActivity" />
         <activity
             android:name=".user.PreviousOrdersActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".user.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".user.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".user.ShowOrderActivity"
+            android:label="@string/title_activity_show_order"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

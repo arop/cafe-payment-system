@@ -54,6 +54,7 @@ public class NavigationDrawerUtils {
                 case R.id.nav_logout:
                     User.getInstance(activity).logout(activity);
                     break;
+
             }
         }
 

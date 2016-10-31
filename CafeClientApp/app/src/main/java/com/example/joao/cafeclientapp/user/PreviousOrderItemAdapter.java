@@ -1,17 +1,15 @@
 package com.example.joao.cafeclientapp.user;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.R;
-import com.example.joao.cafeclientapp.menu.ProductsMenu;
-import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,7 +23,7 @@ import java.util.ArrayList;
 
 public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrderItemAdapter.ViewHolder> {
 
-    private final Activity mActivity;
+    private final Activity currentActivity;
     private ArrayList<Order> dataset;
     private View selectedItem;
 
@@ -52,7 +50,12 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
 
         @Override
         public void onClick(final View view) {
+
             Log.i("click",itemPosition+"");
+            Intent i = new Intent(currentActivity, ShowOrderActivity.class);
+            i.putExtra("order", dataset.get(itemPosition));
+            currentActivity.startActivity(i);
+
         }
 
     }
@@ -60,7 +63,7 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
     public PreviousOrderItemAdapter(ArrayList<Order> orders, Activity a){
         //convert Hash Map to Array List
         this.dataset = orders;
-        this.mActivity = a;
+        this.currentActivity = a;
     }
 
     @Override

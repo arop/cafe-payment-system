@@ -10,7 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by norim on 24/10/2016.
@@ -57,6 +60,18 @@ public class Order implements Parcelable{
         return totalPrice;
     }
 
+    public String getFormatedDate(){
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        Date d = new Date(timestamp);
+        return df.format(d);
+    }
+
+    public String getFormatedHour(){
+        DateFormat df = new SimpleDateFormat("HH:mm");
+        Date d = new Date(timestamp);
+        return df.format(d);
+    }
+
 
     ////////////////////////////////////
     //////////// PARCELABLE ////////////
@@ -65,7 +80,7 @@ public class Order implements Parcelable{
         id = in.readInt();
         timestamp = in.readLong();
         items = new ArrayList<Product>();
-        in.readList(items, null);
+        in.readList(items, Order.class.getClassLoader());
         totalPrice = in.readFloat();
     }
 
