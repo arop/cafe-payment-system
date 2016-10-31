@@ -71,13 +71,13 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.nav_settings);
+        navigationView.setCheckedItem(R.id.nav_profile);
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_settings);
+        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_profile);
     }
 }

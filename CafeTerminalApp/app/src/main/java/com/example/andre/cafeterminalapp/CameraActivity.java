@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -28,7 +29,7 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class MainActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class CameraActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
     private ZXingScannerView mScannerView;
     private Activity currentActivity;
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
                 try{
                     String error = response.get("error").toString();
                     insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(0,error);
+                    showWarningDialog(0,error,"");
                     return;
                 }
                 catch(JSONException e){
@@ -139,22 +140,25 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
 
                 Log.e("order",response.toString());
                 insertOrderRequestProgressDialog.dismiss();
-                String toastDisplay = response.toString();
-                showWarningDialog(2,"Successful order");
+                try {
+                    showWarningDialog(2,"Successful order",response.getJSONObject("order").toString());
+                } catch (JSONException e) {
+                    Log.e("error json",e.getMessage());
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
                 Log.e("FAILURE:", error);
                 insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...");
+                showWarningDialog(1,"Server not available...","");
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
                 Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
                 insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...");
+                showWarningDialog(1,"Server not available...","");
             }
         });
     }
@@ -233,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         builder.create().show();
     }
 
-    private void showWarningDialog(int type, String msg) {
+    private void showWarningDialog(int type, String msg, String response) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         switch (type) {
             case 0: //orange warning
@@ -247,6 +251,10 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
             case 2: //success
                 builder.setTitle("Success");
                 builder.setIcon(R.drawable.ic_check_circle_green_24dp);
+
+                Intent intent = new Intent(this,ShowOrderActivity.class);
+                intent.putExtra("order",response);
+                startActivity(intent);
                 break;
             default:
                 break;

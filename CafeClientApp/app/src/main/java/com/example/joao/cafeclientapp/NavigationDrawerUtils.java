@@ -46,7 +46,7 @@ public class NavigationDrawerUtils {
                     activity.startActivity(intent);
                     break;
 
-                case R.id.nav_settings:
+                case R.id.nav_profile:
                     intent = new Intent(activity.getApplicationContext(), ProfileActivity.class);
                     activity.startActivity(intent);
                     break;
