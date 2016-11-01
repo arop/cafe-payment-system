@@ -33,8 +33,11 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
     }
 
     public CreditCardItemAdapter(ArrayList<User.CreditCard> cc, Activity a){
-        this.creditCards = cc;
+        this.creditCards = (ArrayList<User.CreditCard>) cc.clone();
         this.mActivity = a;
+
+        //remove primary credit card
+        creditCards.remove(User.getInstance(a).getPrimaryCreditCard());
     }
 
     @Override
@@ -57,6 +60,9 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
 
         credit_card_form.setCardNumber(ccNumber,true);
         credit_card_form.setExpDate(ccExpDate,false);
+
+        if(cc.id == User.getInstance(mActivity).getPrimaryCreditCard().id)
+            credit_card_form.setBackgroundColor(mActivity.getResources().getColor(R.color.colorPrimaryDark));
 
         //TODO set not editable
 

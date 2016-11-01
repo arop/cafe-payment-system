@@ -19,6 +19,7 @@ public class User implements Serializable{
 
     private String uuid, name, email, nif, pin;
     private ArrayList<CreditCard> creditCards;
+    private CreditCard primary_credit_card;
     /**
      * User is singleton
      */
@@ -37,6 +38,9 @@ public class User implements Serializable{
     public void logout(Activity activity){
         CustomLocalStorage.remove(activity, "uuid");
         CustomLocalStorage.remove(activity, "pin");
+        CustomLocalStorage.remove(activity, "user");
+        User.instance = null;
+
         Intent myIntent = new Intent(activity.getApplicationContext(), LoginActivity.class);
         activity.startActivity(myIntent);
         activity.finish();
@@ -106,6 +110,19 @@ public class User implements Serializable{
         this.creditCards.add(c);
     }
 
+    public void setPrimaryCreditCard(int id) {
+        for (CreditCard cc: this.creditCards) {
+            if(cc.id == id) {
+                this.primary_credit_card = cc;
+                break;
+            }
+        }
+    }
+
+    public CreditCard getPrimaryCreditCard() {
+        return primary_credit_card;
+    }
+
     public class CreditCard implements Serializable{
         protected int id;
         protected String number;
@@ -120,6 +137,27 @@ public class User implements Serializable{
             this.id = Integer.parseInt(id);
             number = n;
             expirationDate = exp;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CreditCard that = (CreditCard) o;
+
+            if (id != that.id) return false;
+            if (!number.equals(that.number)) return false;
+            return expirationDate.equals(that.expirationDate);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id;
+            result = 31 * result + number.hashCode();
+            result = 31 * result + expirationDate.hashCode();
+            return result;
         }
     }
 

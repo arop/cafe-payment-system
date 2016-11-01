@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 
@@ -32,6 +34,8 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         setTitle("Profile");
 
         user = User.getInstance(this);
+
+        Log.d("user ccs",""+user.getCreditCards().size());
 
         /////////////////////////////////////////////////////////////////////
         mRecyclerView = (RecyclerView) findViewById(R.id.credit_cards_recycler_view);
@@ -57,6 +61,17 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
 
         TextView nifTextView = (TextView) findViewById(R.id.nif);
         nifTextView.setText(user.getNif());
+
+        CreditCardForm creditCardForm = (CreditCardForm) findViewById(R.id.primary_credit_card_form);
+        creditCardForm.setCardNumber(user.getPrimaryCreditCard().number,true);
+        creditCardForm.setExpDate(user.getPrimaryCreditCard().expirationDate,false);
+
+        Log.d("user ccs",""+user.getCreditCards().size());
+        // dont show other credit cards if there are none
+        if(user.getCreditCards().size() < 2) {
+            TextView otherCCs = (TextView) findViewById(R.id.otherCCsTitle);
+            otherCCs.setText("");
+        }
 
 
         /////////////////////////////////////////////
