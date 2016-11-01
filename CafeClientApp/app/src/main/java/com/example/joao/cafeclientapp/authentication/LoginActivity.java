@@ -189,6 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                     String name = response.get("name").toString();
                     String email = response.get("email").toString();
                     String nif = response.get("nif").toString();
+                    int pcc = response.getInt("primary_credit_card");
 
                     JSONArray credit_cards = (JSONArray) response.get("creditcards");
                     for(int i = 0; i < credit_cards.length(); i++){
@@ -205,6 +206,7 @@ public class LoginActivity extends AppCompatActivity {
                     User.getInstance(currentActivity).setPin(pin);
                     User.getInstance(currentActivity).setUuid(uuid);
                     User.getInstance(currentActivity).setNif(nif);
+                    User.getInstance(currentActivity).setPrimaryCreditCard(pcc);
 
                     User.saveInstance(currentActivity);
                     onPostExecute(true);

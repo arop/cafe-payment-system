@@ -164,7 +164,9 @@ public class ShowOrderActivity extends AppCompatActivity {
         TextView userName = (TextView) findViewById(R.id.user_name);
         userName.setText(order.getString("user_name"));
 
-        //TODO set products list
+        TextView creditCard = (TextView) findViewById(R.id.credit_card);
+        creditCard.setText(order.getString("credit_card"));
+
         //TODO set vouchers list
     }
 

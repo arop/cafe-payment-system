@@ -14,72 +14,111 @@
     tools:showIn="@layout/activity_profile">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/image_name_email">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_person_black_100dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:id="@+id/profilePic"
-            android:layout_weight="1" />
+            android:id="@+id/image_name_email">
 
-        <RelativeLayout
-            android:layout_width="215dp"
+            <ImageView
+                android:contentDescription="@string/user_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_person_black_100dp"
+                android:id="@+id/profilePic"
+                android:layout_weight="1" />
+
+            <RelativeLayout
+                android:layout_width="215dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.86">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true">
+
+                    <TextView
+                        android:text=""
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/name" />
+
+                    <TextView
+                        android:text=""
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/email" />
+
+                    <TextView
+                        android:text=""
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/nif" />
+                </LinearLayout>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/primaryCCLayout"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="@string/primary_credit_card"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/primaryTitle"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.devmarvel.creditcardentry.library.CreditCardForm
+                android:id="@+id/primary_credit_card_form"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:helper_text_color="@color/yellow"
+                app:include_helper="false"
+                app:include_zip="false"
+                app:include_security="false"/>
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1.86">
+            tools:layout_alignParentEnd="false">
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true">
+                android:orientation="vertical">
 
                 <TextView
-                    android:text="TextView"
+                    android:text="@string/other_credit_cards"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/name" />
+                    android:layout_height="0dp"
+                    android:id="@+id/otherCCsTitle"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-                <TextView
-                    android:text="TextView"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/credit_cards_recycler_view"
+                    android:scrollbars="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/email" />
-
-                <TextView
-                    android:text="TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/nif" />
+                    android:layout_height="match_parent"/>
             </LinearLayout>
-        </RelativeLayout>
+        </ScrollView>
 
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/image_name_email"
-        android:layout_alignParentTop="false"
-        tools:layout_alignParentEnd="false"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentBottom="true">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/credit_cards_recycler_view"
-                android:scrollbars="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
-    </ScrollView>
 </RelativeLayout>

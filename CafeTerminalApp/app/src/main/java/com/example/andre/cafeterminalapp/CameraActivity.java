@@ -102,6 +102,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 } catch (JSONException e) {
                     Log.e("error","json error on sending insert order to server");
                     e.printStackTrace();
+                    showWarningDialog(1,"Unable to get order!",null);
                 }
             }
         });
@@ -151,14 +152,14 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
                 Log.e("FAILURE:", error);
                 insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...","");
+                showWarningDialog(1,"Server not available...",null);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
                 Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
                 insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...","");
+                showWarningDialog(1,"Server not available...",null);
             }
         });
     }

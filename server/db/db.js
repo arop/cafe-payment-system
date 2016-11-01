@@ -28,21 +28,12 @@ function insertUser(user, callback){
 	var client = openClient();
 
 	client.connect();
-	/*const query = client.query('INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *', [user.name,user.email,user.nif,user.hash_pin], function(error, result){
-		if(error != null){
-			callback(null);
-			return;
-		}
-		delete result.rows[0].hash_pin;
-		client.end();
-		callback(result.rows[0]);
-	});*/
-
 
 	var query_1 = 'INSERT INTO users (name, email, nif, hash_pin) VALUES ($1, $2, $3, $4) RETURNING *';
 	var query_1_params = [user.name,user.email,user.nif,user.hash_pin];
   	var query_2 = 'INSERT INTO creditcards(number, expiration, cvv, user_id) VALUES($1, $2, $3, $4) RETURNING *';
   	var query_2_params = [user.credit_card_number, user.credit_card_expiration, user.credit_card_cvv, null];
+  	var query_3 = 'UPDATE users SET primary_credit_card = $1 WHERE id = $2 RETURNING *';
 
 	client.query('BEGIN', function(err, result) {
 		
@@ -63,9 +54,18 @@ function insertUser(user, callback){
 				delete result_credit_card.rows[0].cvv;
 				user_result.creditcards = [result_credit_card.rows[0]];
 
-				//disconnect after successful commit
-				client.query('COMMIT', client.end.bind(client));
-				callback(user_result);
+				client.query(query_3, [result_credit_card.rows[0].id, user_result.id], 
+					function (err, result_add_cc) {
+
+					if(err) return rollback(err, client, callback);
+
+					user_result.primary_credit_card = result_add_cc.rows[0].primary_credit_card;
+
+					//disconnect after successful commit
+					client.query('COMMIT', client.end.bind(client));
+					callback(user_result);
+				});
+
 			});
 		});
 	});
@@ -180,7 +180,8 @@ function insertOrder(order,callback) {
 	var resultingOrder = {};
 
 	client.connect();
-	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,round(date_part( \'epoch\', now())*1000)) RETURNING *', 
+	client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
+		'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
 		[order.user.id], 
 		function(error, result){
 			if(error != null){
@@ -221,10 +222,12 @@ function insertOrder(order,callback) {
 				numberOfProducts--;
 				if(numberOfProducts <= 0) {
 
-					client.query('SELECT name FROM users WHERE id = $1;', [resultingOrder.order.user_id], function(error, result){
+					client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
+						[resultingOrder.order.user_id], function(error, result){
 						if(error != null)
 							callback(null)
 						resultingOrder.order.user_name = result.rows[0].name;
+						resultingOrder.order.credit_card = result.rows[0].number;
 						callback(resultingOrder);
 					});
 				}
