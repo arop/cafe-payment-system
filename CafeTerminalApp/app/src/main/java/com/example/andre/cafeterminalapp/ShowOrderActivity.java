@@ -13,6 +13,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import com.devmarvel.creditcardentry.library.CreditCardForm;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -164,8 +166,9 @@ public class ShowOrderActivity extends AppCompatActivity {
         TextView userName = (TextView) findViewById(R.id.user_name);
         userName.setText(order.getString("user_name"));
 
-        TextView creditCard = (TextView) findViewById(R.id.credit_card);
-        creditCard.setText(order.getString("credit_card"));
+        CreditCardForm ccform = (CreditCardForm) findViewById(R.id.credit_card_form);
+        ccform.setCardNumber(order.getString("credit_card"),false);
+
 
         //TODO set vouchers list
     }

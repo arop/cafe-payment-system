@@ -120,11 +120,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp">
 
-            <TextView
+            <com.devmarvel.creditcardentry.library.CreditCardForm
+                android:id="@+id/credit_card_form"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/credit_card"
-                android:layout_centerHorizontal="true" />
+                app:include_zip="false"
+                app:include_exp="false"
+                app:include_security="false"
+                android:focusable="false"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"/>
         </RelativeLayout>
 
         <ScrollView
