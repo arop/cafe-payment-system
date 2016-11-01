@@ -180,7 +180,8 @@ function insertOrder(order,callback) {
 	var resultingOrder = {};
 
 	client.connect();
-	client.query('INSERT INTO orders (user_id, order_timestamp) VALUES ($1,round(date_part( \'epoch\', now())*1000)) RETURNING *', 
+	client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
+		'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
 		[order.user.id], 
 		function(error, result){
 			if(error != null){
@@ -221,10 +222,12 @@ function insertOrder(order,callback) {
 				numberOfProducts--;
 				if(numberOfProducts <= 0) {
 
-					client.query('SELECT name FROM users WHERE id = $1;', [resultingOrder.order.user_id], function(error, result){
+					client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
+						[resultingOrder.order.user_id], function(error, result){
 						if(error != null)
 							callback(null)
 						resultingOrder.order.user_name = result.rows[0].name;
+						resultingOrder.order.credit_card = result.rows[0].number;
 						callback(resultingOrder);
 					});
 				}
