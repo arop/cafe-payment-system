@@ -10,6 +10,7 @@
         android:id="@+id/credit_card_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="false"
         app:helper_text_color="@color/yellow"
         app:include_helper="false"
         app:include_zip="false"

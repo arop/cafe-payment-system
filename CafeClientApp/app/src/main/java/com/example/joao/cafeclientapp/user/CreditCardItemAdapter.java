@@ -58,15 +58,8 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
         String ccNumber = cc.number;
         String ccExpDate = cc.expirationDate;
 
-        credit_card_form.setCardNumber(ccNumber,true);
+        credit_card_form.setCardNumber(ccNumber,false);
         credit_card_form.setExpDate(ccExpDate,false);
-
-        if(cc.id == User.getInstance(mActivity).getPrimaryCreditCard().id)
-            credit_card_form.setBackgroundColor(mActivity.getResources().getColor(R.color.colorPrimaryDark));
-
-        //TODO set not editable
-
-        //Log.d("credit card", "" + position);
     }
 
     @Override
