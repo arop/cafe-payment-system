@@ -210,7 +210,7 @@ app.post('/pasttransactions', function(req, res){
 ///////////////////////////
 //////// CREDIT CARD //////
 ///////////////////////////
-app.post('/credit_card' function (req, res) {
+app.post('/credit_card', function (req, res) {
 	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
 		res.status(404).send('No user info received!');
 		return;
@@ -237,7 +237,7 @@ app.post('/credit_card' function (req, res) {
 	});
 });
 
-app.post('/primary_credit_card' function (req, res) {
+app.post('/primary_credit_card', function (req, res) {
 	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
 		res.status(404).send('No user info received!');
 		return;
