@@ -221,14 +221,13 @@ app.post('/credit_card', function (req, res) {
 		return;
 	}
 
-	console.log(req);
-	
 	var user = req.body.user;
 	db.checkLoginByID(user, function(result) {
 		if(result == null) {
 			res.send({"error" : "Wrong credentials!"});
 		} else {
 			var credit_card = req.body.credit_card;
+			credit_card.number = credit_card.number.replace(/\s/g, '');
 
 			db.insertCreditCard(user,credit_card,function(credcard){
 				if(credcard == null) {

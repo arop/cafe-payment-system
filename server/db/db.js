@@ -294,7 +294,6 @@ function insertCreditCard(user, credit_card, callback) {
 		'VALUES ($1,$2,$3,$4) RETURNING *;',
 		[credit_card.number,credit_card.exp_date,credit_card.cvv,user.id], function(error,result) {
 			if(error != null) {
-				console.log(error);
 				callback(null);
 				return;
 			}
