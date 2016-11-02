@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.vouchers;
 
 import android.app.Activity;
 import android.util.Log;
@@ -46,4 +46,15 @@ public class Voucher implements Serializable{
         }
     }
 
+    public int getSerialId() {
+        return serialId;
+    }
+
+    public Byte[] getSignature() {
+        return signature;
+    }
+
+    public char getType() {
+        return type;
+    }
 }
