@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 
 import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.user.User;
+import com.example.joao.cafeclientapp.user.Voucher;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by Joao on 13/10/2016.
@@ -61,4 +63,11 @@ public class CustomLocalStorage {
         set(activity, "user", SerializeToString.toString(u));
     }
 
+    public static ArrayList<Voucher> getSavedVouchers(Activity activity) throws IOException, ClassNotFoundException {
+        return (ArrayList<Voucher>) SerializeToString.fromString(CustomLocalStorage.getString(activity, "vouchers"));
+    }
+
+    public static void saveVouchers(Activity a, ArrayList<Voucher> vouchers) throws IOException {
+        set(a, "vouchers", SerializeToString.toString(vouchers));
+    }
 }

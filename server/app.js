@@ -119,9 +119,27 @@ app.get('/menu', function(req, res){
 /////////    VOUCHERS     /////////
 ///////////////////////////////////
 
-//voucher emition
-app.get('/voucher', function(req, res) {
-	//TODO
+//get user valid vouchers
+app.post('/validvouchers', function(req, res) {
+	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
+		res.status(404).send('No user info received!');
+		return;
+	}
+	var user = req.body.user;
+	db.checkLoginByID(user, function(result) {
+		if(result == null) {
+			res.send({"error" : "Wrong credentials!"});
+		} else {
+			
+			db.getValidVouchers(user,function(vouchers){
+				console.log(vouchers);
+				if(vouchers == null) {
+					res.send({"error" : "Error getting vouchers!"});
+				}
+				else res.send({"vouchers" : vouchers});
+			});
+		}
+	});
 });
 
 //voucher validation

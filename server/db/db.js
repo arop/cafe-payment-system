@@ -233,6 +233,10 @@ function insertOrder(order,callback) {
 						resultingOrder.order.credit_card = result.rows[0].number;
 						callback(resultingOrder);
 
+						if(resultingOrder.order.total_price >= 20.0){
+							issueOfferVoucher(order.user.id);
+						}
+
 
 						client.query('SELECT updateordertotals($1, $2)', 
 							[resultingOrder.order.total_price, order.user.id], function(error, result3){
@@ -273,6 +277,40 @@ function insertOrder(order,callback) {
 			});
 		}
 	});
+}
+
+
+function issueOfferVoucher(user_id){
+
+	var rand1 = Math.floor(Math.random() * 999 + 1); // 1 to 1000
+	var rand2 = Math.floor(Math.random() * 499  + 1); // 1 to 500
+	var voucher_serial = rand1 + rand2;
+
+	var voucher_type;
+	if( Math.floor(Math.random() + 1) == 1 ) 
+		voucher_type = 'p'; // popcorn
+	else voucher_type = 'c'; // coffee
+
+	var pem = rsau.readFile('./keys/private.pem');
+	var prvKey = rsa.KEYUTIL.getKey(pem);
+
+	var sig = new rsa.Signature({alg: 'SHA1withRSA'});
+	sig.init(prvKey);
+	sig.updateString(voucher_serial);
+	var cryp_signature = sig.sign();
+
+	var client = openClient();
+	client.connect();
+	const query = client.query(
+		"INSERT INTO vouchers (serial_id, type, signature, user_id) VALUES ($1, $2, decode($3, 'hex'), $4)",
+		[voucher_serial, voucher_type, cryp_signature, user_id],
+		function(error, result){
+			if(error != null){
+				console.log(error);
+				return;
+			}
+		}
+	);
 }
 
 function issueDiscountVoucher(user_id){
@@ -375,6 +413,32 @@ function getPreviousOrders(user,offset,limit,callback) {
     query.on('end', () => {
       callback(results);
     });
+}
+
+/**
+* get valid vouchers of user
+*/
+function getValidVouchers(user,callback) {
+	var client = openClient();
+	client.connect();
+	
+	const query = client.query(
+		'SELECT * '+
+		'FROM vouchers '+
+		'WHERE user_id = $1 '+
+		'AND order_id = null;',
+		[user.id],
+		function(error, result){
+			if(error != null){
+				console.log(error);
+				callback(null);
+				return;
+			}
+
+			callback(result.rows);
+			client.end();
+		}
+	);
 }
 
 
