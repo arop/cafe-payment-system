@@ -48,7 +48,7 @@
         <activity
             android:name=".user.ShowOrderActivity"
             android:label="@string/title_activity_show_order"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

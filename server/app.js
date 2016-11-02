@@ -207,6 +207,65 @@ app.post('/pasttransactions', function(req, res){
 
 
 ///////////////////////////
+//////// CREDIT CARD //////
+///////////////////////////
+app.post('/credit_card', function (req, res) {
+	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
+		res.status(404).send('No user info received!');
+		return;
+	}
+	if(!req.body.credit_card || !req.body.credit_card.number 
+		|| !req.body.credit_card.cvv || !req.body.credit_card.exp_date){
+		res.status(404).send('No credit card info received!');
+		return;
+	}
+
+	var user = req.body.user;
+	db.checkLoginByID(user, function(result) {
+		if(result == null) {
+			res.send({"error" : "Wrong credentials!"});
+		} else {
+			var credit_card = req.body.credit_card;
+			credit_card.number = credit_card.number.replace(/\s/g, '');
+
+			db.insertCreditCard(user,credit_card,function(credcard){
+				if(credcard == null) {
+					res.send({"error" : "Error inserting credit card!"});
+				}
+				else res.send({"credit_card" : credcard});
+			});
+		}
+	});
+});
+
+app.post('/primary_credit_card', function (req, res) {
+	if(!req.body.user || !req.body.user.id || !req.body.user.pin){
+		res.status(404).send('No user info received!');
+		return;
+	}
+	if(!req.body.credit_card || !req.body.credit_card.id){
+		res.status(404).send('No credit card info received!');
+		return;
+	}
+	var user = req.body.user;
+	db.checkLoginByID(user, function(result) {
+		if(result == null) {
+			res.send({"error" : "Wrong credentials!"});
+		} else {
+			var credit_card = req.body.credit_card;
+
+			db.setPrimaryCreditCard(user,credit_card,function(resultUser){
+				if(resultUser == null) {
+					res.send({"error" : "Error inserting credit card!"});
+				}
+				else res.send({"user" : resultUser});
+			});
+		}
+	});
+});
+
+
+///////////////////////////
 //////// OTHER ////////////
 ///////////////////////////
 function pinTo4Digits(num, size) {

@@ -16,7 +16,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/profile_parent_layout">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -85,6 +86,7 @@
                 android:id="@+id/primary_credit_card_form"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 app:helper_text_color="@color/yellow"
                 app:include_helper="false"
                 app:include_zip="false"
@@ -92,33 +94,39 @@
 
         </LinearLayout>
 
-        <ScrollView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout_alignParentEnd="false">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
 
-            <LinearLayout
+            <TextView
+                android:text="@string/other_credit_cards"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="0dp"
+                android:id="@+id/otherCCsTitle"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:text="@string/other_credit_cards"
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout_alignParentEnd="false">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:id="@+id/otherCCsTitle"
-                    android:layout_weight="1"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/credit_cards_recycler_view"
-                    android:scrollbars="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </LinearLayout>
-        </ScrollView>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/credit_cards_recycler_view"
+                        android:scrollbars="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+            </ScrollView>
 
+        </LinearLayout>
     </LinearLayout>
-
 </RelativeLayout>
