@@ -1,6 +1,7 @@
 package com.example.joao.cafeclientapp.user.profile;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,7 @@ import com.example.joao.cafeclientapp.user.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,9 +40,11 @@ public class ChangePrimaryCreditCardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_primary_credit_card);
+
+        setTitle("Primary Credit Card");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        
         currentActivity = this;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -92,10 +96,14 @@ public class ChangePrimaryCreditCardActivity extends AppCompatActivity {
                 }
 
                 try {
-                    JSONObject credit_card = (JSONObject) response.get("credit_card");
-                    User.getInstance(currentActivity).addCreditCard(credit_card.getInt("id"),
-                            credit_card.getString("number"),credit_card.getString("expiration"));
+                    JSONObject u = response.getJSONObject("user");
+                    int pcc = u.getInt("primary_credit_card");
+
+                    // SET SINGLETON USER
+                    User.getInstance(currentActivity).setPrimaryCreditCard(pcc);
                     User.saveInstance(currentActivity);
+                    Intent intent = new Intent(currentActivity,ProfileActivity.class);
+                    startActivity(intent);
                     currentActivity.finish();
                 } catch (JSONException e) {
                     Log.e("FAILURE:", e.getMessage());
