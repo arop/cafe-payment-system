@@ -12,6 +12,9 @@
         android:layout_height="wrap_content"
         app:helper_text_color="@color/yellow"
         app:include_helper="true"
-        app:include_zip="false"/>
+        app:include_zip="false"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>

@@ -184,6 +184,8 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
                     JSONObject credit_card = (JSONObject) response.get("credit_card");
                     User.getInstance(currentActivity).addCreditCard(credit_card.getInt("id"),
                             credit_card.getString("number"),credit_card.getString("expiration"));
+                    User.saveInstance(currentActivity);
+                    mRecyclerAdapter.refreshDataset(currentActivity, User.getInstance(currentActivity).getCreditCards());
                 } catch (JSONException e) {
                     Log.e("FAILURE:", e.getMessage());
                 }
