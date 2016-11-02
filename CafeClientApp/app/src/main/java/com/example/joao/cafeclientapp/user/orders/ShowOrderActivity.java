@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.orders;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -15,7 +15,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +25,6 @@ import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
-import com.example.joao.cafeclientapp.menu.MenuItemAdapter;
 
 public class ShowOrderActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

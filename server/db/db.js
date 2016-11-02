@@ -403,10 +403,9 @@ function insertCreditCard(user, credit_card, callback) {
 function setPrimaryCreditCard(user, credit_card, callback) {
 	var client = openClient();
 	client.connect();
-	const query = client.query('UPDATE users SET primary_credit_card = $1 WHERE id = $2',
+	const query = client.query('UPDATE users SET primary_credit_card = $1 WHERE id = $2 '+
+		'RETURNING *;',
 		[credit_card.id, user.id], function(error,result) {
-			console.log("show error");
-			console.log(error);
 			if(error != null) {
 				callback(null);
 				return;

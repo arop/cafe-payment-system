@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.orders;
 
 import android.os.Parcel;
 import android.os.Parcelable;

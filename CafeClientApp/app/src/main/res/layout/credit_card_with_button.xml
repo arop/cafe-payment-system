@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/activity_horizontal_margin">
+
+    <RadioButton
+        android:id="@+id/radio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <com.devmarvel.creditcardentry.library.CreditCardForm
+        android:id="@+id/credit_card_form"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:helper_text_color="@color/yellow"
+        app:include_helper="false"
+        app:include_zip="false"
+        app:include_security="false"/>
+
+</LinearLayout>
