@@ -228,6 +228,7 @@ function insertOrder(order,callback) {
 						[resultingOrder.order.user_id], function(error, result){
 						if(error != null)
 							callback(null)
+
 						resultingOrder.order.user_name = result.rows[0].name;
 						resultingOrder.order.credit_card = result.rows[0].number;
 						callback(resultingOrder);
@@ -236,24 +237,34 @@ function insertOrder(order,callback) {
 						client.query('SELECT updateordertotals($1, $2)', 
 							[resultingOrder.order.total_price, order.user.id], function(error, result3){
 								if(error != null){
-									// n? vamos lidar com este erro e ignorar totalmente que n? funcionou.
+									// n vamos lidar com este erro e ignorar totalmente que n? funcionou.
 									// de qq forma, ?uma opera?o simples, por isso n deve dar erro. nunca.
 									return;
 								}
 
+								client.query('SELECT * from users where id = $1',
+									[order.user.id], function(error, result4){
+										if(error != null){
+											// n vamos lidar com este erro e ignorar totalmente que n? funcionou.
+											// de qq forma, ?uma opera?o simples, por isso n deve dar erro. nunca.
+											return;
+										}
 
-								var total_orders_value = result3.rows[0].total_order_value;
-								var total_vouchers_issued = result3.rows[0].discount_vouchers_issued;
-								var vouchers_to_issue = Math.floor(total_orders_value / 100 ) - total_vouchers_issued;
-								
-								console.log("value: " + total_orders_value + " # vouchers: " + total_vouchers_issued);
-								console.log("to issue: "+vouchers_to_issue);
-								
-								if(vouchers_to_issue > 0){
-									for(var i = 0; i < vouchers_to_issue; i++){
-										issueDiscountVoucher(order.user.id);
+										console.log(result4);
+										var total_orders_value = result4.rows[0].total_order_value;
+										var total_vouchers_issued = result4.rows[0].discount_vouchers_issued;
+										var vouchers_to_issue = Math.floor(total_orders_value / 100 ) - total_vouchers_issued;
+										
+										console.log("value: " + total_orders_value + " # vouchers: " + total_vouchers_issued);
+										console.log("to issue: "+vouchers_to_issue);
+
+										if(vouchers_to_issue > 0){
+											for(var i = 0; i < vouchers_to_issue; i++){
+												issueDiscountVoucher(order.user.id);
+											}
+										}
 									}
-								}
+								);
 
 							}
 						);
