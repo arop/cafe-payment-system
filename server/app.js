@@ -220,6 +220,9 @@ app.post('/credit_card', function (req, res) {
 		res.status(404).send('No credit card info received!');
 		return;
 	}
+
+	console.log(req);
+	
 	var user = req.body.user;
 	db.checkLoginByID(user, function(result) {
 		if(result == null) {
