@@ -155,7 +155,6 @@ function getMenu(callback){
     query.on('end', () => {
       callback(results);
     });
-
 }
 
 exports.getMenuVersion = function(callback){
@@ -285,9 +284,48 @@ function getPreviousOrders(user,offset,limit,callback) {
 }
 
 
+/**
+* insert credit card
+*/
+function insertCreditCard(user, credit_card, callback) {
+	var client = openClient();
+	client.connect();
+	const query = client.query('INSERT INTO creditcards (number,expiration,cvv,user_id) '+
+		'VALUES ($1,$2,$3,$4) RETURNING *;',
+		[credit_card.number,credit_card.exp_date,credit_card.cvv,user.id], function(error,result) {
+			if(error != null) {
+				callback(null);
+				return;
+			}
+
+			delete result.rows[0].cvv;
+			callback(result.rows[0]);
+		});
+}
+
+/**
+* change user's primary card
+*/
+function setPrimaryCreditCard(user, credit_card, callback) {
+	var client = openClient();
+	client.connect();
+	const query = client.query('UPDATE users SET primary_credit_card = $1 WHERE id = $2',
+		[credit_card.id, user.id], function(error,result) {
+			if(error != null) {
+				callback(null);
+				return;
+			}
+
+			callback(result.rows[0]);
+		});
+}
+
+
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
 exports.checkLoginByEmail = checkLoginByEmail;
 exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
 exports.getPreviousOrders = getPreviousOrders;
+exports.setPrimaryCreditCard = setPrimaryCreditCard;
+exports.insertCreditCard = insertCreditCard;

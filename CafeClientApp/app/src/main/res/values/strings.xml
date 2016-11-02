@@ -33,4 +33,5 @@
     <string name="other_credit_cards">Other Credit Cards</string>
     <string name="primary_credit_card">Primary Credit Card</string>
     <string name="user_image">user image</string>
+    <string name="title_activity_test_fab">TestFABActivity</string>
 </resources>
