@@ -2,7 +2,10 @@ require('dotenv').config();
 
 const pg = require('pg');
 const connectionString = process.env.DATABASE_URL;
-const bcrypt = require('../lib/bCrypt.js');
+const 
+	bcrypt = require('../lib/bCrypt.js'),
+	rsa = require('jsrsasign'),
+	rsau = require('jsrsasign-util');
 
 /*pg.on('error', function (err) {
   console.log('Database error!', err);
@@ -228,11 +231,89 @@ function insertOrder(order,callback) {
 						resultingOrder.order.user_name = result.rows[0].name;
 						resultingOrder.order.credit_card = result.rows[0].number;
 						callback(resultingOrder);
+
+
+						client.query('SELECT updateordertotals($1, $2)', 
+							[resultingOrder.order.total_price, order.user.id], function(error, result3){
+								if(error != null){
+									// não vamos lidar com este erro e ignorar totalmente que não funcionou.
+									// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
+									return;
+								}
+
+
+								var total_orders_value = result3.rows[0].total_order_value;
+								var total_vouchers_issued = result3.rows[0].discount_vouchers_issued;
+
+								var vouchers_to_issue = Math.floor(total_orders_value / 100 ) - total_vouchers_issued;
+
+								if(vouchers_to_issue > 0){
+									for(var i = 0; i < vouchers_to_issue; i++){
+										issueDiscountVoucher(order.user.id);
+									}
+								}
+
+							}
+						);
 					});
 				}
 			});
 		}
 	});
+}
+
+function issueDiscountVoucher(user_id){
+
+	var rand1 = Math.floor(Math.random() * 999 + 1); // 1 to 1000
+	var rand2 = Math.floor(Math.random() * 499  + 1); // 1 to 500
+	var voucher_serial = rand1 + rand2;
+
+	var voucher_type = 'd';
+
+	var pem = rsau.readFile('./keys/private.pem');
+	var prvKey = rsa.KEYUTIL.getKey(pem);
+
+	var sig = new rsa.Signature({alg: 'SHA1withRSA'});
+	sig.init(prvKey);
+	sig.updateString(voucher_serial);
+	var cryp_signature = sig.sign();
+
+	/*var cryp_signature_encoded = ""
+	for(var i = 0; i < cryp_signature.length; i++){
+		var first = ('0x'+cryp_signature.charAt(i)) << 0;
+		var first_shifted = ('0x'+cryp_signature.charAt(i)) << 4;
+		var second = ('0x'+cryp_signature.charAt(++i)) << 0;
+		var new_char = first_shifted+second;
+		
+		var new_char_string = String.fromCharCode(new_char); 
+
+		cryp_signature_encoded += new_char_string;
+
+		console.log('        First char code: '+first);
+		console.log('First char code shifted: '+first_shifted);
+		console.log('       Second char code: ' + second);
+		console.log('          New char code: ' + new_char);
+		console.log('        New char string: '+new_char_string);
+		console.log('--------------------------------------------------');
+
+	}
+	console.log(cryp_signature_encoded);
+	console.log(cryp_signature_encoded.length);*/
+
+
+	var client = openClient();
+	client.connect();
+	const query = client.query(
+		"INSERT INTO vouchers (serial_id, type, signature, user_id) VALUES ($1, $2, decode($3, 'hex'), $4)",
+		[voucher_serial, voucher_type, cryp_signature, user_id],
+		function(error, result){
+			if(error != null){
+				console.log(error);
+				return;
+			}
+		}
+	);
+
 }
 
 
@@ -327,5 +408,7 @@ exports.checkLoginByEmail = checkLoginByEmail;
 exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
 exports.getPreviousOrders = getPreviousOrders;
+
+exports.issueDiscountVoucher = issueDiscountVoucher;exports.getPreviousOrders = getPreviousOrders;
 exports.setPrimaryCreditCard = setPrimaryCreditCard;
 exports.insertCreditCard = insertCreditCard;

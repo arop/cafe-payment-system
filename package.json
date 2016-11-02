@@ -18,7 +18,9 @@
     "pg" : "*",
     "supervisor" : ">=0.11.0",
     "dotenv" : "*",
-    "pg-promise" : "*"
+    "pg-promise" : "*",
+    "jsrsasign" : "*",
+    "jsrsasign-util" : "*"
   },
   "engines": {
     "node": "~4.1.2"
