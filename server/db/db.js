@@ -406,6 +406,7 @@ function setPrimaryCreditCard(user, credit_card, callback) {
 	const query = client.query('UPDATE users SET primary_credit_card = $1 WHERE id = $2',
 		[credit_card.id, user.id], function(error,result) {
 			if(error != null) {
+				console.log(error);
 				callback(null);
 				return;
 			}
@@ -422,6 +423,7 @@ exports.checkLoginByID = checkLoginByID;
 exports.insertOrder = insertOrder;
 exports.getPreviousOrders = getPreviousOrders;
 
-exports.issueDiscountVoucher = issueDiscountVoucher;exports.getPreviousOrders = getPreviousOrders;
+exports.issueDiscountVoucher = issueDiscountVoucher;
+exports.getPreviousOrders = getPreviousOrders;
 exports.setPrimaryCreditCard = setPrimaryCreditCard;
 exports.insertCreditCard = insertCreditCard;

@@ -256,7 +256,7 @@ app.post('/primary_credit_card', function (req, res) {
 
 			db.setPrimaryCreditCard(user,credit_card,function(resultUser){
 				if(resultUser == null) {
-					res.send({"error" : "Error inserting credit card!"});
+					res.send({"error" : "Error updating primary credit card!"});
 				}
 				else res.send({"user" : resultUser});
 			});
