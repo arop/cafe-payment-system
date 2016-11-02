@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.cart.CartActivity;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
-import com.example.joao.cafeclientapp.user.PreviousOrdersActivity;
-import com.example.joao.cafeclientapp.user.ProfileActivity;
+import com.example.joao.cafeclientapp.user.orders.PreviousOrdersActivity;
+import com.example.joao.cafeclientapp.user.profile.ProfileActivity;
 import com.example.joao.cafeclientapp.user.User;
 
 /**

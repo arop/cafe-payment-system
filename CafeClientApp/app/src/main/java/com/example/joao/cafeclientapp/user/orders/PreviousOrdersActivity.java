@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.orders;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.user.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 

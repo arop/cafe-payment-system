@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:context="com.example.joao.cafeclientapp.user.ProfileActivity">
+        tools:context="com.example.joao.cafeclientapp.user.profile.ProfileActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -32,13 +32,35 @@
 
         <include layout="@layout/content_profile" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+        <com.getbase.floatingactionbutton.FloatingActionsMenu
+            android:id="@+id/multiple_actions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/ic_add_white_24dp" />
+            app:fab_addButtonColorNormal="@color/white"
+            app:fab_addButtonColorPressed="@color/white_pressed"
+            app:fab_addButtonPlusIconColor="@color/half_black"
+            app:fab_labelStyle="@style/menu_labels_style"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_gravity="bottom|end">
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/new_credit_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:fab_colorNormal="@color/white"
+                app:fab_title="New credit card"
+                app:fab_colorPressed="@color/white_pressed"/>
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/change_primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:fab_colorNormal="@color/white"
+                app:fab_title="Edit primary credit card"
+                app:fab_colorPressed="@color/white_pressed"/>
+
+        </com.getbase.floatingactionbutton.FloatingActionsMenu>
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView

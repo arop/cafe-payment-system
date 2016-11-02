@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.orders;
 
 import android.app.Activity;
 import android.content.Intent;

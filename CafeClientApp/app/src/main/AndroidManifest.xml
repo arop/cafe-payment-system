@@ -40,15 +40,24 @@
         <activity android:name=".cart.QrCodeCheckoutActivity" />
         <activity android:name=".cart.PinAskActivity" />
         <activity
-            android:name=".user.PreviousOrdersActivity"
+            android:name=".user.orders.PreviousOrdersActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".user.ProfileActivity"
+            android:name=".user.profile.ProfileActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".user.ShowOrderActivity"
+            android:name=".user.orders.ShowOrderActivity"
             android:label="@string/title_activity_show_order"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".user.profile.ChangePrimaryCreditCardActivity"
+            android:label="@string/title_activity_change_primary_credit_card"
+            android:parentActivityName=".user.profile.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.joao.cafeclientapp.user.profile.ProfileActivity" />
+        </activity>
     </application>
 
 </manifest>

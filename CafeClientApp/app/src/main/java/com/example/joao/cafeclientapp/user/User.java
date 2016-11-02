@@ -128,12 +128,12 @@ public class User implements Serializable{
         protected String number;
         protected String expirationDate;
 
-        public CreditCard(int i, String n, String exp) {
+        CreditCard(int i, String n, String exp) {
             id = i;
             number = n;
             expirationDate = exp;
         }
-        public CreditCard(String id, String n, String exp) {
+        CreditCard(String id, String n, String exp) {
             this.id = Integer.parseInt(id);
             number = n;
             expirationDate = exp;
@@ -158,6 +158,31 @@ public class User implements Serializable{
             result = 31 * result + number.hashCode();
             result = 31 * result + expirationDate.hashCode();
             return result;
+        }
+
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getNumber() {
+            return number;
+        }
+
+        public void setNumber(String number) {
+            this.number = number;
+        }
+
+        public String getExpirationDate() {
+            return expirationDate;
+        }
+
+        public void setExpirationDate(String expirationDate) {
+            this.expirationDate = expirationDate;
         }
     }
 

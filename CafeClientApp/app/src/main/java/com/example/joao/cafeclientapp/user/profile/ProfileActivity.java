@@ -1,21 +1,18 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.profile;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -28,10 +25,10 @@ import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
+import com.example.joao.cafeclientapp.user.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,13 +57,6 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
 
         user = User.getInstance(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showInsertCreditCardAlert();
-            }
-        });
 
         /////////////////////////////////////////////////////////////////////
         mRecyclerView = (RecyclerView) findViewById(R.id.credit_cards_recycler_view);
@@ -83,30 +73,10 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
         ///////////////////////////////////////////////////////////////////
-
-        TextView nameTextView = (TextView) findViewById(R.id.name);
-        nameTextView.setText(user.getName());
-
-        TextView emailTextView = (TextView) findViewById(R.id.email);
-        emailTextView.setText(user.getEmail());
-
-        TextView nifTextView = (TextView) findViewById(R.id.nif);
-        nifTextView.setText(user.getNif());
-
-        CreditCardForm creditCardForm = (CreditCardForm) findViewById(R.id.primary_credit_card_form);
-        creditCardForm.setCardNumber(user.getPrimaryCreditCard().number,false);
-        creditCardForm.setExpDate(user.getPrimaryCreditCard().expirationDate,false);
-
-        // dont show other credit cards if there are none
-        if(user.getCreditCards().size() < 2) {
-            TextView otherCCs = (TextView) findViewById(R.id.otherCCsTitle);
-            otherCCs.setText("");
-        }
-
-
+        setFloatingActionMenu();
+        setTextViews();
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -120,6 +90,49 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         navigationView.setCheckedItem(R.id.nav_profile);
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
+    }
+
+    private void setTextViews() {
+        TextView nameTextView = (TextView) findViewById(R.id.name);
+        nameTextView.setText(user.getName());
+
+        TextView emailTextView = (TextView) findViewById(R.id.email);
+        emailTextView.setText(user.getEmail());
+
+        TextView nifTextView = (TextView) findViewById(R.id.nif);
+        nifTextView.setText(user.getNif());
+
+        CreditCardForm creditCardForm = (CreditCardForm) findViewById(R.id.primary_credit_card_form);
+        creditCardForm.setCardNumber(user.getPrimaryCreditCard().getNumber(),false);
+        creditCardForm.setExpDate(user.getPrimaryCreditCard().getExpirationDate(),false);
+
+        // dont show other credit cards if there are none
+        if(user.getCreditCards().size() < 2) {
+            TextView otherCCs = (TextView) findViewById(R.id.otherCCsTitle);
+            otherCCs.setText("");
+        }
+    }
+
+    private void setFloatingActionMenu() {
+        final com.getbase.floatingactionbutton.FloatingActionButton new_credit_card =
+                (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.new_credit_card);
+        new_credit_card.setIcon(R.drawable.ic_credit_card_black_24dp);
+        new_credit_card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showInsertCreditCardAlert();
+            }
+        });
+
+        final com.getbase.floatingactionbutton.FloatingActionButton change_primary =
+                (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.change_primary);
+        change_primary.setIcon(R.drawable.ic_mode_edit_black_24dp);
+        change_primary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToChangePrimaryCreditCardActivity();
+            }
+        });
     }
 
     public void showInsertCreditCardAlert() {
@@ -150,6 +163,11 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         });
 
         builder.show();
+    }
+
+    public void goToChangePrimaryCreditCardActivity() {
+        Intent intent = new Intent(this,ChangePrimaryCreditCardActivity.class);
+        startActivity(intent);
     }
 
     private void insertCreditCardRequest(CreditCardForm cc) {

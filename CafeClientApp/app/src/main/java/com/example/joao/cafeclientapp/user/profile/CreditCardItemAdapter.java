@@ -1,13 +1,13 @@
-package com.example.joao.cafeclientapp.user;
+package com.example.joao.cafeclientapp.user.profile;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.user.User;
 
 import java.util.ArrayList;
 
@@ -15,26 +15,27 @@ import java.util.ArrayList;
  * Created by andre on 28/10/2016.
  */
 
-public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAdapter.ViewHolder> {
+class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAdapter.ViewHolder> {
 
     private ArrayList<User.CreditCard> creditCards;
     private final Activity mActivity;
+    private boolean showPrimary;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public View mView;
-        public ViewHolder(View v) {
+        View mView;
+        ViewHolder(View v) {
             super(v);
             mView = v;
         }
     }
 
-    public CreditCardItemAdapter(ArrayList<User.CreditCard> cc, Activity a){
-        this.creditCards = (ArrayList<User.CreditCard>) cc.clone();
+    CreditCardItemAdapter(ArrayList<User.CreditCard> cc, Activity a){
         this.mActivity = a;
+        this.creditCards = (ArrayList<User.CreditCard>) cc.clone();
 
         //remove primary credit card
         creditCards.remove(User.getInstance(a).getPrimaryCreditCard());
@@ -42,8 +43,9 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
 
     @Override
     public CreditCardItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v;
         // create a new view
-        View v = LayoutInflater.from(parent.getContext())
+        v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.credit_card_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
@@ -55,14 +57,14 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
         CreditCardForm credit_card_form = (CreditCardForm) holder.mView.findViewById(R.id.credit_card_form);
 
         User.CreditCard cc = creditCards.get(position);
-        String ccNumber = cc.number;
-        String ccExpDate = cc.expirationDate;
+        String ccNumber = cc.getNumber();
+        String ccExpDate = cc.getExpirationDate();
 
         credit_card_form.setCardNumber(ccNumber,false);
         credit_card_form.setExpDate(ccExpDate,false);
     }
 
-    public void refreshDataset(Activity a, ArrayList<User.CreditCard> ccs) {
+    void refreshDataset(Activity a, ArrayList<User.CreditCard> ccs) {
         this.creditCards = (ArrayList<User.CreditCard>) ccs.clone();
 
         //remove primary credit card
