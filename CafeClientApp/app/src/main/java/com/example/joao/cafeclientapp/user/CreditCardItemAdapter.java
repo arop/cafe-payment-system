@@ -62,6 +62,14 @@ public class CreditCardItemAdapter extends RecyclerView.Adapter<CreditCardItemAd
         credit_card_form.setExpDate(ccExpDate,false);
     }
 
+    public void refreshDataset(Activity a, ArrayList<User.CreditCard> ccs) {
+        this.creditCards = (ArrayList<User.CreditCard>) ccs.clone();
+
+        //remove primary credit card
+        creditCards.remove(User.getInstance(a).getPrimaryCreditCard());
+        this.notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return creditCards.size();
