@@ -1,8 +1,6 @@
 package com.example.joao.cafeclientapp.cart;
 
 import android.app.Activity;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
@@ -12,7 +10,6 @@ import com.example.joao.cafeclientapp.menu.ProductsMenu;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

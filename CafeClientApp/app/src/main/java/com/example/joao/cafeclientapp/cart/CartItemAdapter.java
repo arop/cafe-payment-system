@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.menu.Product;
-import com.example.joao.cafeclientapp.menu.ProductsMenu;
 
 import java.util.ArrayList;
 
@@ -69,22 +68,18 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
         private void makeVisible(View add_btn, View rem_btn) {
             add_btn.setVisibility(View.VISIBLE);
             rem_btn.setVisibility(View.VISIBLE);
-            /*add_btn.animate().alpha(1.0f).setDuration(500);
-            rem_btn.animate().alpha(1.0f).setDuration(500);*/
         }
 
         private void makeInvisible(View add_btn, View rem_btn) {
             add_btn.setVisibility(View.INVISIBLE);
             rem_btn.setVisibility(View.INVISIBLE);
-            /*add_btn.animate().alpha(0.0f).setDuration(500);
-            rem_btn.animate().alpha(0.0f).setDuration(500);*/
         }
 
     }
 
     public CartItemAdapter(Cart menu, Activity a){
         //convert Hash Map to Array List
-        this.dataset = new ArrayList<Product>(menu.getProducts().values());
+        this.dataset = new ArrayList<>(menu.getProducts().values());
 
         this.mActivity = a;
         this.currentCart = Cart.getInstance(a);
@@ -132,8 +127,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 currentCart.removeProductFromCart(dataset.get(position));
-                currentCart.saveCart(mActivity);
                 refreshDataSet();
+                currentCart.saveCart(mActivity);
                 ((CartActivity) mActivity).refreshCartTotalPrice();
                 /**
                  * TODO add toast saying product added
@@ -155,6 +150,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.ViewHo
     }
 
     public void refreshDataSet() {
+        this.dataset = new ArrayList<>(currentCart.getProducts().values());
         this.notifyDataSetChanged();
     }
 }
