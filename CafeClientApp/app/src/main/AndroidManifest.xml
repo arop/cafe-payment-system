@@ -58,7 +58,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.joao.cafeclientapp.user.profile.ProfileActivity" />
         </activity>
-        <activity android:name=".user.vouchers.VouchersActivity"></activity>
+        <activity
+            android:name=".user.vouchers.VouchersActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

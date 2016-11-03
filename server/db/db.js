@@ -491,3 +491,5 @@ exports.issueDiscountVoucher = issueDiscountVoucher;
 exports.getPreviousOrders = getPreviousOrders;
 exports.setPrimaryCreditCard = setPrimaryCreditCard;
 exports.insertCreditCard = insertCreditCard;
+
+exports.getValidVouchers = getValidVouchers;

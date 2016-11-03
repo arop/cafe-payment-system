@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import com.example.joao.cafeclientapp.cart.Cart;
 import com.example.joao.cafeclientapp.user.User;
-import com.example.joao.cafeclientapp.user.Voucher;
+import com.example.joao.cafeclientapp.user.vouchers.Voucher;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,7 +1,6 @@
-package com.example.joao.cafeclientapp.user.orders;
+package com.example.joao.cafeclientapp.user.vouchers;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -13,13 +12,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.ServerRestClient;
 import com.example.joao.cafeclientapp.user.User;
+import com.example.joao.cafeclientapp.user.orders.Order;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -31,32 +34,29 @@ import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
 
-public class PreviousOrdersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class VouchersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
 
-    private Activity currentActivity;
-    private Context context;
+    private ArrayList<Voucher> vouchers;
+
     private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
-
-    private ArrayList<Order> orders;
-    private PreviousOrderItemAdapter mAdapter;
+    private VoucherItemAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private Activity currentActivity;
+    private Menu menu;
     private SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_previous_orders);
+        setContentView(R.layout.activity_vouchers);
 
         this.currentActivity = this;
-        this.context = getApplicationContext();
-
-        this.orders = new ArrayList<Order>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle("Orders");
+        setTitle("My Vouchers");
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.previous_orders_recycler_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.vouchers_recycler_view);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -66,29 +66,14 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        vouchers = Voucher.getVouchersInstance(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // specify an adapter (see also next example)
-        mAdapter = new PreviousOrderItemAdapter(orders,this);
+        mAdapter = new VoucherItemAdapter(vouchers,this);
         mRecyclerView.setAdapter(mAdapter);
 
-        ///////////////////////////////////////////
-        ////////// SETUP SWIPE REFRESH ////////////
-        // Lookup the swipe container view
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshOrdersContainer);
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                fetchOrdersAsync();
-            }
-        });
-        
-        
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
 
@@ -101,16 +86,34 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.nav_orders);
+        navigationView.setCheckedItem(R.id.nav_cart);
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
 
-        swipeContainer.setRefreshing(true);
-        fetchOrdersAsync();
+        ///////////////////////////////////////////
+        ////////// SETUP SWIPE REFRESH ////////////
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_vouchers_container);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                fetchVouchersAsync();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        ///////////////////////////////////////////
     }
 
-
-    public void fetchOrdersAsync(){
+    private void fetchVouchersAsync() {
 
         RequestParams params = new RequestParams();
 
@@ -120,25 +123,24 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         params.put("user",user_params);
         Log.d("user", user_params.toString());
 
-        params.put("offset", 0);
-
-        ServerRestClient.post("pasttransactions", params, new JsonHttpResponseHandler() {
+        ServerRestClient.post("validvouchers", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
-                Log.d("success", "got orders");
+                Log.d("success", "got vouchers");
                 Log.d("response", response.toString());
                 try {
-                    JSONObject orders_response = (JSONObject) response.get("orders");
-                    orders = new ArrayList<Order>();
+                    JSONObject vouchersResponse = (JSONObject) response.get("vouchers");
+                    vouchers = new ArrayList<Voucher>();
 
-                    Iterator<?> keys = orders_response.keys();
+                    Iterator<?> keys = vouchersResponse.keys();
                     while( keys.hasNext() ) {
                         String key = (String)keys.next();
-                        Order o = new Order((JSONObject) orders_response.get(key));
-                        orders.add(o);
+                        Voucher v = new Voucher((JSONObject) vouchersResponse.get(key));
+                        vouchers.add(v);
                     }
 
+                    Voucher.setAndSaveInstance(currentActivity, vouchers);
                     refreshAdapterData();
 
                 } catch (Exception e) {
@@ -152,7 +154,7 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
             @Override
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
                 Log.e("FAILURE:", error);
-                Toast.makeText(context, "Server not available...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(currentActivity.getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
                 swipeContainer.setRefreshing(false);
             }
 
@@ -164,14 +166,30 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         });
     }
 
-    private void refreshAdapterData() {
-        mAdapter.addAll(orders);
+    public void refreshAdapterData() {
+        mAdapter.setDataset(vouchers);
         //notifyDataSetChanged();
     }
 
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_orders);
+        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_cart);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_cart, menu);
+        this.menu = menu;
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        // Handle button click here
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+
 }
