@@ -26,6 +26,7 @@ import com.example.joao.cafeclientapp.user.orders.Order;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -130,13 +131,11 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
                 Log.d("success", "got vouchers");
                 Log.d("response", response.toString());
                 try {
-                    JSONObject vouchersResponse = (JSONObject) response.get("vouchers");
+                    JSONArray vouchersResponse = (JSONArray) response.get("vouchers");
                     vouchers = new ArrayList<Voucher>();
 
-                    Iterator<?> keys = vouchersResponse.keys();
-                    while( keys.hasNext() ) {
-                        String key = (String)keys.next();
-                        Voucher v = new Voucher((JSONObject) vouchersResponse.get(key));
+                    for (int i = 0; i < vouchersResponse.length(); ++i) {
+                        Voucher v = new Voucher((JSONObject) vouchersResponse.get(i));
                         vouchers.add(v);
                     }
 
@@ -173,12 +172,13 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_cart);
+        return NavigationDrawerUtils.onNavigationItemSelected(item, this, R.id.nav_vouchers);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        // TODO change to custom toolbar
         inflater.inflate(R.menu.actionbar_cart, menu);
         this.menu = menu;
         return true;

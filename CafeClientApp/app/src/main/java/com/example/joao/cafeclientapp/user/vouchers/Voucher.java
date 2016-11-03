@@ -42,7 +42,7 @@ public class Voucher implements Serializable{
     public Voucher(JSONObject jsonObject) {
         try {
             this.serialId = jsonObject.getInt("serial_id");
-            this.signature = jsonObject.get("timestamp").toString().getBytes();
+            this.signature = jsonObject.get("signature").toString().getBytes();
             this.type = jsonObject.get("type").toString().charAt(0);
             this.setTitle();
 

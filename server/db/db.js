@@ -287,7 +287,7 @@ function issueOfferVoucher(user_id){
 	var voucher_serial = rand1 + rand2;
 
 	var voucher_type;
-	if( Math.floor(Math.random() + 1) == 1 ) 
+	if( Math.floor(Math.random() * 2) == 1 ) 
 		voucher_type = 'p'; // popcorn
 	else voucher_type = 'c'; // coffee
 
