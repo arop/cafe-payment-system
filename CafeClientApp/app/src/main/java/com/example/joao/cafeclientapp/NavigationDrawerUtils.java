@@ -15,6 +15,7 @@ import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 import com.example.joao.cafeclientapp.user.orders.PreviousOrdersActivity;
 import com.example.joao.cafeclientapp.user.profile.ProfileActivity;
 import com.example.joao.cafeclientapp.user.User;
+import com.example.joao.cafeclientapp.user.vouchers.VouchersActivity;
 
 /**
  * Created by Joao on 23/10/2016.
@@ -39,6 +40,8 @@ public class NavigationDrawerUtils {
                     break;
 
                 case R.id.nav_vouchers:
+                    intent = new Intent(activity.getApplicationContext(), VouchersActivity.class);
+                    activity.startActivity(intent);
                     break;
 
                 case R.id.nav_orders:
