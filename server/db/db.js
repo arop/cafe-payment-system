@@ -302,7 +302,7 @@ function issueOfferVoucher(user_id){
 	var client = openClient();
 	client.connect();
 	const query = client.query(
-		"INSERT INTO vouchers (serial_id, type, signature, user_id) VALUES ($1, $2, decode($3, 'hex'), $4)",
+		"INSERT INTO vouchers (serial_id, type, signature, user_id, order_id) VALUES ($1, $2, decode($3, 'hex'), $4, null)",
 		[voucher_serial, voucher_type, cryp_signature, user_id],
 		function(error, result){
 			if(error != null){
@@ -355,7 +355,7 @@ function issueDiscountVoucher(user_id){
 	var client = openClient();
 	client.connect();
 	const query = client.query(
-		"INSERT INTO vouchers (serial_id, type, signature, user_id) VALUES ($1, $2, decode($3, 'hex'), $4)",
+		"INSERT INTO vouchers (serial_id, type, signature, user_id, order_id) VALUES ($1, $2, decode($3, 'hex'), $4, null)",
 		[voucher_serial, voucher_type, cryp_signature, user_id],
 		function(error, result){
 			if(error != null){
