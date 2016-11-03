@@ -112,6 +112,9 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         ///////////////////////////////////////////
+
+        swipeContainer.setRefreshing(true);
+        fetchVouchersAsync();
     }
 
     private void fetchVouchersAsync() {
