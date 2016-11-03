@@ -509,7 +509,7 @@ function getBlacklist(callback) {
 				return;
 			}
 
-			callback(result.rows[0]);
+			callback(result.rows);
 		});	
 }
 
