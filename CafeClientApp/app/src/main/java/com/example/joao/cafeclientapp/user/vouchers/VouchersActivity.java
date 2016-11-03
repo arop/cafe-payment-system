@@ -87,7 +87,7 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.nav_cart);
+        navigationView.setCheckedItem(R.id.nav_vouchers);
         NavigationDrawerUtils.setUser(navigationView, this);
         /////////////////////////////////////////////
 

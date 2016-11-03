@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
+import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.menu.Product;
 
 import org.json.JSONArray;
@@ -22,6 +23,7 @@ public class Voucher implements Serializable{
 
     static private ArrayList<Voucher> vouchers = null;
 
+
     static public void setAndSaveInstance(Activity a, ArrayList<Voucher> vouchers){
         Voucher.vouchers = vouchers;
         Voucher.saveVouchers(a);
@@ -31,6 +33,8 @@ public class Voucher implements Serializable{
     private byte[] signature;
     private char type;
     private String title;
+
+    private int drawable; // id of vector asset
 
     public Voucher(int serial_id, byte[] signature, char type){
         this.serialId = serial_id;
@@ -54,9 +58,9 @@ public class Voucher implements Serializable{
 
     private void setTitle(){
         switch (this.type){
-            case 'd' : this.title = "5% discount"; break;
-            case 'p' : this.title = "1 Free Popcorn"; break;
-            case 'c' : this.title = "1 Free Coffee"; break;
+            case 'd' : this.title = "5% discount"; this.drawable = R.drawable.ic_percentage_46dp; break;
+            case 'p' : this.title = "1 Free Popcorn"; this.drawable = R.drawable.ic_popcorn_64dp; break;
+            case 'c' : this.title = "1 Free Coffee"; this.drawable = R.drawable.ic_coffee_64dp; break;
             default: this.title = "Invalid Voucher?";
         }
     }
@@ -95,5 +99,9 @@ public class Voucher implements Serializable{
 
     public String getTitle() {
         return title;
+    }
+
+    public int getDrawable() {
+        return drawable;
     }
 }

@@ -63,6 +63,7 @@ public class VoucherItemAdapter extends RecyclerView.Adapter<VoucherItemAdapter.
         final String title= dataset.get(position).getTitle();
 
         titleView.setText(title);
+        imageView.setImageResource(dataset.get(position).getDrawable());
     }
 
     @Override
