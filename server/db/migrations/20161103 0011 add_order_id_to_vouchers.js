@@ -14,5 +14,5 @@ const client = new pg.Client({
 client.connect();
 const query = client.query(
 	"ALTER TABLE vouchers "+
-	"ADD COLUMN order_id serial REFERENCES orders(id);");
+	"ADD COLUMN order_id integer REFERENCES orders(id);");
 query.on('end', () => { client.end(); });

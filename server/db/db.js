@@ -426,7 +426,7 @@ function getValidVouchers(user,callback) {
 		'SELECT * '+
 		'FROM vouchers '+
 		'WHERE user_id = $1 '+
-		'AND order_id = null;',
+		'AND order_id is null;',
 		[user.id],
 		function(error, result){
 			if(error != null){
