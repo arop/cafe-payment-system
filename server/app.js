@@ -284,6 +284,19 @@ app.post('/primary_credit_card', function (req, res) {
 
 
 ///////////////////////////
+//////// BLACKLIST ////////
+///////////////////////////
+app.get('/blacklist', function (req, res) {
+	db.getBlaclist(function(result) {
+		if(result == null) {
+			res.send({"error" : "Error getting blacklist!"});
+		} else {
+			res.send({"blacklist" : result});
+		}
+	});
+});
+
+///////////////////////////
 //////// OTHER ////////////
 ///////////////////////////
 function pinTo4Digits(num, size) {

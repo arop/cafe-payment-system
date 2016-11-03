@@ -480,6 +480,57 @@ function setPrimaryCreditCard(user, credit_card, callback) {
 }
 
 
+////////////////////////////////
+///////// BLACKLIST ////////////
+////////////////////////////////
+
+function insertBlacklistedUser(user, callback) {
+	var client = openClient();
+	client.connect();
+	const query = client.query('INSERT INTO blacklist (user_id) '+
+		'VALUES ($1) RETURNING *;',
+		[user.id], function(error,result) {
+			if(error != null) {
+				callback(null);
+				return;
+			}
+
+			callback(result.rows[0]);
+		});
+}
+
+function getBlacklist(callback) {
+	var client = openClient();
+	client.connect();
+	const query = client.query('SELECT * FROM blacklist;',
+		function(error,result) {
+			if(error != null) {
+				callback(null);
+				return;
+			}
+
+			callback(result.rows[0]);
+		});	
+}
+
+function isUserBlacklisted(user) {
+	var client = openClient();
+	client.connect();
+	const query = client.query('SELECT * FROM blacklist WHERE user_id = $1;',
+		function(error,result) {
+			if(error != null) {
+				return null;
+			}
+
+			if(result.rows[0].length > 0)
+				return true;
+			else return false;
+		});	
+}
+
+
+////////////////////////////////
+
 exports.insertUser = insertUser;
 exports.getMenu = getMenu;
 exports.checkLoginByEmail = checkLoginByEmail;
@@ -493,3 +544,6 @@ exports.setPrimaryCreditCard = setPrimaryCreditCard;
 exports.insertCreditCard = insertCreditCard;
 
 exports.getValidVouchers = getValidVouchers;
+
+exports.insertBlacklistedUser = insertBlacklistedUser;
+exports.getBlacklist = getBlacklist;
