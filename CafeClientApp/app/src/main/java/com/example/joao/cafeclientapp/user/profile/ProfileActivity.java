@@ -2,6 +2,7 @@ package com.example.joao.cafeclientapp.user.profile;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -43,6 +44,7 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
     private CreditCardItemAdapter mRecyclerAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Activity currentActivity;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,6 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         currentActivity = this;
 
         user = User.getInstance(this);
-
 
         /////////////////////////////////////////////////////////////////////
         mRecyclerView = (RecyclerView) findViewById(R.id.credit_cards_recycler_view);
@@ -185,13 +186,16 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         params.put("user",user_params);
         params.put("credit_card",creditCard_params);
 
+        progressDialog = ProgressDialog.show(ProfileActivity.this,
+                "Please wait ...", "Requesting to server ...", true);
+
         ServerRestClient.post("credit_card", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try{
                     String error = response.get("error").toString();
                     Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
-                    //TODO showProgress(false);
+                    progressDialog.dismiss();
                     return;
                 }
                 catch(JSONException e){
@@ -204,6 +208,7 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
                             credit_card.getString("number"),credit_card.getString("expiration"));
                     User.saveInstance(currentActivity);
                     mRecyclerAdapter.refreshDataset(currentActivity, User.getInstance(currentActivity).getCreditCards());
+                    progressDialog.dismiss();
                 } catch (JSONException e) {
                     Log.e("FAILURE:", e.getMessage());
                 }
@@ -213,14 +218,14 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
                 Log.e("FAILURE:", error);
                 Toast.makeText(getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
-                //TODO showProgress(false);
+                progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object){
                 Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
                 Toast.makeText(getApplicationContext(), "Server not available...", Toast.LENGTH_SHORT).show();
-                //TODO showProgress(false);
+                progressDialog.dismiss();
             }
 
         });
