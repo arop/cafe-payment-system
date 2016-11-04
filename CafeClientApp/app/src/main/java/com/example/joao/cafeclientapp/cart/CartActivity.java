@@ -1,36 +1,50 @@
 package com.example.joao.cafeclientapp.cart;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.user.vouchers.Voucher;
+
+import java.util.ArrayList;
 
 public class CartActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    Cart currentCart;
+    private Cart currentCart;
+    private ArrayList<Voucher> currentVouchers;
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private RecyclerView cartRecyclerView;
+    private RecyclerView.Adapter cartAdapter;
+
+    private RecyclerView vouchersRecyclerView;
+    private RecyclerView.Adapter vouchersAdapter;
+
     private Activity currentActivity;
-    private Context context;
     private Menu menu;
 
     @Override
@@ -39,29 +53,24 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_cart);
 
         this.currentActivity = this;
-        this.context = getApplicationContext();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Cart");
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.cart_recycler_view);
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
 
         currentCart = Cart.getInstance(this);
+        currentVouchers = Voucher.getVouchersInstance(this);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // specify an adapter (see also next example)
-        mAdapter = new CartItemAdapter(currentCart,this);
-        mRecyclerView.setAdapter(mAdapter);
 
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
@@ -118,4 +127,136 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
         // Handle button click here
         return super.onPrepareOptionsMenu(menu);
     }
+
+
+    //////////////////////////////////////////////
+    /////////////// TAB VIEW STUFF ////////////////
+
+    /**
+     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * fragments for each of the sections. We use a
+     * {@link FragmentPagerAdapter} derivative, which will keep every
+     * loaded fragment in memory. If this becomes too memory intensive, it
+     * may be best to switch to a
+     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     */
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+
+    /**
+     * The {@link ViewPager} that will host the section contents.
+     */
+    private ViewPager mViewPager;
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            CartActivity activity = (CartActivity) getActivity();
+            View rootView = null;
+
+            switch(getArguments().getInt(ARG_SECTION_NUMBER)){
+                case 1:{
+                    rootView = inflater.inflate(R.layout.fragment_cart_cart, container, false);
+
+                    activity.cartRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_recycler_view);
+
+                    // use this setting to improve performance if you know that changes
+                    // in content do not change the layout size of the RecyclerView
+                    activity.cartRecyclerView.setHasFixedSize(true);
+
+                    // use a linear layout manager
+                    activity.mLayoutManager = new LinearLayoutManager(activity);
+                    activity.cartRecyclerView.setLayoutManager(activity.mLayoutManager);
+                    // specify an adapter (see also next example)
+                    activity.cartAdapter = new CartItemAdapter(activity.currentCart,activity);
+                    activity.cartRecyclerView.setAdapter(activity.cartAdapter);
+
+                    break;
+                }
+                case 2:{
+                    rootView = inflater.inflate(R.layout.fragment_cart_vouchers, container, false);
+
+                    activity.vouchersRecyclerView = (RecyclerView) rootView.findViewById(R.id.vouchers_select_recycler_view);
+
+                    // use this setting to improve performance if you know that changes
+                    // in content do not change the layout size of the RecyclerView
+                    activity.vouchersRecyclerView.setHasFixedSize(true);
+
+                    // use a linear layout manager
+                    activity.mLayoutManager = new LinearLayoutManager(activity);
+                    activity.vouchersRecyclerView.setLayoutManager(activity.mLayoutManager);
+                    // specify an adapter (see also next example)
+                    activity.vouchersAdapter = new VoucherSelectItemAdapter(activity.currentVouchers,activity);
+                    activity.vouchersRecyclerView.setAdapter(activity.vouchersAdapter);
+
+                    Log.e("VOUCHERS", activity.currentVouchers.size()+"");
+
+                    break;
+                }
+            }
+
+            return rootView;
+        }
+    }
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return PlaceholderFragment.newInstance(position + 1);
+        }
+
+        @Override
+        public int getCount() {
+            // Show 2 total pages.
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Cart";
+                case 1:
+                    return "Vouchers";
+            }
+            return null;
+        }
+    }
+
 }

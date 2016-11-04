@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
 
@@ -147,7 +148,7 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
                     TextView orderIdView = (TextView) rootView.findViewById(R.id.order_id);
                     TextView dateView = (TextView) rootView.findViewById(R.id.date);
                     TextView hourView = (TextView) rootView.findViewById(R.id.hour);
-                    TextView creditCardView = (TextView) rootView.findViewById(R.id.section_label);
+                    CreditCardForm creditCardView = (CreditCardForm) rootView.findViewById(R.id.credit_card_form);
                     TextView priceView = (TextView) rootView.findViewById(R.id.price);
 
                     orderIdView.setText(order.getId()+"");
