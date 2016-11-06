@@ -296,8 +296,12 @@ function issueOfferVoucher(user_id){
 
 	var sig = new rsa.Signature({alg: 'SHA1withRSA'});
 	sig.init(prvKey);
-	sig.updateString(voucher_serial);
+	sig.updateString(voucher_serial+"");
 	var cryp_signature = sig.sign();
+
+	/*console.warn("###############################");
+	console.warn(cryp_signature);
+	console.warn("###############################");*/
 
 	var client = openClient();
 	client.connect();
@@ -326,7 +330,7 @@ function issueDiscountVoucher(user_id){
 
 	var sig = new rsa.Signature({alg: 'SHA1withRSA'});
 	sig.init(prvKey);
-	sig.updateString(voucher_serial);
+	sig.updateString(voucher_serial+"");
 	var cryp_signature = sig.sign();
 
 	/*var cryp_signature_encoded = ""
@@ -351,6 +355,9 @@ function issueDiscountVoucher(user_id){
 	console.log(cryp_signature_encoded);
 	console.log(cryp_signature_encoded.length);*/
 
+	console.warn("###############################");
+	console.warn(cryp_signature);
+	console.warn("###############################");
 
 	var client = openClient();
 	client.connect();
@@ -434,9 +441,7 @@ function getValidVouchers(user,callback) {
 				callback(null);
 				return;
 			}
-			for(var i in result.rows){
-				result.rows[i].signature = result.rows[i].signature.data;
-			}
+
 			callback(result.rows);
 			client.end();
 		}
