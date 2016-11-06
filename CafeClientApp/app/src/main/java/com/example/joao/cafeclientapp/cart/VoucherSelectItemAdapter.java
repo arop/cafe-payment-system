@@ -2,6 +2,7 @@ package com.example.joao.cafeclientapp.cart;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.user.vouchers.Voucher;
@@ -74,73 +76,50 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
         imageView.setImageResource(vh.voucher.getDrawable());
 
         if(vh.checkbox == null) {
-            vh.setCheckbox((CheckBox) holder.mView.findViewById(R.id.voucher_checkbox));
+            vh.checkbox = (CheckBox) holder.mView.findViewById(R.id.voucher_checkbox);
         }
         vh.checkbox.setOnCheckedChangeListener(null);
         vh.checkbox.setChecked(vh.checked);
-        vh.checkbox.setVisibility(vh.visibility);
         vh.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                vh.checked = isChecked;
-
+                Log.d("checked changed", vh.voucher.getSerialId()+"");
                 if(isChecked){
-                    if(vh.voucher.getType() == 'd') {
-                        isDiscountVoucherSelected = true;
-                        disableUncheckedDiscountCheckboxes();
+                    if(numberOfVouchersSelected < MAX_SELECTED_VOUCHERS){
+                        if(vh.voucher.getType() == 'd'){
+                            if(isDiscountVoucherSelected){
+                                vh.checkbox.setChecked(false);
+                                Toast.makeText(mActivity.getApplicationContext(), "Only one discount voucher allowed.", Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                isDiscountVoucherSelected = true;
+                                numberOfVouchersSelected++;
+                            }
+                        }
+                        else{
+                            vh.checked = isChecked;
+                            numberOfVouchersSelected++;
+                        }
+                    }
+                    else{
+                        Toast.makeText(mActivity.getApplicationContext(), "Only three total vouchers allowed.", Toast.LENGTH_SHORT).show();
+                        vh.checkbox.setChecked(false);
                     }
 
-                    if(++numberOfVouchersSelected == MAX_SELECTED_VOUCHERS){
-                        disableUncheckedCheckBoxes();
-                    }
                 }
                 else{
-                    if(vh.voucher.getType() == 'd') {
+                    vh.checked = false;
+                    numberOfVouchersSelected--;
+                    if(vh.voucher.getType() == 'd'){
                         isDiscountVoucherSelected = false;
-                        enableDiscountCheckboxes();
-                    }
-
-                    if(numberOfVouchersSelected-- == MAX_SELECTED_VOUCHERS){
-                        enableAllCheckBoxes();
                     }
                 }
             }
         });
     }
 
-    private void enableDiscountCheckboxes() {
-        for(VoucherHolder vh : dataset){
-            if(!vh.checked && vh.voucher.getType() == 'd'){
-                vh.setVisibility(View.VISIBLE);
-            }
-        }
-    }
 
-    private void disableUncheckedDiscountCheckboxes() {
-        for(VoucherHolder vh : dataset){
-            if(!vh.checked && vh.voucher.getType() == 'd'){
-                vh.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
-
-    private void enableAllCheckBoxes() {
-        for(VoucherHolder vh : dataset){
-            if(vh.voucher.getType() != 'd')
-                vh.setVisibility(View.VISIBLE);
-            else if(!isDiscountVoucherSelected)
-                vh.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void disableUncheckedCheckBoxes() {
-        for(VoucherHolder vh : dataset){
-            if(!vh.checked){
-                vh.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
 
     @Override
     public int getItemCount() {
@@ -149,29 +128,12 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
 
     private class VoucherHolder {
         public Voucher voucher;
-        private int visibility;
         public boolean checked;
         private CheckBox checkbox = null;
 
         public VoucherHolder(Voucher v) {
             voucher = v;
-            visibility = View.VISIBLE;
             checked = false;
-        }
-
-        public void setVisibility(int v){
-            this.visibility = v;
-            if(this.checkbox != null)
-                this.checkbox.setVisibility(v);
-        }
-
-        public int getVisibility(){
-            return this.visibility;
-        }
-
-        public void setCheckbox(CheckBox c){
-            this.checkbox = c;
-            this.checkbox.setVisibility(this.visibility);
         }
     }
 }
