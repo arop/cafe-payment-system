@@ -520,18 +520,20 @@ function getBlacklist(callback) {
 		});	
 }
 
-function isUserBlacklisted(user) {
+
+// TODO TODO TODO
+function isUserBlacklisted(user, callback) {
 	var client = openClient();
 	client.connect();
 	const query = client.query('SELECT * FROM blacklist WHERE user_id = $1;',
 		function(error,result) {
 			if(error != null) {
-				return null;
+				callback(null);
 			}
 
-			if(result.rows[0].length > 0)
-				return true;
-			else return false;
+			if(result.rows.length > 0)
+				callback(true);
+			else callback(false);
 		});	
 }
 
