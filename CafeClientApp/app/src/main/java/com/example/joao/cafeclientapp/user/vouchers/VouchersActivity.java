@@ -147,6 +147,7 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
 
                 } catch (Exception e) {
                     //problem with server. probably.
+                    e.printStackTrace();
                     Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
                 } finally {
                     swipeContainer.setRefreshing(false);
@@ -165,6 +166,7 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
                 Log.e("server error" , json.toString());
                 swipeContainer.setRefreshing(false);
             }
+
         });
     }
 

@@ -122,7 +122,7 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 // Intent is what you use to start another activity
                 Intent intent = new Intent(currentActivity, CartPinAskActivity.class);
-                intent.putIntegerArrayListExtra("vouchers", ((VoucherSelectItemAdapter) vouchersAdapter).getSelectedVouchersIds());
+                intent.putParcelableArrayListExtra("vouchers", ((VoucherSelectItemAdapter) vouchersAdapter).getSelectedVouchers());
                 currentActivity.startActivity (intent);
             }
         });

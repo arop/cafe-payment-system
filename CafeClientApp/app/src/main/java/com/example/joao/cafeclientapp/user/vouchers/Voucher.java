@@ -1,6 +1,8 @@
 package com.example.joao.cafeclientapp.user.vouchers;
 
 import android.app.Activity;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
  * Created by Joao on 02/11/2016.
  */
 
-public class Voucher implements Serializable{
+public class Voucher implements Serializable, Parcelable{
 
     static private ArrayList<Voucher> vouchers = null;
 
@@ -46,9 +48,18 @@ public class Voucher implements Serializable{
     public Voucher(JSONObject jsonObject) {
         try {
             this.serialId = jsonObject.getInt("serial_id");
-            this.signature = jsonObject.get("signature").toString().getBytes();
+
+            byte[] sign = new byte[46];
+            JSONArray sign_bytes = jsonObject.getJSONObject("signature").getJSONArray("data");
+            Log.d("array size", sign_bytes.length()+"");
+            for(int i = 0; i < sign_bytes.length(); i++){
+                sign[i] = ((Integer) (sign_bytes.getInt(i) + 256)).byteValue();
+            }
+            this.signature = sign;
             this.type = jsonObject.get("type").toString().charAt(0);
             this.setTitle();
+
+            Log.d("sign 0", this.signature[0]+"");
 
         } catch (JSONException e) {
             Log.e("Voucher", "Problem in voucher constructor");
@@ -104,4 +115,43 @@ public class Voucher implements Serializable{
     public int getDrawable() {
         return drawable;
     }
+
+    ////////////////////////////////////
+    //////////// PARCELABLE ////////////
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(serialId);
+        dest.writeInt(signature.length);
+        dest.writeByteArray(signature);
+        dest.writeString(""+type);
+        dest.writeString(title);
+        dest.writeInt(drawable);
+    }
+
+    public Voucher (Parcel in){
+        serialId = in.readInt();
+        signature = new byte[in.readInt()];
+        in.readByteArray(signature);
+        type = in.readString().charAt(0);
+        title = in.readString();
+        drawable = in.readInt();
+    }
+
+    public static final Creator<Voucher> CREATOR = new Creator<Voucher>() {
+        @Override
+        public Voucher createFromParcel(Parcel in) {
+            return new Voucher(in);
+        }
+
+        @Override
+        public Voucher[] newArray(int size) {
+            return new Voucher[size];
+        }
+    };
 }

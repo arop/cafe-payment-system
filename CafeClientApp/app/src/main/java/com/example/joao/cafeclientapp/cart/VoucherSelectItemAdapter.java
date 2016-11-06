@@ -27,7 +27,7 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
     private final Activity mActivity;
 
     private ArrayList<VoucherHolder> dataset;
-    public ArrayList<Integer> selectedVouchersIds;
+    public ArrayList<Voucher> selectedVouchers;
 
     private int numberOfVouchersSelected;
     private boolean isDiscountVoucherSelected; //only one discount voucher can be selected.
@@ -35,7 +35,7 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
     public VoucherSelectItemAdapter(ArrayList<Voucher> vouchers, Activity a) {
         this.mActivity = a;
         this.dataset = new ArrayList<VoucherHolder>();
-        this.selectedVouchersIds = new ArrayList<Integer>();
+        this.selectedVouchers = new ArrayList<Voucher>();
         for(Voucher v : vouchers){
             VoucherHolder vh = new VoucherHolder(v);
             dataset.add(vh);
@@ -56,8 +56,8 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
         }
     }
 
-    public ArrayList<Integer> getSelectedVouchersIds() {
-        return this.selectedVouchersIds;
+    public ArrayList<Voucher> getSelectedVouchers() {
+        return this.selectedVouchers;
     }
 
 
@@ -101,13 +101,13 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
                             else {
                                 isDiscountVoucherSelected = true;
                                 numberOfVouchersSelected++;
-                                selectedVouchersIds.add(vh.voucher.getSerialId());
+                                selectedVouchers.add(vh.voucher);
                             }
                         }
                         else{
                             vh.checked = isChecked;
                             numberOfVouchersSelected++;
-                            selectedVouchersIds.add(vh.voucher.getSerialId());
+                            selectedVouchers.add(vh.voucher);
                         }
                     }
                     else{
@@ -119,7 +119,7 @@ public class VoucherSelectItemAdapter extends RecyclerView.Adapter<VoucherSelect
                 else{
                     vh.checked = false;
                     numberOfVouchersSelected--;
-                    selectedVouchersIds.remove((Object) vh.voucher.getSerialId());
+                    selectedVouchers.remove(vh.voucher);
                     if(vh.voucher.getType() == 'd'){
                         isDiscountVoucherSelected = false;
                     }

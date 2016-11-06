@@ -18,6 +18,7 @@ import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.menu.Product;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
+import com.example.joao.cafeclientapp.user.vouchers.Voucher;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -53,7 +54,7 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         this.currentActivity = this;
 
         Intent origin = this.getIntent();
-        ArrayList<Integer> vouchers = origin.getIntegerArrayListExtra("vouchers");
+        ArrayList<Voucher> vouchers = origin.getParcelableArrayListExtra("vouchers");
 
         /////// GENERATE JSON to be sent to terminal via QR CODE //////
         Gson gson = new Gson();

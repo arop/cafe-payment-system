@@ -13,7 +13,7 @@ public class CartPinAskActivity extends PinAskActivity{
     public void nextActivity(){
         Intent origin = this.getIntent();
         Intent intent = new Intent(this, QrCodeCheckoutActivity.class);
-        intent.putIntegerArrayListExtra("vouchers", origin.getIntegerArrayListExtra("vouchers"));
+        intent.putParcelableArrayListExtra("vouchers", origin.getParcelableArrayListExtra("vouchers"));
         this.startActivity (intent);
         this.finish();
     }
