@@ -434,7 +434,9 @@ function getValidVouchers(user,callback) {
 				callback(null);
 				return;
 			}
-
+			for(var i in result.rows){
+				result.rows[i].signature = result.rows[i].signature.data;
+			}
 			callback(result.rows);
 			client.end();
 		}
