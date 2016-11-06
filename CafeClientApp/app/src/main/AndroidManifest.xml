@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".cart.QrCodeCheckoutActivity" />
-        <activity android:name=".cart.PinAskActivity" />
+        <activity android:name=".PinAskActivity" />
         <activity
             android:name=".user.orders.PreviousOrdersActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -60,7 +60,8 @@
         </activity>
         <activity
             android:name=".user.vouchers.VouchersActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".cart.CartPinAskActivity"></activity>
     </application>
 
 </manifest>

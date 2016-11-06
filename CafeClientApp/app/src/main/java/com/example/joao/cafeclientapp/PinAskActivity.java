@@ -1,4 +1,4 @@
-package com.example.joao.cafeclientapp.cart;
+package com.example.joao.cafeclientapp;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,9 +15,10 @@ import android.widget.TextView;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.cart.QrCodeCheckoutActivity;
 import com.example.joao.cafeclientapp.menu.ShowMenuActivity;
 
-public class PinAskActivity extends AppCompatActivity {
+public abstract class PinAskActivity extends AppCompatActivity {
 
     private TextView pin_view;
     private LinearLayout pin_view_container;
@@ -125,9 +126,5 @@ public class PinAskActivity extends AppCompatActivity {
         }
     }
 
-    public void nextActivity(){
-        Intent intent = new Intent(this, QrCodeCheckoutActivity.class);
-        this.startActivity (intent);
-        this.finish();
-    }
+    public abstract void nextActivity();
 }

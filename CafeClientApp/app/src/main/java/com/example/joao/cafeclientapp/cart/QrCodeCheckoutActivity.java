@@ -31,6 +31,7 @@ import com.google.zxing.common.BitMatrix;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,9 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
 
         this.currentActivity = this;
 
+        Intent origin = this.getIntent();
+        ArrayList<Integer> vouchers = origin.getIntegerArrayListExtra("vouchers");
+
         /////// GENERATE JSON to be sent to terminal via QR CODE //////
         Gson gson = new Gson();
         Cart current_cart = Cart.getInstance(this);
@@ -63,6 +67,7 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         Map<String, Object> future_json = new HashMap<String, Object>();
         future_json.put("user", CustomLocalStorage.getString(this, "uuid"));
         future_json.put("cart", products_quantity);
+        future_json.put("vouchers", vouchers);
         future_json.put("pin", CustomLocalStorage.getString(this, "pin"));
         String json_str = gson.toJsonTree(future_json).toString();
         Log.d("json cart", json_str);

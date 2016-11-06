@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
+import com.example.joao.cafeclientapp.PinAskActivity;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.user.vouchers.Voucher;
 
@@ -120,7 +121,8 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 // Intent is what you use to start another activity
-                Intent intent = new Intent(currentActivity, PinAskActivity.class);
+                Intent intent = new Intent(currentActivity, CartPinAskActivity.class);
+                intent.putIntegerArrayListExtra("vouchers", ((VoucherSelectItemAdapter) vouchersAdapter).getSelectedVouchersIds());
                 currentActivity.startActivity (intent);
             }
         });

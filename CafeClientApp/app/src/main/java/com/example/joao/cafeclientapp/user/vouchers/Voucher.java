@@ -29,7 +29,7 @@ public class Voucher implements Serializable{
         Voucher.saveVouchers(a);
     }
 
-    private int serialId;
+    private Integer serialId;
     private byte[] signature;
     private char type;
     private String title;
