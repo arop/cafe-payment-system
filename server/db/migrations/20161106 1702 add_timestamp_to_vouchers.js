@@ -13,6 +13,7 @@ const client = new pg.Client({
 
 client.connect();
 const query = client.query(
-	"ALTER TABLE orders ALTER order_timestamp TYPE bigint "+
-	"USING round(date_part( 'epoch', now())*1000)");
+	"ALTER TABLE vouchers "+
+	"ADD COLUMN voucher_timestamp timestamp "+
+	"DEFAULT now();");
 query.on('end', () => { client.end(); });
