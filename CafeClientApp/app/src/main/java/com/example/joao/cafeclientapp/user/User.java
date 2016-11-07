@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.authentication.LoginActivity;
+import com.example.joao.cafeclientapp.cart.Cart;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,6 +40,8 @@ public class User implements Serializable{
         CustomLocalStorage.remove(activity, "uuid");
         CustomLocalStorage.remove(activity, "pin");
         CustomLocalStorage.remove(activity, "user");
+        CustomLocalStorage.remove(activity, "cart");
+        Cart.getInstance(activity).resetCart();
         User.instance = null;
 
         Intent myIntent = new Intent(activity.getApplicationContext(), LoginActivity.class);
@@ -94,16 +97,8 @@ public class User implements Serializable{
         return creditCards;
     }
 
-    public void setCreditCards(ArrayList<CreditCard> creditCards) {
-        this.creditCards = creditCards;
-    }
-
     public void addCreditCard(int i, String n, String expDate) {
         addCreditCard(new CreditCard(i, n,expDate));
-    }
-
-    public void addCreditCard(String id, String n, String expDate) {
-        addCreditCard(new CreditCard(id, n, expDate));
     }
 
     public void addCreditCard(CreditCard c) {
@@ -130,11 +125,6 @@ public class User implements Serializable{
 
         CreditCard(int i, String n, String exp) {
             id = i;
-            number = n;
-            expirationDate = exp;
-        }
-        CreditCard(String id, String n, String exp) {
-            this.id = Integer.parseInt(id);
             number = n;
             expirationDate = exp;
         }

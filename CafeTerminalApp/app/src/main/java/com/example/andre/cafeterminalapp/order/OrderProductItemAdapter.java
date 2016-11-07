@@ -1,4 +1,4 @@
-package com.example.andre.cafeterminalapp;
+package com.example.andre.cafeterminalapp.order;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
@@ -7,11 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.andre.cafeterminalapp.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 /**
  * Created by andre on 31/10/2016.

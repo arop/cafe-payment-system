@@ -17,6 +17,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.andre.cafeterminalapp.order.Order;
+import com.example.andre.cafeterminalapp.order.ShowOrderActivity;
+import com.example.andre.cafeterminalapp.utils.ServerRestClient;
 import com.google.zxing.Result;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -24,6 +27,9 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
@@ -38,6 +44,8 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
     private ProgressDialog insertOrderRequestProgressDialog;
 
+    private Blacklist blacklist;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +54,12 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         setSupportActionBar(toolbar);
 
         currentActivity = this;
+        blacklist = Blacklist.getInstance(currentActivity);
+        Order.getUnsentOrders(currentActivity);
+
+        Log.d("unsent orders", Order.getUnsentOrders(currentActivity).size()+"");
+
+        blacklist.getBlacklistFromServer();
 
         requestPermissions(this);
 
@@ -116,7 +130,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         alert.show();
     }
 
-    public void sendInsertOrderToServer(JSONObject result) throws JSONException {
+    public void sendInsertOrderToServer(final JSONObject result) throws JSONException {
         insertOrderRequestProgressDialog.show();
         HashMap<String, String> order_params = new HashMap<>();
         RequestParams order = new RequestParams();
@@ -124,6 +138,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         order_params.put("cart",result.getString("cart"));
         order_params.put("user",result.getString("user"));
         order_params.put("pin",result.getString("pin"));
+        order_params.put("vouchers",result.getString("vouchers"));
         order.put("order",order_params);
 
         ServerRestClient.post("transaction", order, new JsonHttpResponseHandler() {
@@ -132,7 +147,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 try{
                     String error = response.get("error").toString();
                     insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(0,error,"");
+                    showWarningDialog(0,error,null);
                     return;
                 }
                 catch(JSONException e){
@@ -149,17 +164,53 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable){
+            public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable) {
+                Log.e("FAILURE:", "~JSON OBJECT - status: "+statusCode);
                 Log.e("FAILURE:", error);
-                insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...",null);
+
+                if(statusCode == 0) {
+                    saveOrder(result);
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog(0,"No internet connection. Order will be performed in the future",null);
+                } else {
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog(1,"Server not available...",null);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
                 Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
-                insertOrderRequestProgressDialog.dismiss();
-                showWarningDialog(1,"Server not available...",null);
+                Log.e("FAILURE:", "JSON OBJECT - status: "+statusCode);
+                if(statusCode == 0) {
+                    saveOrder(result);
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog(0,"No internet connection. Order will be performed in the future",null);
+                } else {
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog(1,"Server not available...",null);
+                }
+            }
+
+            private void saveOrder(JSONObject result) {
+                Log.d("order","server timeout, saving order");
+                Order o = new Order();
+                try {
+                    o.setProducts(result.getString("cart"));
+                    o.setUser_id(result.getString("user"));
+                    o.setUser_pin(result.getString("pin"));
+                    o.setVouchers(result.getString("vouchers"));
+
+                    Date date = new Date();
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+                    String formattedDate = sdf.format(date);
+                    o.setTimestamp(formattedDate);
+
+                    Order.addUnsentOrder(o);
+                    Order.saveUnsentOrders(currentActivity);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -242,7 +293,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         switch (type) {
             case 0: //orange warning
-                builder.setTitle("Error");
+                builder.setTitle("Warning");
                 builder.setIcon(R.drawable.ic_warning_orange_24dp);
                 break;
             case 1: //red warning

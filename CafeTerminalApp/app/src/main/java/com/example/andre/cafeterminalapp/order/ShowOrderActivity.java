@@ -1,4 +1,4 @@
-package com.example.andre.cafeterminalapp;
+package com.example.andre.cafeterminalapp.order;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.devmarvel.creditcardentry.library.CreditCardForm;
+import com.example.andre.cafeterminalapp.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;

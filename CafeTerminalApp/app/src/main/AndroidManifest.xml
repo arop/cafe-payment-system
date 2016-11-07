@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ShowOrderActivity"
+            android:name=".order.ShowOrderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_show_order"
             android:theme="@style/FullscreenTheme"></activity>

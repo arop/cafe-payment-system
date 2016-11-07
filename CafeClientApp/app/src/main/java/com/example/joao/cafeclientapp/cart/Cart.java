@@ -10,7 +10,6 @@ import com.example.joao.cafeclientapp.menu.ProductsMenu;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by andre on 15/10/2016.
@@ -50,7 +49,7 @@ public class Cart extends ProductsMenu implements Serializable {
         }
     }
 
-    public void getSavedCart(Activity a) {
+    private void getSavedCart(Activity a) {
         try {
             instance = CustomLocalStorage.getCart(a);
         } catch (Exception e) {
@@ -68,16 +67,6 @@ public class Cart extends ProductsMenu implements Serializable {
 
     public void resetCart() {
         products.clear();
-    }
-
-    public static String printCart(Map<String,Double> c) {
-        String ret = "Cart: ";
-
-        for (Map.Entry<String, Double> entry : c.entrySet())
-        {
-            ret += "\n" + entry.getKey() + "/" + entry.getValue();
-        }
-        return ret;
     }
 
     public double getTotalPrice(){

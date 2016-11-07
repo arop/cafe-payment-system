@@ -1,4 +1,4 @@
-package com.example.andre.cafeterminalapp;
+package com.example.andre.cafeterminalapp.utils;
 
 /**
  * Created by andre on 22/10/2016.
