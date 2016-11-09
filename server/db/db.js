@@ -408,6 +408,7 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 
 		client.end();
 
+		insertOrder_updateOrderTotal(client, order, resultingOrder);
 		insertOrder_handleOrderTotals(client, order, resultingOrder);
 	});
 
@@ -453,8 +454,22 @@ function insertOrder_handleOrderTotals(client, order, resultingOrder){
 
 		}
 	);
+
 }
 
+function insertOrder_updateOrderTotal(client, order, resultingOrder){
+
+	client.query('UPDATE orders SET total_price = $1 WHERE id = $2', 
+		[resultingOrder.order.total_price, resultingOrder.order.id], function(error, result3){
+			if(error != null){
+				// n vamos lidar com este erro e ignorar totalmente que não funcionou.
+				// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
+				return;
+			}
+		}
+	);
+
+}
 
 function voucherUpdate(voucher, order_id){
 	var client = openClient();
@@ -574,7 +589,7 @@ function getPreviousOrders(user,offset,limit,callback) {
 	var results = {};
 	const query = client.query(
 		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
-		'order_items.quantity AS quantity, creditcards.number AS credit_card, '+
+		'order_items.quantity AS quantity, creditcards.number AS credit_card, orders.total_price, '+
 		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
 		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
 		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products, creditcards '+
@@ -600,6 +615,7 @@ function getPreviousOrders(user,offset,limit,callback) {
     		results[o_id].timestamp = row.timestamp;
     		results[o_id].products = [];
     		results[o_id].credit_card = row.credit_card;
+    		results[o_id].total_price = row.total_price;
     	}
     	var p = {};
     	p.id = row.product_id;
