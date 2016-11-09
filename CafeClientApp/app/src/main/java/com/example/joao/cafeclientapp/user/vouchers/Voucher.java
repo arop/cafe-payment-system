@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.example.joao.cafeclientapp.CustomLocalStorage;
 import com.example.joao.cafeclientapp.R;
-import com.example.joao.cafeclientapp.menu.Product;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +30,7 @@ public class Voucher implements Serializable, Parcelable{
         Voucher.saveVouchers(a);
     }
 
-    private Integer serialId;
+    private Integer serial_id;
     private byte[] signature;
     private char type;
     private String title;
@@ -39,7 +38,7 @@ public class Voucher implements Serializable, Parcelable{
     private int drawable; // id of vector asset
 
     public Voucher(int serial_id, byte[] signature, char type){
-        this.serialId = serial_id;
+        this.serial_id = serial_id;
         this.signature = signature;
         this.type = type;
         this.setTitle();
@@ -47,7 +46,7 @@ public class Voucher implements Serializable, Parcelable{
 
     public Voucher(JSONObject jsonObject) {
         try {
-            this.serialId = jsonObject.getInt("serial_id");
+            this.serial_id = jsonObject.getInt("serial_id");
 
             byte[] sign = new byte[46];
             JSONArray sign_bytes = jsonObject.getJSONObject("signature").getJSONArray("data");
@@ -97,7 +96,7 @@ public class Voucher implements Serializable, Parcelable{
     }
 
     public int getSerialId() {
-        return serialId;
+        return serial_id;
     }
 
     public byte[] getSignature() {
@@ -126,7 +125,7 @@ public class Voucher implements Serializable, Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(serialId);
+        dest.writeInt(serial_id);
         dest.writeInt(signature.length);
         dest.writeByteArray(signature);
         dest.writeString(""+type);
@@ -135,7 +134,7 @@ public class Voucher implements Serializable, Parcelable{
     }
 
     public Voucher (Parcel in){
-        serialId = in.readInt();
+        serial_id = in.readInt();
         signature = new byte[in.readInt()];
         in.readByteArray(signature);
         type = in.readString().charAt(0);

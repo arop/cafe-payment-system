@@ -155,6 +155,7 @@ app.post('/voucher', function(req, res) {
 
 //new transaction
 app.post('/transaction', function(req, res){
+	
 	if(!req.body.order){
 		res.status(404).send('No order info received!');
 		return;
@@ -176,10 +177,13 @@ app.post('/transaction', function(req, res){
 	order.user = user;
 	order.cart = JSON.parse(cart);
 
+
 	if(!req.body.order.vouchers){
 		order.vouchers = [];
 	}
 	else order.vouchers = req.body.order.vouchers;
+
+	order.vouchers = JSON.parse(order.vouchers);
 
 	if(Object.keys(order.cart).length < 1)
 		res.status(404).send("Missing parameters!");
