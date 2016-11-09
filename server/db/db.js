@@ -408,18 +408,21 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 
 		client.end();
 
-		insertOrder_updateOrderTotal(client, order, resultingOrder);
-		insertOrder_handleOrderTotals(client, order, resultingOrder);
+		insertOrder_updateOrderTotal(order, resultingOrder);
+		insertOrder_handleOrderTotals(order, resultingOrder);
 	});
 
 }
 
-function insertOrder_handleOrderTotals(client, order, resultingOrder){
+function insertOrder_handleOrderTotals(order, resultingOrder){
 
 	if(resultingOrder.order.total_price >= 20.0){
 		issueOfferVoucher(order.user.id);
 	}
 
+	var client = openClient();
+
+	client.connect();
 	client.query('SELECT updateordertotals($1, $2)', 
 		[resultingOrder.order.total_price, order.user.id], function(error, result3){
 			if(error != null){
@@ -449,6 +452,7 @@ function insertOrder_handleOrderTotals(client, order, resultingOrder){
 							issueDiscountVoucher(order.user.id);
 						}
 					}
+					client.end();
 				}
 			);
 
@@ -457,8 +461,9 @@ function insertOrder_handleOrderTotals(client, order, resultingOrder){
 
 }
 
-function insertOrder_updateOrderTotal(client, order, resultingOrder){
-
+function insertOrder_updateOrderTotal(order, resultingOrder){
+	var client = openClient();
+	client.connect();
 	client.query('UPDATE orders SET total_price = $1 WHERE id = $2', 
 		[resultingOrder.order.total_price, resultingOrder.order.id], function(error, result3){
 			if(error != null){
@@ -466,6 +471,7 @@ function insertOrder_updateOrderTotal(client, order, resultingOrder){
 				// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
 				return;
 			}
+			client.end();
 		}
 	);
 
