@@ -574,13 +574,14 @@ function getPreviousOrders(user,offset,limit,callback) {
 	var results = {};
 	const query = client.query(
 		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
-		'order_items.quantity AS quantity, '+
+		'order_items.quantity AS quantity, creditcards.number AS credit_card'+
 		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
 		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
-		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products '+
+		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products, creditcards '+
 		'WHERE orders.user_id = $1 '+
 		'AND order_items.order_id = orders.id '+
-		'AND order_items.product_id = products.id;',
+		'AND order_items.product_id = products.id '+
+		'AND creditcards.id = orders.credit_card;',
 		[user.id,offset,limit],
 		function(error, result){
 			if(error != null){
@@ -598,6 +599,7 @@ function getPreviousOrders(user,offset,limit,callback) {
     		results[o_id].order_id = o_id;
     		results[o_id].timestamp = row.timestamp;
     		results[o_id].products = [];
+    		results[o_id].credit_card = row.credit_card;
     	}
     	var p = {};
     	p.id = row.product_id;
