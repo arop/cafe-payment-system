@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">CafeTerminalApp</string>
-    <string name="action_settings">Settings</string>
 
     <string name="title_activity_show_order">Order</string>
+    <string name="title_activity_camera">Scanner</string>
+
     <string name="order_id_text">Order ID:</string>
     <string name="total_price_text">Total price:</string>
     <string name="ok_button">OK</string>
     <string name="success_text">success</string>
+    <string name="pending_orders">Pending Orders (%1$d)</string>
+    <string name="open_scanner">Open scanner</string>
+    <string name="title_activity_main">Cafe Terminal</string>
 </resources>
