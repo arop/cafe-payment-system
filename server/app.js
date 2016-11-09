@@ -192,14 +192,22 @@ app.post('/transaction', function(req, res){
 			if(result == null) {
 				res.send({"error" : "Wrong credentials!"});
 			} else {
-				db.insertOrder(order, function(result){
-					if(result == null){
-						res.send({"error" : "Error registing order!"});
-					}
-					else{
-						res.send(result);
-					}
-				});
+
+				try{
+					db.insertOrder(order, function(result){
+						if(result == null){
+							res.send({"error" : "Error registing order!"});
+						}
+						else{
+							res.send(result);
+						}
+					});
+				}
+				catch(e){
+					res.send({"error" : "Error registing order!"});
+					console.warn(e.message);
+					console.warn(e.description);
+				}
 			}
 		});
 	}

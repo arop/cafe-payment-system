@@ -271,36 +271,39 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 	}
 
 	var numberOfVouchersChecked = 0;
-	
-	for(var id in order.vouchers){
+	var validated_vouchers = [];
 
-		var local_id = id;
+	for(var id = 0; id < order.vouchers.length; id++){
 
-		// TODO check signature. If invalid, delete voucher.
-		client.query("SELECT * FROM vouchers WHERE serial_id = $1",
-				[order.vouchers[local_id].serial_id], function(error, result){
-			if(error != null){
-				callback(null); // "DB error checking vouchers validity"
-				console.warn(error);
-				return;
-			}
+		//function allows to store "for loop" counter without it changing during assyncronous calls.
+		(function(local_id){
+			// TODO check signature. If invalid, delete voucher.
+			client.query("SELECT * FROM vouchers WHERE serial_id = $1",
+					[order.vouchers[local_id].serial_id], function(error, result){
+				if(error != null){
+					callback(null); // "DB error checking vouchers validity"
+					console.warn(error);
+					return;
+				}
 
-			if(result.rowCount > 0 && result.rows[0].order_id == null){
-				// valid voucher
-				// order_id in voucher updated later. see "insertOrder_handleValidatedVouchers"
-			}
-			else {
-				// invalid voucher
-				console.warn("Ignored voucher " + order.vouchers[local_id].serial_id + " because it was invalid or already used.");
-				order.vouchers.splice(local_id, 1); //delete voucher. invalid id or already used.
-			}
+				if(result.rowCount > 0 && result.rows[0].order_id == null){
+					// valid voucher
+					// order_id in voucher updated later. see "insertOrder_handleValidatedVouchers"
+					validated_vouchers.push(order.vouchers[local_id]);
+				}
+				else {
+					// invalid voucher
+					console.warn("Ignored voucher " + order.vouchers[local_id].serial_id + " because it was invalid or already used.");
+				}
 
-			numberOfVouchersChecked++;
+				numberOfVouchersChecked++;
 
-			if(numberOfVouchersChecked == totalNumberOfVouchers){
-				insertOrder_handleValidatedVouchers(client, order, resultingOrder, callback);
-			}
-		});
+				if(numberOfVouchersChecked == totalNumberOfVouchers){
+					order.vouchers = validated_vouchers;
+					insertOrder_handleValidatedVouchers(client, order, resultingOrder, callback);
+				}
+			});
+		})(id);
 	}
 }
 
@@ -325,60 +328,64 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 			else if(result.rows[k].id == COFFEE_ID)
 				coffee_price = result.rows[k].price;
 		}
-		console.warn('Coffee price: ' + coffee_price);
-		console.warn('Popcorn price: ' + popcorn_price);
+		/*console.warn('Coffee price: ' + coffee_price);
+		console.warn('Popcorn price: ' + popcorn_price);*/
 
-		for(var id in order.vouchers){
-			
-			console.log("resulting order before total: " + resultingOrder.order.total_price);
+		var validated_vouchers = [];
+		for(var i = 0; i < order.vouchers.length; i++){
+
+			console.warn("checking voucher: " + order.vouchers[i].serial_id);
+			console.warn(order.vouchers[i]);
 
 			if(order.number_discount_vouchers + order.number_popcorn_vouchers + order.number_coffee_vouchers == 3){
-				console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because limit was reached.");
-				order.vouchers.splice(id, 1); //delete voucher. limit reached.
+				console.warn("Ignored voucher " + order.vouchers[i].serial_id + " because limit was reached.");
+				//order.vouchers.splice(i, 1); //delete voucher. limit reached.
 				continue;
 			}
 
-			switch(order.vouchers[id].type){
+			switch(order.vouchers[i].type){
 				case 'd': {
 					if(order.number_discount_vouchers == 1){
-						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because discount limit was reached.");
-						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+						console.warn("Ignored voucher " + order.vouchers[i].serial_id + " because discount limit was reached.");
+						order.vouchers.splice(i, 1); //delete voucher. only 1 discount voucher allowed.
 					}
 					else{
 						order.number_discount_vouchers++; 
+						validated_vouchers.push(order.vouchers[i]);
 						resultingOrder.order.total_price = resultingOrder.order.total_price * 0.95;
-						voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+						voucherUpdate(order.vouchers[i], resultingOrder.order.id); // no need to block/wait for the query
 					}
 					break;
 				}
 				case 'c': {
 					if(order.number_of_coffees == order.number_coffee_vouchers){
-						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because no coffees enough.");
-						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+						console.warn("Ignored voucher " + order.vouchers[i].serial_id + " because no coffees enough.");
+						//order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
 						break;
 					}
 					order.number_coffee_vouchers++; 
+					validated_vouchers.push(order.vouchers[i]);
 					resultingOrder.order.total_price -= coffee_price;
-					voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+					voucherUpdate(order.vouchers[i], resultingOrder.order.id); // no need to block/wait for the query
 					break;
 				}
 				case 'p': {
 					if(order.number_of_popcorns == order.number_popcorn_vouchers){
-						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because no popcorns enough.");
-						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+						console.warn("Ignored voucher " + order.vouchers[i].serial_id + " because no popcorns enough.");
+						//order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
 						break;
 					}
 					order.number_popcorn_vouchers++; 
+					validated_vouchers.push(order.vouchers[i]);
 					resultingOrder.order.total_price -= popcorn_price;
-					voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+					voucherUpdate(order.vouchers[i], resultingOrder.order.id); // no need to block/wait for the query
 					break;
 				}
-				default: order.vouchers.splice(id, 1); //delete voucher. invalid type. never gonna happen (?)
+				default: {}//order.vouchers.splice(id, 1); //delete voucher. invalid type. never gonna happen (?)
 			}
-			console.log("resulting after before total: " + resultingOrder.order.total_price);
 		}
 
-		resultingOrder.order.vouchers = order.vouchers;
+		resultingOrder.order.vouchers = validated_vouchers;
 		resultingOrder.order.total_price = Math.floor(resultingOrder.order.total_price * 100.0)/100.0;
 		console.warn("Order inserted. Will send response to terminal.");
 		console.warn("RESULTING ORDER:");
