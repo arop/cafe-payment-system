@@ -376,7 +376,7 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 			console.log("resulting after before total: " + resultingOrder.order.total_price);
 		}
 
-		resultingOrder.vouchers = order.vouchers;
+		resultingOrder.order.vouchers = order.vouchers;
 		resultingOrder.order.total_price = Math.floor(resultingOrder.order.total_price * 100.0)/100.0;
 		console.warn("Order inserted. Will send response to terminal.");
 		console.warn("RESULTING ORDER:");
