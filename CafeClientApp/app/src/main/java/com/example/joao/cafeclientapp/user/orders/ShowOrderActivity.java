@@ -151,6 +151,7 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
                     CreditCardForm creditCardView = (CreditCardForm) rootView.findViewById(R.id.credit_card_form);
                     TextView priceView = (TextView) rootView.findViewById(R.id.price);
 
+                    creditCardView.setCardNumber(order.getCreditCard(),false);
                     orderIdView.setText(order.getId()+"");
                     dateView.setText(order.getFormatedDate());
                     hourView.setText(order.getFormatedHour());

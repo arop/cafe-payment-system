@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.joao.cafeclientapp.menu.Product;
+import com.example.joao.cafeclientapp.user.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +25,7 @@ public class Order implements Parcelable{
     private long timestamp;
     private ArrayList<Product> items;
     private float totalPrice = 0;
+    private String creditCard;
 
     public Order(JSONObject jsonObject) {
         try {
@@ -37,6 +39,7 @@ public class Order implements Parcelable{
                 items.add(p);
                 totalPrice += p.getPrice()*p.getQuantity();
             }
+            creditCard = jsonObject.get("credit_card").toString();
         } catch (JSONException e) {
             Log.e("ORDER", "Problem in order constructor");
             e.printStackTrace();
@@ -72,6 +75,9 @@ public class Order implements Parcelable{
         return df.format(d);
     }
 
+    public String getCreditCard() {
+        return creditCard;
+    }
 
     ////////////////////////////////////
     //////////// PARCELABLE ////////////
@@ -82,6 +88,7 @@ public class Order implements Parcelable{
         items = new ArrayList<Product>();
         in.readList(items, Order.class.getClassLoader());
         totalPrice = in.readFloat();
+        creditCard = in.readString();
     }
 
     @Override
@@ -95,6 +102,7 @@ public class Order implements Parcelable{
         dest.writeLong(timestamp);
         dest.writeList(items);
         dest.writeFloat(totalPrice);
+        dest.writeString(creditCard);
     }
 
     public static final Creator<Order> CREATOR = new Creator<Order>() {
