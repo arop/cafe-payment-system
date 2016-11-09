@@ -143,6 +143,7 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
                 } catch (Exception e) {
                     //problem with server. probably.
+                    e.printStackTrace();
                     Toast.makeText(currentActivity.getApplicationContext(), "Server error...", Toast.LENGTH_SHORT).show();
                 } finally {
                     swipeContainer.setRefreshing(false);

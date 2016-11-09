@@ -37,8 +37,9 @@ public class Order implements Parcelable{
             for (int i = 0; i < order_items.length(); ++i) {
                 Product p = new Product(order_items.getJSONObject(i));
                 items.add(p);
-                totalPrice += p.getPrice()*p.getQuantity();
+                //totalPrice += p.getPrice()*p.getQuantity();
             }
+            totalPrice = Float.parseFloat(jsonObject.get("total_price").toString());
             creditCard = jsonObject.get("credit_card").toString();
         } catch (JSONException e) {
             Log.e("ORDER", "Problem in order constructor");
