@@ -14,5 +14,5 @@ const client = new pg.Client({
 client.connect();
 const query = client.query(
 	"ALTER TABLE orders "+
-	"ADD COLUMN total_price integer");
+	"ADD COLUMN total_price real");
 query.on('end', () => { client.end(); });
