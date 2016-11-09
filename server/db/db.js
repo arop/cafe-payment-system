@@ -467,6 +467,7 @@ function insertOrder_updateOrderTotal(order, resultingOrder){
 	client.query('UPDATE orders SET total_price = $1 WHERE id = $2', 
 		[resultingOrder.order.total_price, resultingOrder.order.id], function(error, result3){
 			if(error != null){
+				console.warn(error);
 				// n vamos lidar com este erro e ignorar totalmente que não funcionou.
 				// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
 				return;
