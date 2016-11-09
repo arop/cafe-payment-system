@@ -11,6 +11,11 @@ const
   console.log('Database error!', err);
 });*/
 
+
+const POPCORN_ID = 12;
+const COFFEE_ID = 13;
+
+
 function openClient(){
 	const client = new pg.Client({
 	    user: process.env.DATABASE_USER,
@@ -190,93 +195,251 @@ function insertOrder(order,callback) {
 				callback(null);
 				return;
 			}		
-			else {
-				resultingOrder.order = result.rows[0];
-				resultingOrder.order.order_items = [];
-				resultingOrder.order.total_price = 0;
-			}
+			
+			resultingOrder.order = result.rows[0];
+			resultingOrder.order.order_items = [];
+			resultingOrder.order.total_price = 0;			
+
+			insertOrder_insertProducts(client, order, resultingOrder, callback);
 		}
-	).on('end', () => {
-		var numberOfProducts = Object.keys(order.cart).length;
-		for(var prod_id in order.cart) {
-		    if (!order.cart.hasOwnProperty(prod_id)) continue;
+	);
+		
+}
 
-		    var product_id = parseInt(prod_id);
+function insertOrder_insertProducts(client, order, resultingOrder, callback){
+	var numberOfProducts = Object.keys(order.cart).length;
+		
+	order.number_of_popcorns = 0;
+	order.number_of_coffees = 0;
 
-			client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,'+
-				'(SELECT price FROM products WHERE id = $1)'+
-				') RETURNING *',
-				[product_id, resultingOrder.order.id, order.cart[prod_id]],
-				function(error, result){
+	for(var prod_id in order.cart) {
+	    if (!order.cart.hasOwnProperty(prod_id)) continue;
+
+	    var product_id = parseInt(prod_id);
+
+	    if(product_id == POPCORN_ID) order.number_of_popcorns++;
+	    else if(product_id == COFFEE_ID) order.number_of_coffees++;
+
+		client.query('INSERT INTO order_items (product_id,order_id,quantity,unit_price) VALUES ($1,$2,$3,'+
+			'(SELECT price FROM products WHERE id = $1)'+
+			') RETURNING *',
+			[product_id, resultingOrder.order.id, order.cart[prod_id]],
+			function(error, result){
+				if(error != null){
+					console.log(error);
+					callback(null);
+					return;
+				}
+				resultingOrder.order.order_items.push(result.rows[0]);
+				resultingOrder.order.total_price += result.rows[0].unit_price * result.rows[0].quantity;
+			}
+		).on('row', (row) => {
+			client.query('SELECT name FROM products WHERE id = $1;', [row.product_id], function(error, result2){
+				row.name = result2.rows[0].name;
+			});
+		}).on('end',() => {
+			//only call callback when all queries finish
+			numberOfProducts--;
+			if(numberOfProducts <= 0) {
+				insertOrder_checkCreditCard(client, order, resultingOrder, callback);
+			}
+		});
+	}
+}
+
+function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
+	client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
+		[resultingOrder.order.user_id], function(error, result){
+		if(error != null)
+			callback(null)
+
+		resultingOrder.order.user_name = result.rows[0].name;
+		resultingOrder.order.credit_card = result.rows[0].number;
+
+		insertOrder_checkVouchersValidity(client, order, resultingOrder, callback);
+		
+	});
+}
+
+function insertOrder_checkVouchersValidity(client, order, resultingOrder, callback){
+	
+	var totalNumberOfVouchers = order.vouchers.length;
+
+	if(totalNumberOfVouchers == 0){
+		insertOrder_handleValidatedVouchers(client, order, resultingOrder, callback);
+		return;
+	}
+
+	var numberOfVouchersChecked = 0;
+	
+	for(var id in order.vouchers){
+
+		var local_id = id;
+
+		// TODO check signature. If invalid, delete voucher.
+		client.query("SELECT * FROM vouchers WHERE serial_id = $1",
+				[order.vouchers[local_id].serial_id], function(error, result){
+			if(error != null){
+				callback(null); // "DB error checking vouchers validity"
+			}
+
+			if(result.rowCount > 0 && result.rows[0].order_id == null){
+				// valid voucher
+				// order_id in voucher updated later. see "insertOrder_handleValidatedVouchers"
+			}
+			else {
+				// invalid voucher
+				console.warn("Ignored voucher " + order.vouchers[local_id].serial_id + " because it was invalid or already used.");
+				order.vouchers.splice(local_id, 1); //delete voucher. invalid id or already used.
+			}
+
+			numberOfVouchersChecked++;
+
+			if(numberOfVouchersChecked == totalNumberOfVouchers){
+				insertOrder_handleValidatedVouchers(client, order, resultingOrder, callback);
+			}
+		});
+	}
+}
+
+function insertOrder_handleValidatedVouchers(client, order, resultingOrder, callback){
+
+	order.number_popcorn_vouchers = 0;
+	order.number_coffee_vouchers = 0;
+	order.number_discount_vouchers = 0;
+
+	client.query('SELECT * from products WHERE id = $1 OR id = $2', [POPCORN_ID, COFFEE_ID], function(error, result){
+		if(error != null || result.rows.length < 2){
+			console.log(error);
+			callback(null); // "DB error checking coffee/popcorn prices."
+			return;
+		}
+
+		var coffee_price = -1, popcorn_price = -1;
+
+		for(var k in result.rows){
+			if(result.rows[k].id == POPCORN_ID)
+				popcorn_price = result.rows[k].price;
+			else if(result.rows[k].id == COFFEE_ID)
+				coffee_price = result.rows[k].price;
+		}
+		console.warn('Coffee price: ' + coffee_price);
+		console.warn('Popcorn price: ' + popcorn_price);
+
+		for(var id in order.vouchers){
+			
+			console.log("resulting order before total: " + resultingOrder.order.total_price);
+
+			if(order.number_discount_vouchers + order.number_popcorn_vouchers + order.number_coffee_vouchers == 3){
+				console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because limit was reached.");
+				order.vouchers.splice(id, 1); //delete voucher. limit reached.
+				continue;
+			}
+
+			switch(order.vouchers[id].type){
+				case 'd': {
+					if(order.number_discount_vouchers == 1){
+						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because discount limit was reached.");
+						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+					}
+					else{
+						order.number_discount_vouchers++; 
+						resultingOrder.order.total_price = resultingOrder.order.total_price * 0.95;
+						voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+					}
+					break;
+				}
+				case 'c': {
+					if(order.number_of_coffees == order.number_coffee_vouchers){
+						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because no coffees enough.");
+						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+						break;
+					}
+					order.number_coffee_vouchers++; 
+					resultingOrder.order.total_price -= coffee_price;
+					voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+					break;
+				}
+				case 'p': {
+					if(order.number_of_popcorns == order.number_popcorn_vouchers){
+						console.warn("Ignored voucher " + order.vouchers[id].serial_id + " because no popcorns enough.");
+						order.vouchers.splice(id, 1); //delete voucher. only 1 discount voucher allowed.
+						break;
+					}
+					order.number_popcorn_vouchers++; 
+					resultingOrder.order.total_price -= popcorn_price;
+					voucherUpdate(order.vouchers[id], resultingOrder.order.id); // no need to block/wait for the query
+					break;
+				}
+				default: order.vouchers.splice(id, 1); //delete voucher. invalid type. never gonna happen (?)
+			}
+			console.log("resulting after before total: " + resultingOrder.order.total_price);
+		}
+
+		resultingOrder.vouchers = order.vouchers;
+		resultingOrder.order.total_price = Math.floor(resultingOrder.order.total_price * 100.0)/100.0;
+		console.warn("Order inserted. Will send response to terminal.");
+		console.warn("RESULTING ORDER:");
+		console.warn(resultingOrder);
+		callback(resultingOrder);
+
+		client.end();
+
+		insertOrder_handleOrderTotals(client, order, resultingOrder);
+	});
+
+}
+
+function insertOrder_handleOrderTotals(client, order, resultingOrder){
+
+	if(resultingOrder.order.total_price >= 20.0){
+		issueOfferVoucher(order.user.id);
+	}
+
+	client.query('SELECT updateordertotals($1, $2)', 
+		[resultingOrder.order.total_price, order.user.id], function(error, result3){
+			if(error != null){
+				// n vamos lidar com este erro e ignorar totalmente que não funcionou.
+				// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
+				return;
+			}
+
+			client.query('SELECT * from users where id = $1',
+				[order.user.id], function(error, result4){
 					if(error != null){
-						console.log(error);
+						// n vamos lidar com este erro e ignorar totalmente que não funcionou.
+						// de qq forma, é uma operação simples, por isso n deve dar erro. nunca.
 						return;
 					}
-					resultingOrder.order.order_items.push(result.rows[0]);
-					resultingOrder.order.total_price += result.rows[0].unit_price * result.rows[0].quantity;
-				}
-			).on('row', (row) => {
-				client.query('SELECT name FROM products WHERE id = $1;', [row.product_id], function(error, result2){
-					row.name = result2.rows[0].name;
-				});
-			}).on('end',() => {
-				//only call callback when all queries finish
-				numberOfProducts--;
-				if(numberOfProducts <= 0) {
 
-					client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
-						[resultingOrder.order.user_id], function(error, result){
-						if(error != null)
-							callback(null)
+					//console.log(result4);
+					var total_orders_value = result4.rows[0].total_order_value;
+					var total_vouchers_issued = result4.rows[0].discount_vouchers_issued;
+					var vouchers_to_issue = Math.floor(total_orders_value / 100 ) - total_vouchers_issued;
+					
+					//console.log("value: " + total_orders_value + " # vouchers: " + total_vouchers_issued);
+					//console.log("to issue: "+vouchers_to_issue);
 
-						resultingOrder.order.user_name = result.rows[0].name;
-						resultingOrder.order.credit_card = result.rows[0].number;
-						callback(resultingOrder);
-
-						if(resultingOrder.order.total_price >= 20.0){
-							issueOfferVoucher(order.user.id);
+					if(vouchers_to_issue > 0){
+						for(var i = 0; i < vouchers_to_issue; i++){
+							issueDiscountVoucher(order.user.id);
 						}
-
-
-						client.query('SELECT updateordertotals($1, $2)', 
-							[resultingOrder.order.total_price, order.user.id], function(error, result3){
-								if(error != null){
-									// n vamos lidar com este erro e ignorar totalmente que n? funcionou.
-									// de qq forma, ?uma opera?o simples, por isso n deve dar erro. nunca.
-									return;
-								}
-
-								client.query('SELECT * from users where id = $1',
-									[order.user.id], function(error, result4){
-										if(error != null){
-											// n vamos lidar com este erro e ignorar totalmente que n? funcionou.
-											// de qq forma, ?uma opera?o simples, por isso n deve dar erro. nunca.
-											return;
-										}
-
-										console.log(result4);
-										var total_orders_value = result4.rows[0].total_order_value;
-										var total_vouchers_issued = result4.rows[0].discount_vouchers_issued;
-										var vouchers_to_issue = Math.floor(total_orders_value / 100 ) - total_vouchers_issued;
-										
-										console.log("value: " + total_orders_value + " # vouchers: " + total_vouchers_issued);
-										console.log("to issue: "+vouchers_to_issue);
-
-										if(vouchers_to_issue > 0){
-											for(var i = 0; i < vouchers_to_issue; i++){
-												issueDiscountVoucher(order.user.id);
-											}
-										}
-									}
-								);
-
-							}
-						);
-					});
+					}
 				}
-			});
+			);
+
 		}
-	});
+	);
+}
+
+
+function voucherUpdate(voucher, order_id){
+	var client = openClient();
+	client.connect();
+	const query = client.query('UPDATE vouchers SET order_id = $1 WHERE serial_id = $2;',
+		[order_id, voucher.serial_id], function(error,result) {
+			client.end();
+		});
 }
 
 
@@ -311,8 +474,10 @@ function issueOfferVoucher(user_id){
 		function(error, result){
 			if(error != null){
 				console.log(error);
+				client.end();
 				return;
 			}
+			client.end();
 		}
 	);
 }
@@ -367,8 +532,10 @@ function issueDiscountVoucher(user_id){
 		function(error, result){
 			if(error != null){
 				console.log(error);
+				client.end();
 				return;
 			}
+			client.end();
 		}
 	);
 
