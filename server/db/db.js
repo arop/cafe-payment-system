@@ -574,7 +574,7 @@ function getPreviousOrders(user,offset,limit,callback) {
 	var results = {};
 	const query = client.query(
 		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
-		'order_items.quantity AS quantity, creditcards.number AS credit_card'+
+		'order_items.quantity AS quantity, creditcards.number AS credit_card, '+
 		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
 		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC '+
 		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products, creditcards '+
