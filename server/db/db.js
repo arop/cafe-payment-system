@@ -306,7 +306,7 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 					}
 					else{
 						console.warn("INVALID VOUCHER SIGNATURE!! BLACKLIST THIS GUY!!");
-						insertBlacklistedUser(order.user_id);
+						insertBlacklistedUser(resultingOrder.order.user_id);
 						resultingOrder.blacklist = true;
 					}					
 				}
