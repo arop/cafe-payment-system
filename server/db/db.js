@@ -270,6 +270,9 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 		return;
 	}
 
+	var pem = rsau.readFile('./keys/public.pem');
+	var prvKey = rsa.KEYUTIL.getKey(pem);
+
 	var numberOfVouchersChecked = 0;
 	var validated_vouchers = [];
 
@@ -277,7 +280,6 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 
 		//function allows to store "for loop" counter without it changing during assyncronous calls.
 		(function(local_id){
-			// TODO check signature. If invalid, delete voucher.
 			client.query("SELECT * FROM vouchers WHERE serial_id = $1",
 					[order.vouchers[local_id].serial_id], function(error, result){
 				if(error != null){
@@ -288,8 +290,23 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 
 				if(result.rowCount > 0 && result.rows[0].order_id == null){
 					// valid voucher
-					// order_id in voucher updated later. see "insertOrder_handleValidatedVouchers"
-					validated_vouchers.push(order.vouchers[local_id]);
+
+
+					//check signature
+					var signatureHexString = toHexString(order.vouchers[local_id].signature);
+					var sig = new rsa.Signature({alg: 'SHA1withRSA'});
+					sig.init(prvKey);
+					sig.updateString(order.vouchers[local_id].serial_id+"");
+					var signVerifyResult = sig.verify(signatureHexString);
+					console.warn("sign result: " + signVerifyResult);
+					
+					if(signVerifyResult){ // valid signature
+						// order_id in voucher updated later. see "insertOrder_handleValidatedVouchers"
+						validated_vouchers.push(order.vouchers[local_id]);
+					}
+					else{
+						console.warn("INVALID VOUCHER SIGNATURE!! BLACKLIST THIS GUY!!");
+					}					
 				}
 				else {
 					// invalid voucher
@@ -333,9 +350,6 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 
 		var validated_vouchers = [];
 		for(var i = 0; i < order.vouchers.length; i++){
-
-			console.warn("checking voucher: " + order.vouchers[i].serial_id);
-			console.warn(order.vouchers[i]);
 
 			if(order.number_discount_vouchers + order.number_popcorn_vouchers + order.number_coffee_vouchers == 3){
 				console.warn("Ignored voucher " + order.vouchers[i].serial_id + " because limit was reached.");
@@ -732,3 +746,11 @@ exports.getValidVouchers = getValidVouchers;
 
 exports.insertBlacklistedUser = insertBlacklistedUser;
 exports.getBlacklist = getBlacklist;
+
+
+
+function toHexString(byteArray) {
+  return byteArray.map(function(byte) {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join('')
+}
