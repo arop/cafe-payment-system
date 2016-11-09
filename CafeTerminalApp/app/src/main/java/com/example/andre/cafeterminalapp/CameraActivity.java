@@ -28,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -41,27 +40,14 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
     private Activity currentActivity;
     private Result currentScanResult;
 
-    private final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
     private ProgressDialog insertOrderRequestProgressDialog;
-
-    private Blacklist blacklist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_camera);
 
         currentActivity = this;
-        blacklist = Blacklist.getInstance(currentActivity);
-        Order.getUnsentOrders(currentActivity);
-
-        Log.d("unsent orders", Order.getUnsentOrders(currentActivity).size()+"");
-
-        blacklist.getBlacklistFromServer();
-
-        requestPermissions(this);
 
         insertOrderRequestProgressDialog = new ProgressDialog(this);
         insertOrderRequestProgressDialog.setTitle("Loading");
@@ -70,28 +56,6 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
 
         View view = findViewById(R.id.scannerView);
         QrScanner(view);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -233,60 +197,6 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
     public void onPause() {
         super.onPause();
         mScannerView.stopCamera();   // Stop camera on pause
-    }
-
-    ////////// PERMISSIONS //////////////
-    /**
-     * Request permissions
-     * @param thisActivity
-     */
-    private void requestPermissions(Activity thisActivity) {
-        if (ContextCompat.checkSelfPermission(thisActivity,
-                Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(thisActivity,
-                    new String[]{Manifest.permission.CAMERA},
-                    MY_PERMISSIONS_REQUEST_CAMERA);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                } else {
-
-                    // permission denied, re-ask
-                    showAlertDialogOnPermissions();
-                }
-                return;
-            }
-        }
-    }
-
-    /**
-     * Alert to re-ask for permissions
-     */
-    private void showAlertDialogOnPermissions() {
-        // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
-        builder.setCancelable(false);
-        builder.setTitle("Error");
-        builder.setMessage("This app requires camera permission to work!");
-        builder.setPositiveButton("OK!!!", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                requestPermissions(currentActivity);
-            }
-        });
-        // Create the AlertDialog object and return it
-        builder.create().show();
     }
 
     private void showWarningDialog(int type, String msg, String response) {
