@@ -11,4 +11,6 @@
     <string name="pending_orders">Pending Orders (%1$d)</string>
     <string name="open_scanner">Open scanner</string>
     <string name="title_activity_main">Cafe Terminal</string>
+    <string name="products">Products</string>
+    <string name="vouchers">Vouchers</string>
 </resources>
