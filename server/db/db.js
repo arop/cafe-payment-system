@@ -281,6 +281,8 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 				[order.vouchers[local_id].serial_id], function(error, result){
 			if(error != null){
 				callback(null); // "DB error checking vouchers validity"
+				console.warn(error);
+				return;
 			}
 
 			if(result.rowCount > 0 && result.rows[0].order_id == null){

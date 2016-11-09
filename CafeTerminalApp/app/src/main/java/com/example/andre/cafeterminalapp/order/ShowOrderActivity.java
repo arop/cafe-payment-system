@@ -137,6 +137,32 @@ public class ShowOrderActivity extends AppCompatActivity {
         }
 
         //////////////////////////////////////////////////////////////////
+        setProductRecyclerView(order);
+        setVouchersRecyclerView(order);
+    }
+
+    private void setVouchersRecyclerView(JSONObject order) {
+        RecyclerView mVouchersRecyclerView = (RecyclerView) findViewById(R.id.vouchers_recycler_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mVouchersRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        RecyclerView.LayoutManager mVouchersLayoutManager = new LinearLayoutManager(this);
+        mVouchersRecyclerView.setLayoutManager(mVouchersLayoutManager);
+
+        // specify an adapter (see also next example)
+        OrderVoucherItemAdapter mVouchersRecyclerAdapter = null;
+        try {
+            mVouchersRecyclerAdapter = new OrderVoucherItemAdapter(order.getJSONArray("vouchers"), this);
+        } catch (JSONException e) {
+            Log.e("json",e.getMessage());
+        }
+        mVouchersRecyclerView.setAdapter(mVouchersRecyclerAdapter);
+    }
+
+    private void setProductRecyclerView(JSONObject order) {
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.order_items_recycler_view);
 
         // use this setting to improve performance if you know that changes
