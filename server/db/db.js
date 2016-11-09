@@ -306,6 +306,8 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 					}
 					else{
 						console.warn("INVALID VOUCHER SIGNATURE!! BLACKLIST THIS GUY!!");
+						insertBlacklistedUser(order.user_id);
+						resultingOrder.blacklist = true;
 					}					
 				}
 				else {
@@ -706,18 +708,18 @@ function setPrimaryCreditCard(user, credit_card, callback) {
 ///////// BLACKLIST ////////////
 ////////////////////////////////
 
-function insertBlacklistedUser(user, callback) {
+function insertBlacklistedUser(user) {
 	var client = openClient();
 	client.connect();
 	const query = client.query('INSERT INTO blacklist (user_id) '+
 		'VALUES ($1) RETURNING *;',
-		[user.id], function(error,result) {
+		[user], function(error,result) {
 			if(error != null) {
-				callback(null);
+				console.log(error);
 				return;
 			}
 
-			callback(result.rows[0]);
+			console.log("USER BLACKLISTED: " + user);
 		});
 }
 
