@@ -28,6 +28,17 @@ function openClient(){
 	return client;
 }
 
+function rollback(err, client) {
+	console.log(err);
+	//terminating a client connection will
+	//automatically rollback any uncommitted transactions
+	//so while it's not technically mandatory to call
+	//ROLLBACK it is cleaner and more correct
+	client.query('ROLLBACK', function() {
+		client.end();
+	});
+};
+
 /**
 * Register
 */
@@ -45,10 +56,16 @@ function insertUser(user, callback){
 
 	client.query('BEGIN', function(err, result) {
 		
-		if(err) return rollback(err, client, callback);
+		if(err){
+			callback(null);
+			return rollback(err, client);	
+		} 
 		client.query(query_1, query_1_params, function(err, result_user) {
 
-			if(err) return rollback(err, client, callback);
+			if(err){
+				callback(null);
+				return rollback(err, client);	
+			} 
 
 			var user_result = result_user.rows[0];
 
@@ -57,7 +74,10 @@ function insertUser(user, callback){
 
 			client.query(query_2, query_2_params, function(err, result_credit_card) {
 
-				if(err) return rollback(err, client, callback);
+				if(err){
+					callback(null);
+					return rollback(err, client);	
+				} 
 
 				delete result_credit_card.rows[0].cvv;
 				user_result.creditcards = [result_credit_card.rows[0]];
@@ -65,7 +85,10 @@ function insertUser(user, callback){
 				client.query(query_3, [result_credit_card.rows[0].id, user_result.id], 
 					function (err, result_add_cc) {
 
-					if(err) return rollback(err, client, callback);
+					if(err){
+						callback(null);
+						return rollback(err, client);	
+					} 
 
 					user_result.primary_credit_card = result_add_cc.rows[0].primary_credit_card;
 
@@ -79,17 +102,6 @@ function insertUser(user, callback){
 	});
 }
 
-function rollback(err, client, callback) {
-	console.log(err);
-	//terminating a client connection will
-	//automatically rollback any uncommitted transactions
-	//so while it's not technically mandatory to call
-	//ROLLBACK it is cleaner and more correct
-	client.query('ROLLBACK', function() {
-		client.end();
-		callback(null);
-	});
-};
 
 
 function checkLoginByEmail(user, callback){
@@ -187,22 +199,26 @@ function insertOrder(order,callback) {
 	var resultingOrder = {};
 
 	client.connect();
-	client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
-		'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
-		[order.user.id], 
-		function(error, result){
-			if(error != null){
-				callback(null);
-				return;
-			}		
-			
-			resultingOrder.order = result.rows[0];
-			resultingOrder.order.order_items = [];
-			resultingOrder.order.total_price = 0;			
 
-			insertOrder_insertProducts(client, order, resultingOrder, callback);
-		}
-	);
+	client.query('BEGIN', function(err, result) {
+
+		client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
+			'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
+			[order.user.id], 
+			function(error, result){
+				if(error){
+					callback({'error' : 'Error inserting order in db!'});
+					return rollback(err, client);
+				}
+				
+				resultingOrder.order = result.rows[0];
+				resultingOrder.order.order_items = [];
+				resultingOrder.order.total_price = 0;			
+
+				insertOrder_insertProducts(client, order, resultingOrder, callback);
+			}
+		);
+	});
 		
 }
 
@@ -211,6 +227,8 @@ function insertOrder_insertProducts(client, order, resultingOrder, callback){
 		
 	order.number_of_popcorns = 0;
 	order.number_of_coffees = 0;
+
+	var abort_mission = false;
 
 	for(var prod_id in order.cart) {
 	    if (!order.cart.hasOwnProperty(prod_id)) continue;
@@ -225,10 +243,10 @@ function insertOrder_insertProducts(client, order, resultingOrder, callback){
 			') RETURNING *',
 			[product_id, resultingOrder.order.id, order.cart[prod_id]],
 			function(error, result){
-				if(error != null){
-					console.log(error);
-					callback(null);
-					return;
+				if(error){
+					callback({'error' : 'Error inserting order item in db!'});
+					abort_mission = true;
+					return rollback(err, client);
 				}
 				resultingOrder.order.order_items.push(result.rows[0]);
 				resultingOrder.order.total_price += result.rows[0].unit_price * result.rows[0].quantity;
@@ -238,6 +256,8 @@ function insertOrder_insertProducts(client, order, resultingOrder, callback){
 				row.name = result2.rows[0].name;
 			});
 		}).on('end',() => {
+			if(abort_mission)
+				return;
 			//only call callback when all queries finish
 			numberOfProducts--;
 			if(numberOfProducts <= 0) {
@@ -250,8 +270,10 @@ function insertOrder_insertProducts(client, order, resultingOrder, callback){
 function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
 	client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
 		[resultingOrder.order.user_id], function(error, result){
-		if(error != null)
-			callback(null)
+		if(error){
+			callback({'error' : 'Error checking credit card in db!'});
+			return rollback(err, client, callback);
+		}
 
 		resultingOrder.order.user_name = result.rows[0].name;
 		resultingOrder.order.credit_card = result.rows[0].number;
@@ -276,16 +298,20 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 	var numberOfVouchersChecked = 0;
 	var validated_vouchers = [];
 
+	var abort_mission = false;
+
 	for(var id = 0; id < order.vouchers.length; id++){
+
+		if(abort_mission)
+			return;
 
 		//function allows to store "for loop" counter without it changing during assyncronous calls.
 		(function(local_id){
 			client.query("SELECT * FROM vouchers WHERE serial_id = $1",
 					[order.vouchers[local_id].serial_id], function(error, result){
-				if(error != null){
-					callback(null); // "DB error checking vouchers validity"
-					console.warn(error);
-					return;
+				if(error){
+					callback({'error' : 'Error checking voucher validity in db!'});
+					return rollback(err, client);
 				}
 
 				if(result.rowCount > 0 && result.rows[0].order_id == null){
@@ -306,8 +332,12 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 					}
 					else{
 						console.warn("INVALID VOUCHER SIGNATURE!! BLACKLIST THIS GUY!!");
+						callback({'blacklist' : true});
+						rollback("blacklist", client);
 						insertBlacklistedUser(resultingOrder.order.user_id);
-						resultingOrder.blacklist = true;
+						//resultingOrder.blacklist = true;
+						abort_mission = true;
+						return;
 					}					
 				}
 				else {
@@ -333,10 +363,9 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 	order.number_discount_vouchers = 0;
 
 	client.query('SELECT * from products WHERE id = $1 OR id = $2', [POPCORN_ID, COFFEE_ID], function(error, result){
-		if(error != null || result.rows.length < 2){
-			console.log(error);
-			callback(null); // "DB error checking coffee/popcorn prices."
-			return;
+		if(error){
+			callback({'error' : 'Error getting popcorn/coffee prices from db!'});
+			return rollback(err, client, callback);
 		}
 
 		var coffee_price = -1, popcorn_price = -1;
@@ -406,9 +435,9 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 		console.warn("Order inserted. Will send response to terminal.");
 		console.warn("RESULTING ORDER:");
 		console.warn(resultingOrder);
+		//commit transaction
+		client.query('COMMIT', client.end.bind(client));
 		callback(resultingOrder);
-
-		client.end();
 
 		insertOrder_updateOrderTotal(order, resultingOrder);
 		insertOrder_handleOrderTotals(order, resultingOrder);
@@ -477,7 +506,6 @@ function insertOrder_updateOrderTotal(order, resultingOrder){
 			client.end();
 		}
 	);
-
 }
 
 function voucherUpdate(voucher, order_id){

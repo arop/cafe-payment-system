@@ -195,8 +195,11 @@ app.post('/transaction', function(req, res){
 
 				try{
 					db.insertOrder(order, function(result){
-						if(result == null){
-							res.send({"error" : "Error registing order!"});
+						if(result.blacklist){
+							res.send({"blacklist" : true});
+						}
+						else if(result.error){
+							res.send({"error" : result.error});
 						}
 						else{
 							res.send(result);
