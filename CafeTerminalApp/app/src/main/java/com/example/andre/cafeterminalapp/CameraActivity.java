@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -17,15 +18,37 @@ import com.google.zxing.Result;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+
+import static android.R.id.message;
 
 public class CameraActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
@@ -181,14 +204,80 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                     String formattedDate = sdf.format(date);
                     o.setTimestamp(formattedDate);
 
+                    // CHECK vouchers validity
+                    checkVouchersValidity(result.getJSONArray("vouchers"));
+
                     Order.addUnsentOrder(o);
                     Order.saveUnsentOrders(currentActivity);
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
     }
+
+    public boolean checkVouchersValidity(JSONArray vouchers) throws JSONException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException, IOException, SignatureException, InvalidKeyException {
+
+        Log.d("VOUCHER", "gonna check vouchers");
+        for(int i = 0; i < vouchers.length(); i++){
+            JSONObject voucher = vouchers.getJSONObject(i);
+
+            // GET signature as byte[]
+            byte[] sign = new byte[46];
+            JSONArray sign_bytes = voucher.getJSONArray("signature");
+            for(int j = 0; j < sign_bytes.length(); j++){
+                sign[j] = ((Integer) sign_bytes.getInt(j)).byteValue();
+            }
+
+            // VERIFY signature
+            Signature signature1 = Signature.getInstance("SHA1withRSA");
+            signature1.initVerify(getPublicKey());
+            signature1.update(voucher.getString("serial_id").getBytes());
+            boolean verify_result = signature1.verify(sign);
+
+            if(verify_result){
+                Log.d("VOUCHER", "RSA VOUCHER BOM!!");
+            }
+            else{
+                Log.d("VOUCHER", "RSA VOUCHER MAU!!");
+                return false;
+            }
+
+        }
+        return true;
+    }
+
+    public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+
+        // reads the public key stored in a file
+        InputStream is = getResources().openRawResource(R.raw.public_key);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        List<String> lines = new ArrayList<String>();
+        String line = null;
+        while ((line = br.readLine()) != null)
+            lines.add(line);
+
+        // removes the first and last lines of the file (comments)
+        if (lines.size() > 1 && lines.get(0).startsWith("-----") && lines.get(lines.size()-1).startsWith("-----")) {
+            lines.remove(0);
+            lines.remove(lines.size()-1);
+        }
+
+        // concats the remaining lines to a single String
+        StringBuilder sb = new StringBuilder();
+        for (String aLine: lines)
+            sb.append(aLine);
+        String keyString = sb.toString();
+
+        // converts the String to a PublicKey instance
+        byte[] keyBytes = Base64.decodeBase64(keyString.getBytes("utf-8"));
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey key = keyFactory.generatePublic(spec);
+
+        return key;
+    }
+
 
     public void QrScanner(View view) {
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view

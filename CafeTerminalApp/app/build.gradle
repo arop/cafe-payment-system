@@ -36,4 +36,5 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.github.dbachelder:CreditCardEntry:1.4.7'
     testCompile 'junit:junit:4.12'
+    compile 'commons-codec:commons-codec:1.3'
 }
