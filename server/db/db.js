@@ -201,23 +201,37 @@ function insertOrder(order,callback) {
 	client.connect();
 
 	client.query('BEGIN', function(err, result) {
-
-		client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
-			'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
-			[order.user.id], 
+		client.query('SELECT * from blacklist WHERE user_id = $1;', [order.user.id],
 			function(error, result){
 				if(error){
-					callback({'error' : 'Error inserting order in db!'});
+					callback({'error' : 'Error checking blacklist!'});
 					return rollback(err, client);
 				}
-				
-				resultingOrder.order = result.rows[0];
-				resultingOrder.order.order_items = [];
-				resultingOrder.order.total_price = 0;			
 
-				insertOrder_insertProducts(client, order, resultingOrder, callback);
-			}
-		);
+				if(result.rowCount > 0){
+					callback({'blacklist' : true});
+					rollback(err, client);
+					return;	
+				}
+
+				client.query('INSERT INTO orders (user_id, credit_card, order_timestamp) VALUES '+
+					'($1, (SELECT primary_credit_card FROM users WHERE id = $1), round(date_part( \'epoch\', now())*1000)) RETURNING *', 
+					[order.user.id], 
+					function(error, result){
+						if(error){
+							callback({'error' : 'Error inserting order in db!'});
+							return rollback(err, client);
+						}
+						
+						resultingOrder.order = result.rows[0];
+						resultingOrder.order.order_items = [];
+						resultingOrder.order.total_price = 0;			
+
+						insertOrder_insertProducts(client, order, resultingOrder, callback);
+					}
+				);
+		});
+		
 	});
 		
 }
