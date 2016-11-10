@@ -14,5 +14,5 @@ const client = new pg.Client({
 client.connect();
 const query = client.query(
   'CREATE TABLE blacklist(id SERIAL PRIMARY KEY, '+
-  'user_id UUID not null REFERENCES users(id))');
+  'user_id UUID not null REFERENCES users(id) UNIQUE)');
 query.on('end', () => { client.end(); });
