@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -92,9 +94,11 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
+                    //Log.d("qr_text", currentScanResult.toString());
+                    //JSONObject j = new JSONObject(decompress(currentScanResult.getText()));
                     JSONObject j = new JSONObject(currentScanResult.toString());
                     sendInsertOrderToServer(j);
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     Log.e("error","json error on sending insert order to server");
                     e.printStackTrace();
                     showWarningDialog(1,"Unable to get order!",null);
@@ -278,6 +282,21 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         return key;
     }
 
+    /*public String decompress(String str) throws IOException{
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        //ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(str, Base64.DEFAULT));
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes("ISO-8859-1"));
+        GZIPInputStream gzip = new GZIPInputStream(in);
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gzip, "UTF-8"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+            outStr += line;
+        }
+        return outStr;
+    }*/
 
     public void QrScanner(View view) {
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view

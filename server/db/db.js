@@ -307,7 +307,7 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 	}
 
 	var pem = rsau.readFile('./keys/public.pem');
-	var prvKey = rsa.KEYUTIL.getKey(pem);
+	var pubKey = rsa.KEYUTIL.getKey(pem);
 
 	var numberOfVouchersChecked = 0;
 	var validated_vouchers = [];
@@ -335,7 +335,7 @@ function insertOrder_checkVouchersValidity(client, order, resultingOrder, callba
 					//check signature
 					var signatureHexString = toHexString(order.vouchers[local_id].signature);
 					var sig = new rsa.Signature({alg: 'SHA1withRSA'});
-					sig.init(prvKey);
+					sig.init(pubKey);
 					sig.updateString(order.vouchers[local_id].serial_id+"");
 					var signVerifyResult = sig.verify(signatureHexString);
 					console.warn("sign result: " + signVerifyResult);

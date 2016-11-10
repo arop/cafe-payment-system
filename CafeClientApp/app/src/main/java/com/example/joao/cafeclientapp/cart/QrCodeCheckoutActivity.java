@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,9 +33,18 @@ import com.google.zxing.common.BitMatrix;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
@@ -77,15 +87,51 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
 
         qrcodeView = (ImageView) findViewById(R.id.qrcode);
         try {
+            //String compressedJson = compress(json_str);
+            /*String toEncodeFull = json_str;
+            String toEncodeProcessed = decompress(compress(json_str));
+            Log.d("encode", "full size: " + toEncodeFull.length());
+            Log.d("encode", "comp size: " + compressedJson.length());
+            Log.d("encode", "proc size: " + toEncodeProcessed.length());
+            Log.d("encode", "full: " + toEncodeFull);
+            Log.d("encode", "proc: " + toEncodeProcessed);*/
             Bitmap bitmap = encodeAsBitmap(json_str);
             qrcodeView.setImageBitmap(bitmap);
             qrcodeView.invalidate();
         } catch (WriterException e) {
             e.printStackTrace();
-            int i = 0;
         }
-
     }
+
+
+    /*public String compress(String str) throws IOException {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GZIPOutputStream gzip = new GZIPOutputStream(out);
+        gzip.write(str.getBytes());
+        gzip.close();
+        //return new String(Base64.encode(out.toByteArray(), Base64.DEFAULT));
+        return new String(out.toString("ISO-8859-1"));
+    }
+
+    // TO USE IN TERMINAL
+    public String decompress(String str) throws IOException{
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        //ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(str, Base64.DEFAULT));
+        ByteArrayInputStream in = new ByteArrayInputStream(str.getBytes("ISO-8859-1"));
+        GZIPInputStream gzip = new GZIPInputStream(in);
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gzip, "UTF-8"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+            outStr += line;
+        }
+        return outStr;
+    }*/
 
 
     private Bitmap encodeAsBitmap(String str) throws WriterException {
