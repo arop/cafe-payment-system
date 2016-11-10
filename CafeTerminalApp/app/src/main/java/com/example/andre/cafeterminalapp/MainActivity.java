@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
         blacklist = Blacklist.getInstance(currentActivity);
         Order.getUnsentOrders(currentActivity);
 
-        Log.d("blacklist", blacklist.getBlacklist().size()+"");
-
         final Button unsentBtn = (Button) findViewById(R.id.unsentOrdersbtn);
         unsentBtn.setText(getString(R.string.pending_orders, Order.getUnsentOrders(currentActivity).size()));
         unsentBtn.setOnClickListener(new View.OnClickListener() {

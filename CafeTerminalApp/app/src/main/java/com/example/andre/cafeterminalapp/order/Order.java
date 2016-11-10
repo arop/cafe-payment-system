@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.andre.cafeterminalapp.Blacklist;
 import com.example.andre.cafeterminalapp.utils.CustomLocalStorage;
 import com.example.andre.cafeterminalapp.utils.ServerRestClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -103,8 +104,12 @@ public class Order implements Serializable {
     }
 
     public static void sendUnsentOrders(Activity a) {
-        for (Order o: unsentOrders)
-            sendUnsentOrder(o, a);
+        for (Order o: unsentOrders) {
+            if(Blacklist.isBlacklisted(o.getUser_id())) {
+                unsentOrders.remove(o);
+            }
+            else sendUnsentOrder(o, a);
+        }
     }
 
     private static void sendUnsentOrder(final Order o, final Activity a) {
@@ -122,14 +127,21 @@ public class Order implements Serializable {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try{
-                    String error = response.get("error").toString();
+                    response.get("error");
                     return;
                 }
                 catch(JSONException e){
                     //normal behaviour when there are no errors.
                 }
+                try {
+                    response.get("blacklist");
+                    Toast.makeText(a, "Order successfull, user was blacklisted!", Toast.LENGTH_SHORT).show();
+                    Blacklist.getInstance(a).getBlacklistFromServer(a);
+                }catch (JSONException e) {
+                    //normal behaviour when there are no errors.
+                    Toast.makeText(a, "Order successfull", Toast.LENGTH_SHORT).show();
+                }
 
-                Toast.makeText(a, "Order successfull", Toast.LENGTH_SHORT).show();
                 Log.e("order",response.toString());
                 unsentOrders.remove(o);
                 Order.saveUnsentOrders(a);

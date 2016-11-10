@@ -43,11 +43,11 @@ public class Blacklist implements Serializable {
         this.pendingBlacklist = new ArrayList<>();
     }
 
-    ArrayList<String> getBlacklist() {
+    public ArrayList<String> getBlacklist() {
         return blacklist;
     }
 
-    ArrayList<String> getPendingBlacklist() {
+    public ArrayList<String> getPendingBlacklist() {
         return pendingBlacklist;
     }
 
@@ -59,7 +59,7 @@ public class Blacklist implements Serializable {
         }
     }
 
-    private static void saveBlacklist(Activity a) {
+    public static void saveBlacklist(Activity a) {
         try {
             CustomLocalStorage.saveBlacklist(a,Blacklist.getInstance(a));
         } catch (IOException e) {
@@ -67,7 +67,11 @@ public class Blacklist implements Serializable {
         }
     }
 
-    void getBlacklistFromServer(final Activity currentActivity) {
+    public static boolean isBlacklisted(String user_id) {
+        return (instance.blacklist.contains(user_id) || instance.pendingBlacklist.contains(user_id));
+    }
+
+    public void getBlacklistFromServer(final Activity currentActivity) {
 
         ServerRestClient.get("blacklist", null, new JsonHttpResponseHandler() {
             @Override
@@ -108,7 +112,7 @@ public class Blacklist implements Serializable {
         });
     }
 
-    void sendPendingBlacklist(final Activity a) {
+    public void sendPendingBlacklist(final Activity a) {
         RequestParams b = new RequestParams();
         b.put("blacklist",pendingBlacklist);
 

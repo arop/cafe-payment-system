@@ -6,51 +6,35 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
 import com.example.andre.cafeterminalapp.order.Order;
 import com.example.andre.cafeterminalapp.order.ShowOrderActivity;
+import com.example.andre.cafeterminalapp.utils.CustomLocalStorage;
 import com.example.andre.cafeterminalapp.utils.ServerRestClient;
 import com.google.zxing.Result;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
-
-import static android.R.id.message;
 
 public class CameraActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
@@ -101,7 +85,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 } catch (Exception e) {
                     Log.e("error","json error on sending insert order to server");
                     e.printStackTrace();
-                    showWarningDialog(1,"Unable to get order!",null);
+                    showWarningDialog("error","Unable to get order!",null);
                 }
             }
         });
@@ -119,7 +103,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
 
         if(Blacklist.getInstance(this).getBlacklist().contains(result.getString("user")) ||
                 Blacklist.getInstance(this).getPendingBlacklist().contains(result.getString("user"))) {
-            showWarningDialog(1,"You are blacklisted!",null);
+            showWarningDialog("error","You are blacklisted!",null);
             return;
         }
         insertOrderRequestProgressDialog.show();
@@ -138,7 +122,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 try{
                     String error = response.get("error").toString();
                     insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(0,error,null);
+                    showWarningDialog("warning",error,null);
                     return;
                 }
                 catch(JSONException e){
@@ -148,7 +132,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 try{
                     response.get("blacklist");
                     insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(1,"You are blacklisted!",null);
+                    showWarningDialog("error","You are blacklisted!",null);
                     Blacklist.getInstance(currentActivity).getBlacklistFromServer(currentActivity);
                     return;
                 }
@@ -159,7 +143,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                 Log.e("order",response.toString());
                 insertOrderRequestProgressDialog.dismiss();
                 try {
-                    showWarningDialog(2,"Successful order",response.getJSONObject("order").toString());
+                    showWarningDialog("success","Successful order",response.getJSONObject("order").toString());
                 } catch (JSONException e) {
                     Log.e("error json",e.getMessage());
                 }
@@ -169,52 +153,64 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
             public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable) {
                 Log.e("FAILURE:", "~JSON OBJECT - status: "+statusCode);
                 Log.e("FAILURE:", error);
-
-                if(statusCode == 0) {
-                    saveOrder(result);
-                    insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(0,"No internet connection. Order will be performed in the future",null);
-                } else {
-                    insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(1,"Server not available...",null);
-                }
+                handleOnFailure(statusCode);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
                 Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
                 Log.e("FAILURE:", "JSON OBJECT - status: "+statusCode);
-                if(statusCode == 0) {
-                    saveOrder(result);
-                    insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(0,"No internet connection. Order will be performed in the future",null);
-                } else {
-                    insertOrderRequestProgressDialog.dismiss();
-                    showWarningDialog(1,"Server not available...",null);
+                handleOnFailure(statusCode);
+            }
+
+            private Integer saveOrder(JSONObject result) {
+                Log.d("order","server timeout, saving order");
+                try {
+                    // CHECK vouchers validity
+                    if(result.has("vouchers") && !checkVouchersValidity(result.getJSONArray("vouchers"))) {
+                        Blacklist.getInstance(currentActivity).getPendingBlacklist().add(result.getString("user"));
+                        Blacklist.saveBlacklist(currentActivity);
+                        return 0;
+                    } else {
+                        Order o = new Order();
+                        o.setProducts(result.getString("cart"));
+                        o.setUser_id(result.getString("user"));
+                        o.setUser_pin(result.getString("pin"));
+                        o.setVouchers(result.getString("vouchers"));
+
+                        Date date = new Date();
+                        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+                        String formattedDate = sdf.format(date);
+                        o.setTimestamp(formattedDate);
+
+                        Order.addUnsentOrder(o);
+                        Order.saveUnsentOrders(currentActivity);
+                        return 1;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 2;
                 }
             }
 
-            private void saveOrder(JSONObject result) {
-                Log.d("order","server timeout, saving order");
-                Order o = new Order();
-                try {
-                    o.setProducts(result.getString("cart"));
-                    o.setUser_id(result.getString("user"));
-                    o.setUser_pin(result.getString("pin"));
-                    o.setVouchers(result.getString("vouchers"));
-
-                    Date date = new Date();
-                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
-                    String formattedDate = sdf.format(date);
-                    o.setTimestamp(formattedDate);
-
-                    // CHECK vouchers validity
-                    checkVouchersValidity(result.getJSONArray("vouchers"));
-
-                    Order.addUnsentOrder(o);
-                    Order.saveUnsentOrders(currentActivity);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            private void handleOnFailure(int statusCode) {
+                if(statusCode == 0) {
+                    int resultOfSave = saveOrder(result);
+                    insertOrderRequestProgressDialog.dismiss();
+                    switch (resultOfSave) {
+                        case 0: //user blacklisted
+                            showWarningDialog("error","Vouchers not valid! User was blacklisted!",null);
+                            break;
+                        case 1: //valid vouchers, order saved
+                            showWarningDialog("warning","No internet connection. Order will be performed in the future",null);
+                            break;
+                        default: //exception!
+                            showWarningDialog("error","Something went wrong!",null);
+                            break;
+                    }
+                } else {
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog("error","Server not available...",null);
                 }
             }
         });
@@ -235,7 +231,7 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
 
             // VERIFY signature
             Signature signature1 = Signature.getInstance("SHA1withRSA");
-            signature1.initVerify(getPublicKey());
+            signature1.initVerify(CustomLocalStorage.getPublicKey(currentActivity));
             signature1.update(voucher.getString("serial_id").getBytes());
             boolean verify_result = signature1.verify(sign);
 
@@ -249,37 +245,6 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
 
         }
         return true;
-    }
-
-    public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-
-        // reads the public key stored in a file
-        InputStream is = getResources().openRawResource(R.raw.public_key);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        List<String> lines = new ArrayList<String>();
-        String line = null;
-        while ((line = br.readLine()) != null)
-            lines.add(line);
-
-        // removes the first and last lines of the file (comments)
-        if (lines.size() > 1 && lines.get(0).startsWith("-----") && lines.get(lines.size()-1).startsWith("-----")) {
-            lines.remove(0);
-            lines.remove(lines.size()-1);
-        }
-
-        // concats the remaining lines to a single String
-        StringBuilder sb = new StringBuilder();
-        for (String aLine: lines)
-            sb.append(aLine);
-        String keyString = sb.toString();
-
-        // converts the String to a PublicKey instance
-        byte[] keyBytes = Base64.decodeBase64(keyString.getBytes("utf-8"));
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PublicKey key = keyFactory.generatePublic(spec);
-
-        return key;
     }
 
     /*public String decompress(String str) throws IOException{
@@ -318,18 +283,18 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         mScannerView.stopCamera();   // Stop camera on pause
     }
 
-    private void showWarningDialog(int type, String msg, String response) {
+    private void showWarningDialog(String type, String msg, String response) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         switch (type) {
-            case 0: //orange warning
+            case "warning": //orange warning
                 builder.setTitle("Warning");
                 builder.setIcon(R.drawable.ic_warning_orange_24dp);
                 break;
-            case 1: //red warning
+            case "error": //red warning
                 builder.setTitle("Error");
                 builder.setIcon(R.drawable.ic_warning_red_24dp);
                 break;
-            case 2: //success
+            case "success": //success
                 builder.setTitle("Success");
                 builder.setIcon(R.drawable.ic_check_circle_green_24dp);
 
