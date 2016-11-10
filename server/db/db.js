@@ -272,7 +272,7 @@ function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
 		[resultingOrder.order.user_id], function(error, result){
 		if(error){
 			callback({'error' : 'Error checking credit card in db!'});
-			return rollback(err, client, callback);
+			return rollback(err, client);
 		}
 
 		resultingOrder.order.user_name = result.rows[0].name;
@@ -365,7 +365,7 @@ function insertOrder_handleValidatedVouchers(client, order, resultingOrder, call
 	client.query('SELECT * from products WHERE id = $1 OR id = $2', [POPCORN_ID, COFFEE_ID], function(error, result){
 		if(error){
 			callback({'error' : 'Error getting popcorn/coffee prices from db!'});
-			return rollback(err, client, callback);
+			return rollback(err, client);
 		}
 
 		var coffee_price = -1, popcorn_price = -1;
@@ -751,6 +751,32 @@ function insertBlacklistedUser(user) {
 		});
 }
 
+function insertBlacklistedUsers(user_ids, callback) {
+	var client = openClient();
+	client.connect();
+	
+	var inserted_ids = [];
+	var completed_queries = 0;
+
+	for(var i = 0; i < user_ids.length; i++){
+		client.query('INSERT INTO blacklist (user_id) '+
+			'VALUES ($1) RETURNING *;',
+			[user_ids[i]], function(error,result) {
+				completed_queries++;
+				if(!error) {
+					completed_queries.push(result.rows[0].user_id);
+					console.log("USER BLACKLISTED: " + result.rows[0].user_id);
+				}
+
+				if(completed_queries == user_ids.length){
+					callback(inserted_ids);
+					client.end();
+				}
+				
+		});	
+	}	
+}
+
 function getBlacklist(callback) {
 	var client = openClient();
 	client.connect();
@@ -800,6 +826,7 @@ exports.insertCreditCard = insertCreditCard;
 exports.getValidVouchers = getValidVouchers;
 
 exports.insertBlacklistedUser = insertBlacklistedUser;
+exports.insertBlacklistedUsers = insertBlacklistedUsers;
 exports.getBlacklist = getBlacklist;
 
 

@@ -316,6 +316,22 @@ app.get('/blacklist', function (req, res) {
 	});
 });
 
+app.post('/blacklist', function (req, res) {
+	if(!req.body.blacklist){
+		res.status(404).send('No blacklist received!');
+		return;
+	}
+	try{
+		db.insertBlacklistedUsers(req.body.blacklist, function(result){
+			res.send({"inserted": result});
+		});
+
+	}
+	catch(e){
+		res.send({'error' : 'Problem inserting blacklist!'});
+	}
+});
+
 ///////////////////////////
 //////// OTHER ////////////
 ///////////////////////////
