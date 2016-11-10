@@ -162,6 +162,7 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:text="@string/vouchers"
+                    android:id="@+id/order_vouchers_title"
                     android:textSize="20sp"/>
 
                 <android.support.v7.widget.RecyclerView

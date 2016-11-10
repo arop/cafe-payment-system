@@ -1,21 +1,14 @@
 package com.example.andre.cafeterminalapp;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.example.andre.cafeterminalapp.order.Order;
 import com.example.andre.cafeterminalapp.order.ShowOrderActivity;
@@ -64,7 +57,8 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Scan Result");
-        builder.setMessage(rawResult.getText());
+        //builder.setMessage(rawResult.getText());
+        builder.setMessage("Successful scan");
         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -95,6 +89,12 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
     }
 
     public void sendInsertOrderToServer(final JSONObject result) throws JSONException {
+
+        if(Blacklist.getInstance(this).getBlacklist().contains(result.getString("user")) ||
+                Blacklist.getInstance(this).getPendingBlacklist().contains(result.getString("user"))) {
+            showWarningDialog(1,"You are blacklisted!",null);
+            return;
+        }
         insertOrderRequestProgressDialog.show();
         HashMap<String, String> order_params = new HashMap<>();
         RequestParams order = new RequestParams();
@@ -112,6 +112,17 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
                     String error = response.get("error").toString();
                     insertOrderRequestProgressDialog.dismiss();
                     showWarningDialog(0,error,null);
+                    return;
+                }
+                catch(JSONException e){
+                    //normal behaviour when there are no errors.
+                }
+
+                try{
+                    response.get("blacklist");
+                    insertOrderRequestProgressDialog.dismiss();
+                    showWarningDialog(1,"You are blacklisted!",null);
+                    Blacklist.getInstance(currentActivity).getBlacklistFromServer(currentActivity);
                     return;
                 }
                 catch(JSONException e){

@@ -154,6 +154,10 @@ public class ShowOrderActivity extends AppCompatActivity {
         // specify an adapter (see also next example)
         OrderVoucherItemAdapter mVouchersRecyclerAdapter = null;
         try {
+            if(order.getJSONArray("vouchers").length() == 0) {
+                ((TextView)findViewById(R.id.order_vouchers_title)).setText("");
+            }
+
             mVouchersRecyclerAdapter = new OrderVoucherItemAdapter(order.getJSONArray("vouchers"), this);
         } catch (JSONException e) {
             Log.e("json",e.getMessage());

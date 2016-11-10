@@ -15,9 +15,9 @@ import java.util.ArrayList;
 
 public class CustomLocalStorage {
 
-    public static final String PREFS_NAME = "Globals";
+    private static final String PREFS_NAME = "Globals";
 
-    public static void set(Activity activity, String key, String value){
+    private static void set(Activity activity, String key, String value){
         SharedPreferences sharedPref = activity.getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(key, value);
@@ -31,7 +31,7 @@ public class CustomLocalStorage {
         editor.commit();
     }
 
-    public static String getString(Activity activity, String key){
+    private static String getString(Activity activity, String key){
         SharedPreferences sharedPref = activity.getSharedPreferences(PREFS_NAME, 0);
         return sharedPref.getString(key, null);
     }

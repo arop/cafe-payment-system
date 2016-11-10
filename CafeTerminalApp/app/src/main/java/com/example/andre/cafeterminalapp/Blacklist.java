@@ -3,7 +3,6 @@ package com.example.andre.cafeterminalapp;
 import android.app.Activity;
 import android.util.Log;
 
-import com.example.andre.cafeterminalapp.order.Order;
 import com.example.andre.cafeterminalapp.utils.CustomLocalStorage;
 import com.example.andre.cafeterminalapp.utils.ServerRestClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -15,10 +14,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -47,11 +43,11 @@ public class Blacklist implements Serializable {
         this.pendingBlacklist = new ArrayList<>();
     }
 
-    public ArrayList<String> getBlacklist() {
+    ArrayList<String> getBlacklist() {
         return blacklist;
     }
 
-    public ArrayList<String> getPendingBlacklist() {
+    ArrayList<String> getPendingBlacklist() {
         return pendingBlacklist;
     }
 
@@ -63,7 +59,7 @@ public class Blacklist implements Serializable {
         }
     }
 
-    public static void saveBlacklist(Activity a) {
+    private static void saveBlacklist(Activity a) {
         try {
             CustomLocalStorage.saveBlacklist(a,Blacklist.getInstance(a));
         } catch (IOException e) {
@@ -71,7 +67,7 @@ public class Blacklist implements Serializable {
         }
     }
 
-    public void getBlacklistFromServer(final Activity currentActivity) {
+    void getBlacklistFromServer(final Activity currentActivity) {
 
         ServerRestClient.get("blacklist", null, new JsonHttpResponseHandler() {
             @Override
@@ -112,48 +108,47 @@ public class Blacklist implements Serializable {
         });
     }
 
-    public void sendPendingBlacklist(final Activity a) {
-            RequestParams b = new RequestParams();
-            b.put("blacklist",pendingBlacklist);
+    void sendPendingBlacklist(final Activity a) {
+        RequestParams b = new RequestParams();
+        b.put("blacklist",pendingBlacklist);
 
-            ServerRestClient.post("blacklist", b, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    try{
-                        String error = response.get("error").toString();
-                        return;
-                    }
-                    catch(JSONException e){
-                        //normal behaviour when there are no errors.
-                    }
-
-                    Log.e("inserted",response.toString());
-                    try {
-                        //if successful remove from unsent
-                        JSONArray toRemove = response.getJSONArray("inserted");
-                        for(int i = 0; i < toRemove.length(); i++) {
-                            pendingBlacklist.remove(toRemove.get(i));
-                        }
-
-                        getBlacklistFromServer(a);
-                    } catch (JSONException e) {
-                        Log.e("error json",e.getMessage());
-                    }
+        ServerRestClient.post("blacklist", b, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try{
+                    response.get("error").toString();
+                    return;
+                }
+                catch(JSONException e){
+                    //normal behaviour when there are no errors.
                 }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable) {
-                    Log.e("FAILURE:", "~JSON OBJECT - status: "+statusCode);
-                    Log.e("FAILURE:", error);
-                }
+                Log.e("inserted",response.toString());
+                try {
+                    //if successful remove from unsent
+                    JSONArray toRemove = response.getJSONArray("inserted");
+                    for(int i = 0; i < toRemove.length(); i++) {
+                        pendingBlacklist.remove(toRemove.get(i));
+                    }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
-                    Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
-                    Log.e("FAILURE:", "JSON OBJECT - status: "+statusCode);
+                    getBlacklistFromServer(a);
+                } catch (JSONException e) {
+                    Log.e("error json",e.getMessage());
                 }
-            });
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String error, Throwable throwable) {
+                Log.e("FAILURE:", "~JSON OBJECT - status: "+statusCode);
+                Log.e("FAILURE:", error);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject object) {
+                Log.e("FAILURE:", "some error I dont know how to handle. timeout?");
+                Log.e("FAILURE:", "JSON OBJECT - status: "+statusCode);
+            }
+        });
     }
-
 
 }
