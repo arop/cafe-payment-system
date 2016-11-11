@@ -642,10 +642,9 @@ function getPreviousOrders(user,offset,limit,callback) {
 		'SELECT orders.id AS order_id, products.id AS product_id, products.name AS product_name, '+
 		'order_items.quantity AS quantity, creditcards.number AS credit_card, orders.total_price, '+
 		'order_items.unit_price AS unit_price, orders.order_timestamp AS timestamp '+
-		'FROM (SELECT * FROM orders ORDER BY order_timestamp DESC WHERE user_id = $1 '+
+		'FROM (SELECT * FROM orders WHERE user_id = $1 ORDER BY order_timestamp DESC '+
 		'LIMIT $3 OFFSET $2 ) AS orders, order_items, products, creditcards '+
-		'WHERE orders.user_id = $1 '+
-		'AND order_items.order_id = orders.id '+
+		'WHERE order_items.order_id = orders.id '+
 		'AND order_items.product_id = products.id '+
 		'AND creditcards.id = orders.credit_card;',
 		[user.id,offset,limit],
