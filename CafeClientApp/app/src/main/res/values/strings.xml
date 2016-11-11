@@ -36,4 +36,5 @@
     <string name="title_activity_test_fab">TestFABActivity</string>
     <string name="title_activity_change_primary_credit_card">ChangePrimaryCreditCardActivity
     </string>
+    <string name="register">Register</string>
 </resources>

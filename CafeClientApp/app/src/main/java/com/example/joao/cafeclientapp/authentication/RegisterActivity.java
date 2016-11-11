@@ -38,14 +38,6 @@ import cz.msebera.android.httpclient.Header;
  */
 public class RegisterActivity extends AppCompatActivity {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "João Norim Bandeira", "norim_17@hotmail.com", "999999999", "5444640177212251", "235", "12/16"
-    };
-
     private Context context;
     private Activity currentActivity = this;
 
@@ -88,27 +80,13 @@ public class RegisterActivity extends AppCompatActivity {
         name_field = (EditText) findViewById(R.id.name);
         email_field = (EditText) findViewById(R.id.email);
         vat_number_field = (EditText) findViewById(R.id.vat_number);
+        credit_card_form = (CreditCardForm) findViewById(R.id.credit_card_form);
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        fillInputsWithDummyData();
-    }
-
-    private void fillInputsWithDummyData() {
-        //fill form with dummy info for testing
-        name_field.setText(DUMMY_CREDENTIALS[0]);
-        email_field.setText(DUMMY_CREDENTIALS[1]);
-        vat_number_field.setText(DUMMY_CREDENTIALS[2]);
-
-        credit_card_form = (CreditCardForm) findViewById(R.id.credit_card_form);
-        credit_card_form.setCardNumber(DUMMY_CREDENTIALS[3],false);
-        credit_card_form.setSecurityCode(DUMMY_CREDENTIALS[4],false);
-        credit_card_form.setExpDate(DUMMY_CREDENTIALS[5],false);
     }
 
     public void registerAction(View view){
-
         showProgress(true);
 
         //get all values
@@ -116,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = email_field.getText().toString();
         String vat_number = vat_number_field.getText().toString();
 
-        HashMap<String, String> user_params = new HashMap<String, String>();
+        HashMap<String, String> user_params = new HashMap<>();
         RequestParams user = new RequestParams();
 
         user_params.put("name", name);
@@ -279,10 +257,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) {
-        if (email == null)
-            return false;
-
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
 }
