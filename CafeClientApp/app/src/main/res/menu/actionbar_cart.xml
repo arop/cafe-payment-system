@@ -12,5 +12,10 @@
         android:id="@+id/actionButton"
         app:showAsAction="always"
         app:actionLayout="@layout/checkout_button"
-        android:title="Loading..." />
+        android:title="@string/loading" />
+
+    <item
+        android:id="@+id/cart_clear"
+        app:showAsAction="never"
+        android:title="@string/clear_cart" />
 </menu>
