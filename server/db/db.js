@@ -282,7 +282,7 @@ function insertOrder_insertProducts(client, order, resultingOrder, callback){
 }
 
 function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
-	client.query('SELECT name, number FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
+	client.query('SELECT name, number, expiration FROM users, creditcards WHERE users.id = $1 AND creditcards.id = users.primary_credit_card;',
 		[resultingOrder.order.user_id], function(error, result){
 		if(error){
 			callback({'error' : 'Error checking credit card in db!'});
@@ -291,6 +291,23 @@ function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
 
 		resultingOrder.order.user_name = result.rows[0].name;
 		resultingOrder.order.credit_card = result.rows[0].number;
+
+		var expiration_parts = result.rows[0].expiration.split('/');
+		var month = parseInt(expiration[0]);
+		var year = parseInt("20"+expiration[1]);
+		var currentTime = new Date()
+		var currentMonth = currentTime.getMonth() + 1;
+		var currentYear = currentTime.getFullYear()
+		var expiredCard = true;
+		if(year > currentYear || (year == currentYear && month >= currentMonth))
+			expiredCard = true;
+
+		if(expiredCard){
+			callback({'blacklist' : true});
+			rollback("blacklist", client);
+			insertBlacklistedUser(resultingOrder.order.user_id);
+			return;
+		}
 
 		insertOrder_checkVouchersValidity(client, order, resultingOrder, callback);
 		
