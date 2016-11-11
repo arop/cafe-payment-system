@@ -293,8 +293,8 @@ function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
 		resultingOrder.order.credit_card = result.rows[0].number;
 
 		var expiration_parts = result.rows[0].expiration.split('/');
-		var month = parseInt(expiration[0]);
-		var year = parseInt("20"+expiration[1]);
+		var month = parseInt(expiration_parts[0]);
+		var year = parseInt("20"+expiration_parts[1]);
 		var currentTime = new Date()
 		var currentMonth = currentTime.getMonth() + 1;
 		var currentYear = currentTime.getFullYear()
