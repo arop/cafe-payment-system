@@ -678,6 +678,11 @@ function getPreviousOrders(user,offset,limit,callback) {
     query.on('end', () => {
 		var number_orders_processed = 0;
 		var total_number_orders = Object.keys(results).length;
+		if(total_number_orders == 0){
+			callback(results);
+			client.end();
+			return;
+		}
     	for(var id in results){
     		(function(order_id){
     			client.query('SELECT * FROM vouchers WHERE order_id = $1;',
