@@ -300,7 +300,7 @@ function insertOrder_checkCreditCard(client, order, resultingOrder, callback){
 		var currentYear = currentTime.getFullYear()
 		var expiredCard = true;
 		if(year > currentYear || (year == currentYear && month >= currentMonth))
-			expiredCard = true;
+			expiredCard = false;
 
 		if(expiredCard){
 			callback({'blacklist' : true});
