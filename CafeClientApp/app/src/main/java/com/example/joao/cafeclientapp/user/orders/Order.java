@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.joao.cafeclientapp.menu.Product;
 import com.example.joao.cafeclientapp.user.User;
+import com.example.joao.cafeclientapp.user.vouchers.Voucher;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +25,7 @@ public class Order implements Parcelable{
     private int id;
     private long timestamp;
     private ArrayList<Product> items;
+    private ArrayList<Voucher> vouchers;
     private float totalPrice = 0;
     private String creditCard;
 
@@ -41,6 +43,15 @@ public class Order implements Parcelable{
             }
             totalPrice = Float.parseFloat(jsonObject.get("total_price").toString());
             creditCard = jsonObject.get("credit_card").toString();
+
+            JSONArray voucher_items = (JSONArray) jsonObject.get("vouchers");
+            vouchers = new ArrayList<Voucher>();
+
+            for (int i = 0; i < voucher_items.length(); ++i) {
+                Voucher p = new Voucher(voucher_items.getJSONObject(i));
+                vouchers.add(p);
+            }
+
         } catch (JSONException e) {
             Log.e("ORDER", "Problem in order constructor");
             e.printStackTrace();
@@ -58,6 +69,10 @@ public class Order implements Parcelable{
 
     public ArrayList<Product> getItems() {
         return items;
+    }
+
+    public ArrayList<Voucher> getVouchers() {
+        return vouchers;
     }
 
     public float getTotalPrice() {
@@ -88,6 +103,8 @@ public class Order implements Parcelable{
         timestamp = in.readLong();
         items = new ArrayList<Product>();
         in.readList(items, Order.class.getClassLoader());
+        vouchers = new ArrayList<Voucher>();
+        in.readList(vouchers, Order.class.getClassLoader());
         totalPrice = in.readFloat();
         creditCard = in.readString();
     }
@@ -102,6 +119,7 @@ public class Order implements Parcelable{
         dest.writeInt(id);
         dest.writeLong(timestamp);
         dest.writeList(items);
+        dest.writeList(vouchers);
         dest.writeFloat(totalPrice);
         dest.writeString(creditCard);
     }

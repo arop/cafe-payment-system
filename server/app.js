@@ -229,7 +229,7 @@ app.post('/pasttransactions', function(req, res){
 		} else {
 			var offset = 0;
 			if(req.body.offset) offset = req.body.offset;
-
+			console.warn("offset: " + offset);
 			db.getPreviousOrders(user,offset,10,function(orders){
 				console.log(orders);
 				if(orders == null) {
