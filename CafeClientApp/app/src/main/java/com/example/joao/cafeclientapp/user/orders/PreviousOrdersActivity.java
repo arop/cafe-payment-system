@@ -42,6 +42,13 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
     private PreviousOrderItemAdapter mAdapter;
     private SwipeRefreshLayout swipeContainer;
 
+    private int previousTotal = 0;
+    private boolean loading = true;
+    private int visibleThreshold = 5;
+    int firstVisibleItem, visibleItemCount, totalItemCount;
+    int offset = 0;
+    private boolean stopRequest = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,22 +63,9 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         setSupportActionBar(toolbar);
         setTitle("Orders");
 
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.previous_orders_recycler_view);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
+        setRecyclerView();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // specify an adapter (see also next example)
-        mAdapter = new PreviousOrderItemAdapter(orders,this);
-        mRecyclerView.setAdapter(mAdapter);
 
         ///////////////////////////////////////////
         ////////// SETUP SWIPE REFRESH ////////////
@@ -81,17 +75,71 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                offset = 0;
+                stopRequest = false;
                 // Your code to refresh the list here.
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
-                fetchOrdersAsync();
+                fetchOrdersAsync(offset);
             }
         });
-        
-        
+
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
 
+        setNavigationDrawer(toolbar);
+        /////////////////////////////////////////////
+
+        swipeContainer.setRefreshing(true);
+        fetchOrdersAsync(offset);
+    }
+
+    private void setRecyclerView() {
+        final RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.previous_orders_recycler_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        final LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter (see also next example)
+        mAdapter = new PreviousOrderItemAdapter(orders,this);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                visibleItemCount = mRecyclerView.getChildCount();
+                totalItemCount = mLayoutManager.getItemCount();
+                firstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+
+                if (loading) {
+                    if (totalItemCount > previousTotal) {
+                        loading = false;
+                        previousTotal = totalItemCount;
+                    }
+                }
+                if (!stopRequest && !loading && (totalItemCount - visibleItemCount)
+                        <= (firstVisibleItem + visibleThreshold)) {
+                    // End has been reached
+                    // Do something
+                    offset++;
+                    fetchOrdersAsync(offset);
+
+                    loading = true;
+                }
+            }
+        });
+
+    }
+
+    private void setNavigationDrawer(Toolbar toolbar) {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -103,15 +151,9 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
         navigationView.setCheckedItem(R.id.nav_orders);
         NavigationDrawerUtils.setUser(navigationView, this);
-        /////////////////////////////////////////////
-
-        swipeContainer.setRefreshing(true);
-        fetchOrdersAsync();
     }
 
-
-    public void fetchOrdersAsync(){
-
+    public void fetchOrdersAsync(final int offset){
         RequestParams params = new RequestParams();
 
         HashMap<String, String> user_params = new HashMap<>();
@@ -120,7 +162,7 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         params.put("user",user_params);
         Log.d("user", user_params.toString());
 
-        params.put("offset", 0);
+        params.put("offset", offset);
 
         ServerRestClient.post("pasttransactions", params, new JsonHttpResponseHandler() {
             @Override
@@ -130,9 +172,13 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
                 Log.d("response", response.toString());
                 try {
                     JSONObject orders_response = (JSONObject) response.get("orders");
-                    orders = new ArrayList<>();
+
+                    if(offset == 0)
+                        orders = new ArrayList<>();
 
                     Iterator<?> keys = orders_response.keys();
+                    if(!keys.hasNext())
+                        stopRequest = true;
                     while( keys.hasNext() ) {
                         String key = (String)keys.next();
                         Order o = new Order((JSONObject) orders_response.get(key));
