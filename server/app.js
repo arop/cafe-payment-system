@@ -228,9 +228,9 @@ app.post('/pasttransactions', function(req, res){
 			res.send({"error" : "Wrong credentials!"});
 		} else {
 			var offset = 0;
-			if(req.body.offset) offset = req.body.offset;
-
-			db.getPreviousOrders(user,offset,10,function(orders){
+			if(req.body.offset) offset = parseInt(req.body.offset);
+			console.warn("offset: " + offset);
+			db.getPreviousOrders(user,offset*10,10,function(orders){
 				console.log(orders);
 				if(orders == null) {
 					res.send({"error" : "Error getting orders!"});

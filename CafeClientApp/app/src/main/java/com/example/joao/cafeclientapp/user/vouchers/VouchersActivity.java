@@ -184,7 +184,7 @@ public class VouchersActivity extends AppCompatActivity implements NavigationVie
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         // TODO change to custom toolbar
-        inflater.inflate(R.menu.actionbar_cart, menu);
+        inflater.inflate(R.menu.actionbar_vouchers, menu);
         this.menu = menu;
         return true;
     }

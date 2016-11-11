@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
 import com.example.joao.cafeclientapp.R;
+import com.example.joao.cafeclientapp.user.vouchers.VoucherItemAdapter;
 
 public class ShowOrderActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -176,6 +177,24 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
                     mRecyclerView.setAdapter(mRecyclerAdapter);
                     break;
                 }
+
+                case 3:{
+                    rootView = inflater.inflate(R.layout.fragment_show_order_vouchers, container, false);
+                    RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.order_vouchers_recycler_view);
+
+                    // use this setting to improve performance if you know that changes
+                    // in content do not change the layout size of the RecyclerView
+                    mRecyclerView.setHasFixedSize(true);
+
+                    // use a linear layout manager
+                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(activity);
+                    mRecyclerView.setLayoutManager(mLayoutManager);
+
+                    // specify an adapter (see also next example)
+                    VoucherItemAdapter mRecyclerAdapter = new VoucherItemAdapter(order.getVouchers(), activity);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
+                    break;
+                }
             }
 
             return rootView;
@@ -202,7 +221,7 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 2;
+            return 3;
         }
 
         @Override
@@ -212,6 +231,8 @@ public class ShowOrderActivity extends AppCompatActivity implements NavigationVi
                     return "Details";
                 case 1:
                     return "Products";
+                case 2:
+                    return "Vouchers";
             }
             return null;
         }

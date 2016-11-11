@@ -676,7 +676,30 @@ function getPreviousOrders(user,offset,limit,callback) {
     });
     // After all data is returned, close connection and return results
     query.on('end', () => {
-      callback(results);
+		var number_orders_processed = 0;
+		var total_number_orders = Object.keys(results).length;
+		if(total_number_orders == 0){
+			callback(results);
+			client.end();
+			return;
+		}
+    	for(var id in results){
+    		(function(order_id){
+    			client.query('SELECT * FROM vouchers WHERE order_id = $1;',
+    				[id], function(error, result){
+    					if(error)
+    						results[id].vouchers = [];
+    					else {
+    						results[id].vouchers = result.rows;
+    					}
+
+    					if(++number_orders_processed == total_number_orders){
+    						callback(results);
+    						client.end();
+    					}
+    			});
+    		})(id);
+    	}
     });
 }
 
