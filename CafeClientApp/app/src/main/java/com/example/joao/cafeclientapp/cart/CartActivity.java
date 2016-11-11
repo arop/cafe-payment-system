@@ -24,9 +24,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.joao.cafeclientapp.NavigationDrawerUtils;
-import com.example.joao.cafeclientapp.PinAskActivity;
 import com.example.joao.cafeclientapp.R;
 import com.example.joao.cafeclientapp.user.vouchers.Voucher;
 
@@ -71,7 +71,6 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
         currentVouchers = Voucher.getVouchersInstance(this);
 
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         /////////////////////////////////////////////
         ///////////// NAVIGATION DRAWER /////////////
@@ -120,12 +119,29 @@ public class CartActivity extends AppCompatActivity implements NavigationView.On
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Intent is what you use to start another activity
-                Intent intent = new Intent(currentActivity, CartPinAskActivity.class);
-                intent.putParcelableArrayListExtra("vouchers", ((VoucherSelectItemAdapter) vouchersAdapter).getSelectedVouchers());
-                currentActivity.startActivity (intent);
+                if(!currentCart.getProducts().isEmpty()) {
+                    // Intent is what you use to start another activity
+                    Intent intent = new Intent(currentActivity, CartPinAskActivity.class);
+                    intent.putParcelableArrayListExtra("vouchers", ((VoucherSelectItemAdapter) vouchersAdapter).getSelectedVouchers());
+                    currentActivity.startActivity(intent);
+                } else {
+                    Toast.makeText(currentActivity.getApplicationContext(),"Please choose products first!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+        MenuItem clearCartItem = menu.findItem(R.id.cart_clear);
+        clearCartItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Cart.getInstance(currentActivity).resetCart();
+                ((CartItemAdapter)cartAdapter).refreshDataSet();
+                refreshCartTotalPrice();
+                currentCart.saveCart(currentActivity);
+                return true;
+            }
+        });
+
         // Handle button click here
         return super.onPrepareOptionsMenu(menu);
     }
