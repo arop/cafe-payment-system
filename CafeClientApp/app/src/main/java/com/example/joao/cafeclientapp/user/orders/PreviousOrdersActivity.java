@@ -77,6 +77,8 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
             public void onRefresh() {
                 offset = 0;
                 stopRequest = false;
+                loading = true;
+                previousTotal = 0;
                 // Your code to refresh the list here.
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
@@ -131,7 +133,6 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
                     // Do something
                     offset++;
                     fetchOrdersAsync(offset);
-
                     loading = true;
                 }
             }
