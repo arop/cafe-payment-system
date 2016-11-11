@@ -25,8 +25,6 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
 
     private final Activity currentActivity;
     private ArrayList<Order> dataset;
-    private View selectedItem;
-
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -50,14 +48,10 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
 
         @Override
         public void onClick(final View view) {
-
-            Log.i("click",itemPosition+"");
             Intent i = new Intent(currentActivity, ShowOrderActivity.class);
             i.putExtra("order", dataset.get(itemPosition));
             currentActivity.startActivity(i);
-
         }
-
     }
 
     public PreviousOrderItemAdapter(ArrayList<Order> orders, Activity a){
@@ -89,24 +83,9 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
         date.setText(df.format(d));
         total_price.setText(String.format( "%.2f", dataset.get(position).getTotalPrice() )+"€");
 
-        /*addProductToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        removeProductFromCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
-
         PreviousOrderItemAdapter.OnItemClickListener clickListener = new PreviousOrderItemAdapter.OnItemClickListener(position);
         holder.mView.setOnClickListener(clickListener);
     }
-
 
     public void addAll(ArrayList<Order> p) {
         this.dataset = new ArrayList<>(p);
@@ -122,6 +101,4 @@ public class PreviousOrderItemAdapter extends RecyclerView.Adapter<PreviousOrder
         this.dataset.clear();
         this.notifyDataSetChanged();
     }
-
-
 }

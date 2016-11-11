@@ -26,6 +26,8 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -35,8 +37,6 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
 
     private Activity currentActivity;
     private Context context;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
 
     private ArrayList<Order> orders;
     private PreviousOrderItemAdapter mAdapter;
@@ -50,20 +50,20 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
         this.currentActivity = this;
         this.context = getApplicationContext();
 
-        this.orders = new ArrayList<Order>();
+        this.orders = new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Orders");
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.previous_orders_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.previous_orders_recycler_view);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
@@ -130,7 +130,7 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
                 Log.d("response", response.toString());
                 try {
                     JSONObject orders_response = (JSONObject) response.get("orders");
-                    orders = new ArrayList<Order>();
+                    orders = new ArrayList<>();
 
                     Iterator<?> keys = orders_response.keys();
                     while( keys.hasNext() ) {
@@ -138,6 +138,15 @@ public class PreviousOrdersActivity extends AppCompatActivity implements Navigat
                         Order o = new Order((JSONObject) orders_response.get(key));
                         orders.add(o);
                     }
+
+                    // Sorting
+                    Collections.sort(orders, new Comparator<Order>() {
+                        @Override
+                        public int compare(Order order2, Order order1)
+                        {
+                            return Long.compare(order1.getTimestamp(),order2.getTimestamp());
+                        }
+                    });
 
                     refreshAdapterData();
 

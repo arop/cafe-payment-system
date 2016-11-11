@@ -19,7 +19,6 @@ public class OrderProductItemAdapter extends RecyclerView.Adapter<OrderProductIt
 
     private final Activity mActivity;
     private ArrayList<Product> dataset;
-    private View selectedItem;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -31,50 +30,6 @@ public class OrderProductItemAdapter extends RecyclerView.Adapter<OrderProductIt
             super(v);
             mView = v;
         }
-    }
-
-    public class OnItemClickListener implements View.OnClickListener {
-
-        private final int itemPosition;
-
-        public OnItemClickListener(int position){
-            this.itemPosition = position;
-        }
-
-        @Override
-        public void onClick(final View view) {
-            View add_btn = view.findViewById(R.id.cart_product_add);
-            View rem_btn = view.findViewById(R.id.cart_product_remove);
-
-            if(add_btn.getVisibility() == View.VISIBLE){ //if already visible
-                if(view.equals(selectedItem)) //currently selected is this object
-                    selectedItem = null; //no object will be selected. click works as "deselect"
-                makeInvisible(add_btn, rem_btn);
-            }
-            else{
-                View oldSelected = selectedItem;
-                selectedItem = view; //update currently selected item
-                if(oldSelected != null){ //if there was a previously selected item
-                    oldSelected.callOnClick(); //call its onclick, to make its buttons invisble
-                }
-                makeVisible(add_btn, rem_btn);
-            }
-        }
-
-        private void makeVisible(View add_btn, View rem_btn) {
-            add_btn.setVisibility(View.VISIBLE);
-            rem_btn.setVisibility(View.VISIBLE);
-            /*add_btn.animate().alpha(1.0f).setDuration(500);
-            rem_btn.animate().alpha(1.0f).setDuration(500);*/
-        }
-
-        private void makeInvisible(View add_btn, View rem_btn) {
-            add_btn.setVisibility(View.INVISIBLE);
-            rem_btn.setVisibility(View.INVISIBLE);
-            /*add_btn.animate().alpha(0.0f).setDuration(500);
-            rem_btn.animate().alpha(0.0f).setDuration(500);*/
-        }
-
     }
 
     public OrderProductItemAdapter(ArrayList<Product> products, Activity a){
@@ -107,9 +62,6 @@ public class OrderProductItemAdapter extends RecyclerView.Adapter<OrderProductIt
         quantityView.setText(product.getQuantity()+"");
         unitPriceView.setText(String.format( "%.2f", product.getPrice() )+"€");
         totalPriceView.setText(String.format( "%.2f", product.getPrice()*product.getQuantity() )+"€");
-
-        OnItemClickListener clickListener = new OnItemClickListener(position);
-        holder.mView.setOnClickListener(clickListener);
     }
 
     @Override
