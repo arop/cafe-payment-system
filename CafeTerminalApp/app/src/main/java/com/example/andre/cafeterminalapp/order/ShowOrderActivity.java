@@ -198,9 +198,6 @@ public class ShowOrderActivity extends AppCompatActivity {
 
         CreditCardForm ccform = (CreditCardForm) findViewById(R.id.credit_card_form);
         ccform.setCardNumber(order.getString("credit_card"),false);
-
-
-        //TODO set vouchers list
     }
 
     /////////////////////////////////////////////

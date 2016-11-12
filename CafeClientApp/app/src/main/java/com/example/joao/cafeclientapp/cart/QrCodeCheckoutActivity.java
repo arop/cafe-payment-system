@@ -70,12 +70,12 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         Gson gson = new Gson();
         Cart current_cart = Cart.getInstance(this);
         Map<Integer, Product> products = current_cart.getProducts();
-        Map<Integer, Integer> products_quantity = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> products_quantity = new HashMap<>();
         for(Product p : products.values()){
             products_quantity.put(p.getId(), p.getQuantity());
         }
 
-        Map<String, Object> future_json = new HashMap<String, Object>();
+        Map<String, Object> future_json = new HashMap<>();
         future_json.put("user", CustomLocalStorage.getString(this, "uuid"));
         future_json.put("cart", products_quantity);
         future_json.put("vouchers", vouchers);

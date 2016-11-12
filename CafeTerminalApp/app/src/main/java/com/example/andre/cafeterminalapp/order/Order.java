@@ -1,6 +1,7 @@
 package com.example.andre.cafeterminalapp.order;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -103,16 +105,16 @@ public class Order implements Serializable {
         unsentOrders.add(o);
     }
 
-    public static void sendUnsentOrders(Activity a) {
+    static void sendUnsentOrders(Activity a) {
         for (Order o: unsentOrders) {
             if(Blacklist.isBlacklisted(o.getUser_id())) {
                 unsentOrders.remove(o);
             }
-            else sendUnsentOrder(o, a);
+            else sendUnsentOrder(o, a, false);
         }
     }
 
-    private static void sendUnsentOrder(final Order o, final Activity a) {
+    static void sendUnsentOrder(final Order o, final Activity a, final boolean isSingle) {
         HashMap<String, String> order_params = new HashMap<>();
         RequestParams order = new RequestParams();
 
@@ -142,9 +144,19 @@ public class Order implements Serializable {
                     Toast.makeText(a, "Order successfull", Toast.LENGTH_SHORT).show();
                 }
 
-                Log.e("order",response.toString());
-                unsentOrders.remove(o);
-                Order.saveUnsentOrders(a);
+                try {
+                    unsentOrders.remove(o);
+                    Order.saveUnsentOrders(a);
+                    ((PendingOrdersActivity) a).mAdapter.notifyDataSetChanged();
+
+                    if(isSingle) {
+                        Intent intent = new Intent(a, ShowOrderActivity.class);
+                        intent.putExtra("order", response.getJSONObject("order").toString());
+                        a.startActivity(intent);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -183,5 +195,16 @@ public class Order implements Serializable {
         if (vouchers != null ? !vouchers.equals(order.vouchers) : order.vouchers != null)
             return false;
         return timestamp.equals(order.timestamp);
+    }
+
+    public int getNumProducts() throws JSONException {
+        JSONObject prods_array = new JSONObject(products);
+        int total = 0;
+        Iterator<?> keys = prods_array.keys();
+        while( keys.hasNext() ) {
+            String key = (String) keys.next();
+            total += prods_array.getInt(key);
+        }
+        return total;
     }
 }

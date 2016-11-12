@@ -13,19 +13,29 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".CameraActivity"
-            android:label="@string/title_activity_camera">
-        </activity>
+            android:label="@string/title_activity_camera"></activity>
         <activity
             android:name=".order.ShowOrderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_show_order"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".order.PendingOrdersActivity"
+            android:label="@string/title_activity_pending_orders"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.andre.cafeterminalapp.MainActivity" />
         </activity>
     </application>
 

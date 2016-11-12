@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.andre.cafeterminalapp.order.Order;
+import com.example.andre.cafeterminalapp.order.PendingOrdersActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         unsentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Order.sendUnsentOrders(currentActivity);
+                startActivity(new Intent(currentActivity, PendingOrdersActivity.class));
             }
         });
 
