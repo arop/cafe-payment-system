@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +14,13 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".CameraActivity"
-            android:label="@string/title_activity_camera"></activity>
+            android:label="@string/title_activity_camera">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".order.ShowOrderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

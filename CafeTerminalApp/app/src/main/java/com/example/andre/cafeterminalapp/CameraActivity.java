@@ -5,10 +5,17 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.andre.cafeterminalapp.order.Order;
 import com.example.andre.cafeterminalapp.order.ShowOrderActivity;
@@ -36,7 +43,9 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class CameraActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class CameraActivity extends AppCompatActivity
+        implements ZXingScannerView.ResultHandler,
+        NfcAdapter.ReaderCallback {
 
     private ZXingScannerView mScannerView;
     private Activity currentActivity;
@@ -50,6 +59,12 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
         setContentView(R.layout.activity_camera);
 
         currentActivity = this;
+
+        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if(mNfcAdapter == null) {
+            Toast.makeText(this, "NFC not available on this device",
+                    Toast.LENGTH_SHORT).show();
+        }
 
         insertOrderRequestProgressDialog = new ProgressDialog(this);
         insertOrderRequestProgressDialog.setTitle("Loading");
@@ -314,5 +329,39 @@ public class CameraActivity extends AppCompatActivity implements ZXingScannerVie
             }
         });
         builder.show();
+    }
+
+
+    //////////////////////////////////
+    private void handleNfcIntent(Intent NfcIntent) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(NfcIntent.getAction())) {
+            Parcelable[] receivedArray =
+                    NfcIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+            if(receivedArray != null) {
+                NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
+                NdefRecord[] attachedRecords = receivedMessage.getRecords();
+
+                for (NdefRecord record:attachedRecords) {
+                    String string = new String(record.getPayload());
+                    //Make sure we don't pass along our AAR (Android Application Record)
+                    if (string.equals(getPackageName())) { continue; }
+                    //messagesReceivedArray.add(string);
+                    Log.e("payload", string);
+                }
+                //Toast.makeText(this, "Received " + messagesReceivedArray.size() +
+                //               " Messages", Toast.LENGTH_LONG).show();
+                //updateTextViews();
+            }
+            else {
+                Toast.makeText(this, "Received Blank Parcel", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void onTagDiscovered(Tag tag) {
+        Log.e("tag", tag.toString());
+        handleNfcIntent(getIntent());
     }
 }

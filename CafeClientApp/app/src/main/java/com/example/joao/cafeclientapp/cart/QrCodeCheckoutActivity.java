@@ -3,6 +3,10 @@ package com.example.joao.cafeclientapp.cart;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,12 +54,16 @@ import java.util.zip.GZIPOutputStream;
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 
-public class QrCodeCheckoutActivity extends AppCompatActivity {
+public class QrCodeCheckoutActivity extends AppCompatActivity
+        implements NfcAdapter.OnNdefPushCompleteCallback,
+        NfcAdapter.CreateNdefMessageCallback{
 
     private Activity currentActivity;
     private ImageView qrcodeView;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
+    private NfcAdapter mNfcAdapter;
+    private String jsonToSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +76,51 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         ArrayList<Voucher> vouchers = origin.getParcelableArrayListExtra("vouchers");
 
         /////// GENERATE JSON to be sent to terminal via QR CODE //////
+        jsonToSend = generateJSON(vouchers);
+        //////////////////// END of JSON generation //////////////////
+
+        qrcodeView = (ImageView) findViewById(R.id.qrcode);
+        try {
+            //String compressedJson = compress(json_str);
+            /*String toEncodeFull = json_str;
+            String toEncodeProcessed = decompress(compress(json_str));
+            Log.d("encode", "full size: " + toEncodeFull.length());
+            Log.d("encode", "comp size: " + compressedJson.length());
+            Log.d("encode", "proc size: " + toEncodeProcessed.length());
+            Log.d("encode", "full: " + toEncodeFull);
+            Log.d("encode", "proc: " + toEncodeProcessed);*/
+            Bitmap bitmap = encodeAsBitmap(jsonToSend);
+            qrcodeView.setImageBitmap(bitmap);
+            qrcodeView.invalidate();
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (mNfcAdapter == null) {
+            // Stop here, we definitely need NFC
+            //Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            Log.e("nfc","This device doesn't support NFC");
+            //finish();
+            //return;
+        } else {
+            //This will refer back to createNdefMessage for what it will send
+            mNfcAdapter.setNdefPushMessageCallback(this, this);
+
+            //This will be called if the message is sent successfully
+            mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
+        }
+
+        if (!mNfcAdapter.isEnabled()) {
+            Log.e("nfc","NFC is disabled");
+        } else {
+            //mTextView.setText(R.string.explanation);
+        }
+
+    }
+
+    private String generateJSON(ArrayList<Voucher> vouchers) {
         Gson gson = new Gson();
         Cart current_cart = Cart.getInstance(this);
         Map<Integer, Product> products = current_cart.getProducts();
@@ -82,25 +136,7 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         future_json.put("pin", CustomLocalStorage.getString(this, "pin"));
         String json_str = gson.toJsonTree(future_json).toString();
         Log.d("json cart", json_str);
-        //////////////////// END of JSON generation //////////////////
-
-
-        qrcodeView = (ImageView) findViewById(R.id.qrcode);
-        try {
-            //String compressedJson = compress(json_str);
-            /*String toEncodeFull = json_str;
-            String toEncodeProcessed = decompress(compress(json_str));
-            Log.d("encode", "full size: " + toEncodeFull.length());
-            Log.d("encode", "comp size: " + compressedJson.length());
-            Log.d("encode", "proc size: " + toEncodeProcessed.length());
-            Log.d("encode", "full: " + toEncodeFull);
-            Log.d("encode", "proc: " + toEncodeProcessed);*/
-            Bitmap bitmap = encodeAsBitmap(json_str);
-            qrcodeView.setImageBitmap(bitmap);
-            qrcodeView.invalidate();
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
+        return json_str;
     }
 
 
@@ -177,6 +213,7 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Cart.getInstance(currentActivity).resetCart();
+                Cart.getInstance(currentActivity).saveCart(currentActivity);
                 Intent intent = new Intent(currentActivity, ShowMenuActivity.class);
                 currentActivity.startActivity (intent);
                 currentActivity.finish();
@@ -184,5 +221,25 @@ public class QrCodeCheckoutActivity extends AppCompatActivity {
         });
         // Handle button click here
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(NfcEvent event) {
+        //byte[] payload = jsonToSend.
+          //      getBytes(Charset.forName("UTF-8"));
+
+        return new NdefMessage(
+                new NdefRecord[] {
+                        NdefRecord.createMime("text/plain", jsonToSend.getBytes()),
+                        NdefRecord.createApplicationRecord(getPackageName()) });
+    }
+
+    @Override
+    public void onNdefPushComplete(NfcEvent event) {
+        Cart.getInstance(currentActivity).resetCart();
+        Cart.getInstance(currentActivity).saveCart(currentActivity);
+        Intent intent = new Intent(currentActivity, ShowMenuActivity.class);
+        currentActivity.startActivity (intent);
+        currentActivity.finish();
     }
 }
