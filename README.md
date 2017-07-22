@@ -1,5 +1,5 @@
 # cafe-payment-system
-Order and pay with an Android app for a cafeteria franchising. Backend server in Node.js
+Order and pay with an Android app for a cafeteria franchising, with Node.js backend server.
 
 2 Android apps.
 * Client app - make orders, get previous orders, etc
