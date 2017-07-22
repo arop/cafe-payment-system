@@ -6,7 +6,7 @@ Order and pay Android app for a cafeteria franchising
 * Terminal app - scan orders, check pending orders, etc
 
 1 server (nodeJS)
-* Preform transactions between apps and database
+* Perform transactions between apps and database
 
 ## Screenshots
 <img src="screenshots/01.png" width="250">
